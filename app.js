@@ -5,11 +5,15 @@
   const S = {
     risk: {}, seven: {}, resource: 'ปานกลาง', params: Object.assign({}, E.DEFAULT_PARAMS),
     status: {}, aar: '',
-    ui: { step: 1, rtab: 'risk', riskDom: 'V', sevEl: 'STG', stratDom: 'V', bank: { q: '', dom: '', el: '', t3: '', res: '' } },
+    ui: { step: 1, rtab: 'risk', riskDom: 'V', sevEl: 'STG', stratDom: 'V', bank: { q: '', dom: '', el: '', t3: '', res: '', ev: '' } },
   };
   const BUNDLED_BANK = D.bank.slice();
   const cd = (x) => x.sb || x.id; // รหัสที่แสดง: SB-xxx (ตามดุษฎีนิพนธ์) ถ้าไม่มีใช้รหัสเดิม
-  const extra = (x) => [['กลุ่มเป้าหมาย', x.target], ['เงื่อนไขก่อนดำเนินการ', x.prereq], ['ทรัพยากรที่ต้องใช้', x.resources], ['ผลผลิต', x.output], ['ผลลัพธ์ที่คาดหวัง', x.outcome], ['ประเภท TOWS', x.tows ? x.tows + ' (ตรรกะที่มาของมาตรการ ไม่ใช่สถานะของโรงเรียน)' : ''], ['ลำดับ QSPM ในประเด็นเดียวกัน (1 = ดีที่สุด)', x.qpri],['สถานะหลักฐาน', x.evid], ['สถานะมาตรการ', x.status]].filter((p) => p[1]);
+  const extra = (x) => [['กลุ่มเป้าหมาย', x.target], ['เงื่อนไขก่อนดำเนินการ', x.prereq], ['ทรัพยากรที่ต้องใช้', x.resources], ['ผลผลิต', x.output], ['ผลลัพธ์ที่คาดหวัง', x.outcome], ['ประเภท TOWS', x.tows ? x.tows + ' (ตรรกะที่มาของมาตรการ ไม่ใช่สถานะของโรงเรียน)' : ''], ['ลำดับ QSPM ในประเด็นเดียวกัน (1 = ดีที่สุด)', x.qpri], ['ระดับหลักฐาน', x.evg ? x.evg + ' · ' + (EVG_TXT[x.evg] || '') : ''], ['แหล่งหลักฐาน', x.evsrc], ['สิ่งที่หลักฐานรองรับและข้อจำกัด', x.evnote], ['สถานะตรวจหลักฐาน', x.evid], ['สถานะมาตรการ', x.status]].filter((p) => p[1]);
+  const EVG_TXT = { A: 'มีทบทวนเชิงระบบรองรับ', B: 'รองรับบางส่วนหรือผลผสม', C: 'มีนโยบายหรือกฎหมายรองรับ ยังไม่มีงานวัดผล', D: 'ยังไม่พบหลักฐาน' };
+  const evBadge = (x) => x.evg ? '<div class="evb"><span class="chip ' + (x.evg === 'A' || x.evg === 'B' ? 'ok' : 'warn') + '" title="' + esc(x.evnote || '') + '">หลักฐานระดับ ' + esc(x.evg) + ' · ' + esc(EVG_TXT[x.evg] || '') + '</span>' + (x.evsrc ? ' <span class="muted">' + esc(x.evsrc) + '</span>' : '') + '</div>' : '';
+  const preHtml = (m) => (m.prereqInfo || []).length ? '<div class="pre"><b>ควรมีก่อน:</b> ' + m.prereqInfo.map((p) => esc(p.sb + (p.name ? ' ' + p.name : '')) + ' ' + (p.selected ? '<span class="chip ok">อยู่ในรายการนี้</span>' : '<span class="chip warn">ไม่อยู่ในรายการ ตรวจว่ามีอยู่แล้วหรือไม่</span>')).join('; ') + '</div>' : '';
+  const stretchHtml = (dom) => (dom.stretch && dom.stretch.length) ? '<div class="card"><h3>เหมาะกับโรงเรียน แต่เกินทรัพยากรที่มี (' + dom.stretch.length + ' ข้อ)</h3><p class="hint">ไม่รวมในรายการหลัก ควรพิจารณาขอสนับสนุนจากต้นสังกัดหรือเครือข่าย ผู้อำนวยการเป็นผู้ตัดสิน</p>' + dom.stretch.map((m) => '<div class="m"><h4>' + esc(m.name) + ' <span class="pill">' + cd(m) + '</span></h4><div>' + esc(m.desc) + '</div><div class="meta"><span>ทรัพยากรระดับ ' + m.res + '</span><span>ผู้รับผิดชอบ: ' + esc(m.owner) + '</span></div>' + evBadge(m) + '<div class="why">' + esc(m.why) + '</div></div>').join('') + '</div>' : '';
   const extraHtml = (x) => { const e = extra(x); return e.length ? '<details class="xd"><summary>รายละเอียดเพิ่มเติม</summary><dl>' + e.map((p) => '<dt>' + esc(p[0]) + '</dt><dd>' + esc(p[1]) + '</dd>').join('') + '</dl></details>' : ''; };
   const BANKSRC = { source: 'ฝังในเว็บ', version: '', updated: '', note: '', error: '', loading: false };
   const SHORT_DOM = { V: 'ความรุนแรงของมนุษย์', A: 'อุบัติเหตุและภัยพิบัติ', P: 'การละเมิดสิทธิ', H: 'สุขภาวะกายและจิตใจ' };
@@ -207,8 +211,8 @@
     s += '<div class="grid g21"><div class="stack">';
     s += '<div class="card pkg"><div class="lab" style="color:#5d6c80;font-size:.85rem">' + esc(dom.code + ' ' + dom.name) + ' · ความเสี่ยง ' + riskTag(dom.risk) + ' × ความพร้อม ' + readyTag(dom.ready) + '</div><div class="big">' + dom.group + ' ' + esc(dom.pkg.name) + '</div><div>' + esc(dom.pkg.summary) + '</div>' +
       '<div class="legend-row"><span>เริ่มดำเนินการ: <b>' + esc(dom.pkg.start) + '</b></span><span>รอบทบทวน: <b>' + esc(dom.pkg.review) + '</b></span></div><b style="display:block;margin-top:8px">ชุดการตัดสินใจ 6 ข้อ</b><ol>' + dom.pkg.decisions.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ol></div>';
-    s += '<div class="card"><h3>มาตรการที่เสนอ (' + dom.measures.length + ' ข้อ)</h3><p class="hint">เรียงตามความตรงกับองค์ประกอบ 7-S ที่ช่องว่างสูงสุด แล้วตามลำดับในคลัง แถบสีเขียวคือมาตรการที่ตอบ 3 อันดับช่องว่างสูงสุด</p><div class="meas">' +
-      dom.measures.map((m) => '<div class="m' + (m.top ? ' top' : '') + '"><h4>' + m.order + '. ' + esc(m.name) + ' <span class="pill">' + cd(m) + '</span></h4><div>' + esc(m.desc) + '</div><div class="meta"><span class="pill teal">' + esc(SHORT_EL[m.elem]) + '</span><span>ประเภท: ' + esc(m.type3) + '</span><span>ทรัพยากรระดับ ' + m.res + '</span><span>ผู้รับผิดชอบ: ' + esc(m.owner) + '</span></div><div class="kpi"><b>ตัวชี้วัด:</b> ' + esc(m.kpi) + '</div>' + extraHtml(m) + '<div class="why"><b>เหตุผลการเลือก:</b> ' + esc(m.why) + '</div></div>').join('') + '</div></div></div>';
+    s += '<div class="card"><h3>มาตรการที่เสนอ (' + dom.measures.length + ' ข้อ)</h3><p class="hint">เรียงตามความตรงกับองค์ประกอบ 7-S ที่ช่องว่างสูงสุด แล้วตามลำดับ QSPM (ถ้ามี) ระดับหลักฐาน A→D และลำดับในคลัง แถบสีเขียวคือมาตรการที่ตอบ 3 อันดับช่องว่างสูงสุด</p><div class="meas">' +
+      dom.measures.map((m) => '<div class="m' + (m.top ? ' top' : '') + '"><h4>' + m.order + '. ' + esc(m.name) + ' <span class="pill">' + cd(m) + '</span></h4><div>' + esc(m.desc) + '</div><div class="meta"><span class="pill teal">' + esc(SHORT_EL[m.elem]) + '</span><span>ประเภท: ' + esc(m.type3) + '</span><span>ทรัพยากรระดับ ' + m.res + '</span><span>ผู้รับผิดชอบ: ' + esc(m.owner) + '</span></div><div class="kpi"><b>ตัวชี้วัด:</b> ' + esc(m.kpi) + '</div>' + evBadge(m) + preHtml(m) + extraHtml(m) + '<div class="why"><b>เหตุผลการเลือก:</b> ' + esc(m.why) + '</div></div>').join('') + '</div></div>' + stretchHtml(dom) + '</div>';
     s += '<div class="stack"><div class="card"><h3>ช่องว่าง 7-S ที่ใช้เลือกมาตรการ</h3>' + chartPni(out) + '</div>' +
       '<div class="card"><h3>ขั้นต่อไป</h3><p class="hint">นำมาตรการไปจัดทำแผนปฏิบัติการและติดตามผล</p><button class="btn primary" data-go="plan">ไปที่แผนปฏิบัติการ</button> <button class="btn" onclick="window.print()">พิมพ์หน้านี้</button></div></div></div>';
     return s;
@@ -238,16 +242,17 @@
       '<label>ด้านของภัย<select id="f-dom">' + opt(D.domains.map((d) => [d.code, d.code + ' ' + SHORT_DOM[d.code]]).concat([['X', 'X ข้ามด้าน']]), b.dom, 'ทั้งหมด') + '</select></label>' +
       '<label>องค์ประกอบ 7-S<select id="f-el">' + opt(D.elements.map((e) => [e.code, SHORT_EL[e.code]]), b.el, 'ทั้งหมด') + '</select></label>' +
       '<label>ประเภท 3 ป.<select id="f-t3">' + opt(uniq(D.bank.map((x) => x.type3)).map((t) => [t, t]), b.t3, 'ทั้งหมด') + '</select></label>' +
-      '<label>ทรัพยากร<select id="f-res">' + opt([['1', 'ระดับ 1'], ['2', 'ระดับ 2'], ['3', 'ระดับ 3']], b.res, 'ทั้งหมด') + '</select></label></div>';
+      '<label>ทรัพยากร<select id="f-res">' + opt([['1', 'ระดับ 1'], ['2', 'ระดับ 2'], ['3', 'ระดับ 3']], b.res, 'ทั้งหมด') + '</select></label>' +
+      '<label>ระดับหลักฐาน<select id="f-ev">' + opt([['A', 'A ทบทวนเชิงระบบรองรับ'], ['B', 'B รองรับบางส่วน'], ['C', 'C นโยบายหรือกฎหมาย'], ['D', 'D ยังไม่พบหลักฐาน']], b.ev, 'ทั้งหมด') + '</select></label></div>';
   }
   function bankRows() {
     const b = S.ui.bank, q = b.q.trim().toLowerCase();
-    return D.bank.filter((x) => (!b.dom || x.dom === b.dom) && (!b.el || x.elem === b.el) && (!b.t3 || x.type3 === b.t3) && (!b.res || String(x.res) === b.res) && (!q || (x.name + x.desc + x.kpi + x.owner).toLowerCase().indexOf(q) >= 0));
+    return D.bank.filter((x) => (!b.dom || x.dom === b.dom) && (!b.el || x.elem === b.el) && (!b.t3 || x.type3 === b.t3) && (!b.res || String(x.res) === b.res) && (!b.ev || x.evg === b.ev) && (!q || (x.name + x.desc + x.kpi + x.owner).toLowerCase().indexOf(q) >= 0));
   }
   function bankTable() {
     const rows = bankRows();
     return '<p class="hint" aria-live="polite">แสดง ' + rows.length + ' จาก ' + D.bank.length + ' รายการ</p><div class="scroll"><table><thead><tr><th>รหัส</th><th>ด้าน</th><th>มาตรการ</th><th>7-S</th><th>3 ป.</th><th>ระยะ</th><th class="n">ทรัพยากร</th><th>ผู้รับผิดชอบ</th><th>ตัวชี้วัด</th><th>เหมาะกับความเสี่ยง</th><th>เหมาะกับความพร้อม</th></tr></thead><tbody>' +
-      rows.map((x) => '<tr><td>' + esc(cd(x)) + (/^เสนอเพิ่ม/.test(x.status || '') ? ' <span class="chip warn">เพิ่มใหม่</span>' : '') + '</td><td>' + x.dom + '</td><td><b>' + esc(x.name) + '</b><br>' + esc(x.desc) + extraHtml(x) + '</td><td>' + esc(SHORT_EL[x.elem]) + '</td><td>' + esc(x.type3) + '</td><td>' + esc(x.phase) + '</td><td class="n">' + x.res + '</td><td>' + esc(x.owner) + '</td><td>' + esc(x.kpi) + '</td><td>' + esc(x.risk) + '</td><td>' + esc(x.ready) + '</td></tr>').join('') + '</tbody></table></div>';
+      rows.map((x) => '<tr><td>' + esc(cd(x)) + (/^เสนอเพิ่ม/.test(x.status || '') ? ' <span class="chip warn">เพิ่มใหม่</span>' : '') + '</td><td>' + x.dom + '</td><td><b>' + esc(x.name) + '</b><br>' + esc(x.desc) + evBadge(x) + extraHtml(x) + '</td><td>' + esc(SHORT_EL[x.elem]) + '</td><td>' + esc(x.type3) + '</td><td>' + esc(x.phase) + '</td><td class="n">' + x.res + '</td><td>' + esc(x.owner) + '</td><td>' + esc(x.kpi) + '</td><td>' + esc(x.risk) + '</td><td>' + esc(x.ready) + '</td></tr>').join('') + '</tbody></table></div>';
   }
   function bankStatus() {
     const b = BANKSRC, remote = b.source === 'Google Sheets';
@@ -406,8 +411,8 @@
     S.risk = JSON.parse(JSON.stringify(D.example.risk)); S.seven = JSON.parse(JSON.stringify(D.example.seven)); S.resource = D.example.resource;
   }
   function csv() {
-    const out = getOut(), rows = [['ด้าน', 'กลุ่ม R', 'ความเสี่ยง', 'ความพร้อม', 'ลำดับ', 'รหัส', 'มาตรการ', '7-S', 'ประเภท 3 ป.', 'ทรัพยากร', 'ผู้รับผิดชอบ', 'ตัวชี้วัด', 'เริ่มดำเนินการ', 'รอบทบทวน', 'สถานะ', 'เหตุผลการเลือก']];
-    out.domains.forEach((d) => d.measures.forEach((m) => rows.push([d.code + ' ' + d.name, d.group, d.risk, d.ready, m.order, cd(m), m.name, elName(m.elem), m.type3, m.res, m.owner, m.kpi, d.pkg.start, d.pkg.review, S.status[mKey(d.code, m.id)] || STATUS[0], m.why])));
+    const out = getOut(), rows = [['ด้าน', 'กลุ่ม R', 'ความเสี่ยง', 'ความพร้อม', 'ลำดับ', 'รหัส', 'มาตรการ', '7-S', 'ประเภท 3 ป.', 'ทรัพยากร', 'ผู้รับผิดชอบ', 'ตัวชี้วัด', 'เริ่มดำเนินการ', 'รอบทบทวน', 'สถานะ', 'ระดับหลักฐาน', 'เหตุผลการเลือก']];
+    out.domains.forEach((d) => d.measures.forEach((m) => rows.push([d.code + ' ' + d.name, d.group, d.risk, d.ready, m.order, cd(m), m.name, elName(m.elem), m.type3, m.res, m.owner, m.kpi, d.pkg.start, d.pkg.review, S.status[mKey(d.code, m.id)] || STATUS[0], m.evg || '', m.why])));
     const text = '﻿' + rows.map((r) => r.map((c) => '"' + String(c == null ? '' : c).replace(/"/g, '""') + '"').join(',')).join('\r\n');
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/csv;charset=utf-8' })); a.download = 'r2safe-action-plan-sample.csv'; document.body.append(a); a.click(); a.remove();
   }
@@ -449,6 +454,7 @@
     else if (t.id === 'f-el') { S.ui.bank.el = t.value; $('#bank-wrap').innerHTML = bankTable(); }
     else if (t.id === 'f-t3') { S.ui.bank.t3 = t.value; $('#bank-wrap').innerHTML = bankTable(); }
     else if (t.id === 'f-res') { S.ui.bank.res = t.value; $('#bank-wrap').innerHTML = bankTable(); }
+    else if (t.id === 'f-ev') { S.ui.bank.ev = t.value; $('#bank-wrap').innerHTML = bankTable(); }
   });
   document.addEventListener('input', (e) => {
     const t = e.target;

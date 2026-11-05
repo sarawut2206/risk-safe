@@ -47,6 +47,8 @@ bad('qpri = 0', (b) => { b[0].qpri = 0; });
 bad('qpri เกิน 20', (b) => { b[0].qpri = 21; });
 bad('qpri ไม่ใช่จำนวนเต็ม', (b) => { b[0].qpri = 1.5; });
 { const b = clone(); b[0].qpri = '2'; b[1].qpri = ''; const r = validateBank(b, ctx); ok('qpri "2" (จากชีต) แปลงเป็นตัวเลข และค่าว่างใช้ได้', r.ok && r.rows[0].qpri === 2 && r.rows[1].qpri === undefined); }
+bad('evg ผิด', (b) => { b[0].evg = 'E'; });
+ok('evg A-D with source and note kept by loader', v.rows.every((r) => 'ABCD'.indexOf(r.evg) >= 0 && typeof r.evnote === 'string' && r.evnote.length > 0));
 bad('แถวน้อยเกินไป', (b) => { b.length = 5; });
 ok('reject non-array', !validateBank({ a: 1 }, ctx).ok);
 

@@ -52,5 +52,25 @@ eq('empty group', o3.domains[0].group, null);
   eq('promoted new measure V13 now selected', promo.domains[0].measures.some((m) => m.id === 'V13'), true);
 }
 
+// ระดับหลักฐาน (evg) และการแยกมาตรการที่เกินทรัพยากร และการแจ้งเงื่อนไขก่อนดำเนินการ
+{
+  const ex = { risk: data.example.risk, seven: data.example.seven, resource: data.example.resource };
+  const base = analyze(ex, data);
+  const clone = (mut) => { const d = Object.assign({}, data, { bank: data.bank.map((b) => Object.assign({}, b)) }); mut(d.bank); return d; };
+  eq('every bank item has evidence grade A-D', data.bank.every((b) => 'ABCD'.indexOf(b.evg) >= 0), true);
+  const noEv = analyze(ex, clone((b) => b.forEach((x) => { delete x.evg; })));
+  const ids = (o) => o.domains.map((d) => d.measures.map((m) => m.id).join(',')).join('|');
+  eq('grade ordering changes at least one selection vs no grades', ids(noEv) !== ids(base), true);
+  // ในกลุ่มเดียวกันที่ 7-S อยู่/ไม่อยู่ใน 3 อันดับเท่ากัน ลำดับต้องไม่ทำให้เกรดแย่ขึ้นก่อนเกรดดีกว่า
+  let okOrder = true;
+  base.domains.forEach((d) => { for (let i = 1; i < d.measures.length; i++) { const a = d.measures[i - 1], b = d.measures[i]; if (a.top === b.top && 'ABCD'.indexOf(a.evg) > 'ABCD'.indexOf(b.evg)) okOrder = false; } });
+  eq('within same 7-S bucket, better evidence grade never ranked after worse', okOrder, true);
+  const lim = analyze({ risk: data.example.risk, seven: data.example.seven, resource: 'จำกัด' }, data);
+  eq('over-resource measures are listed separately, not dropped', lim.domains.every((d) => Array.isArray(d.stretch)) && lim.domains.some((d) => d.stretch.length > 0), true);
+  eq('stretch measures all exceed available resource', lim.domains.every((d) => d.stretch.every((m) => m.res > 1)), true);
+  const withPre = base.domains.flatMap((d) => d.measures).filter((m) => m.prereqInfo.length);
+  eq('prerequisite info present for measures that have a prerequisite', withPre.length > 0 && withPre.every((m) => m.prereqInfo.every((p) => /^SB-\d{3}$/.test(p.sb) && typeof p.selected === 'boolean')), true);
+}
+
 console.log(checks + ' checks, ' + fails + ' failed');
 process.exit(fails ? 1 : 0);

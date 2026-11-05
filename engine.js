@@ -62,17 +62,23 @@
     const topCodes = top3.map((e) => e.code);
     domains.forEach((dom) => {
       if (!dom.risk || !readyFinal) return;
-      const cand = data.bank
-        .map((b, idx) => ({ b, idx }))
-        .filter(({ b }) =>
-          (b.dom === dom.code || b.dom === 'X') &&
-          b.risk.indexOf(dom.risk) >= 0 &&
-          b.ready.indexOf(readyFinal) >= 0 &&
-          b.res <= res.code)
-        // ลำดับ QSPM (qpri, 1 = ดีที่สุดในประเด็นเดียวกัน) ใช้จัดลำดับภายในกลุ่มเดียวกัน ค่าว่างถือเป็น 1 จึงไม่เปลี่ยนผลถ้ายังไม่มีข้อมูล QSPM
-        .map(({ b, idx }) => ({ b, score: (topCodes.indexOf(b.elem) >= 0 ? 20000 : 10000) - (Math.max(1, Math.floor(Number(b.qpri)) || 1) - 1) * 100 - idx }))
-        .sort((x, y) => y.score - x.score)
-        .slice(0, res.max);
+      // ลำดับคะแนนคัดเลือก (มากไปน้อย): (1) องค์ประกอบ 7-S อยู่ใน 3 อันดับช่องว่างสูงสุดก่อน
+      // (2) ลำดับ QSPM (qpri, 1 = ดีที่สุดในประเด็นเดียวกัน; ว่างถือเป็น 1)
+      // (3) ระดับหลักฐาน A→D (evg; ไม่มีค่าถือว่าเท่ากันหมด) (4) ลำดับในคลัง ใช้ตัดสินเมื่อทุกข้อข้างต้นเท่ากัน
+      const GRADE = { A: 0, B: 1, C: 2, D: 3 };
+      const keyOf = (b, idx) => (topCodes.indexOf(b.elem) >= 0 ? 200000 : 100000) -
+        (Math.max(1, Math.min(20, Math.floor(Number(b.qpri)) || 1)) - 1) * 1000 - (GRADE[b.evg] || 0) * 100 - idx;
+      const fits = (b) => (b.dom === dom.code || b.dom === 'X') && b.risk.indexOf(dom.risk) >= 0 && b.ready.indexOf(readyFinal) >= 0;
+      const ranked = data.bank.map((b, idx) => ({ b, score: keyOf(b, idx) })).filter(({ b }) => fits(b)).sort((x, y) => y.score - x.score);
+      const cand = ranked.filter(({ b }) => b.res <= res.code).slice(0, res.max);
+      // มาตรการที่เหมาะแต่ใช้ทรัพยากรเกินที่มี ไม่ตัดทิ้งเงียบ ๆ แต่แยกแสดง (ข้อ B5: เสนอขอสนับสนุนจากต้นสังกัด/เครือข่าย)
+      dom.stretch = ranked.filter(({ b }) => b.res > res.code).slice(0, 2).map(({ b }) => Object.assign({
+        why: 'เหมาะกับความเสี่ยงระดับ' + dom.risk + ' และความพร้อมระดับ' + readyFinal + ' แต่ต้องใช้ทรัพยากรระดับ ' + b.res + ' เกินที่มี (' + input.resource + ') จึงไม่รวมในรายการหลัก ควรพิจารณาขอสนับสนุนจากต้นสังกัดหรือเครือข่าย',
+      }, b));
+      const selSb = {};
+      cand.forEach(({ b }) => { if (b.sb) selSb[b.sb] = true; });
+      const bySb = {};
+      data.bank.forEach((b) => { if (b.sb) bySb[b.sb] = b; });
       dom.measures = cand.map((c, k) => {
         const el = byCode[c.b.elem];
         const top = topCodes.indexOf(c.b.elem) >= 0;
@@ -81,7 +87,10 @@
           (top ? ' ซึ่งมีช่องว่างอันดับ ' + el.rank + ' (PNI ' + el.pni.toFixed(3) + ')' : ' (ไม่อยู่ใน 3 อันดับช่องว่างสูงสุด)') +
           '; เหมาะกับความเสี่ยงระดับ' + dom.risk + ' และความพร้อมระดับ' + readyFinal +
           '; ใช้ทรัพยากรระดับ ' + c.b.res + ' ไม่เกินที่มี (' + input.resource + ')';
-        return Object.assign({ order: k + 1, why, top }, c.b);
+        // เงื่อนไขก่อนดำเนินการ: แจ้งว่ามาตรการที่ต้องมีก่อนอยู่ในรายการด้วยหรือไม่ (ไม่ได้สลับลำดับอัตโนมัติ ผู้อำนวยการตรวจสอบเอง)
+        const pre = (String(c.b.prereq || '').match(/SB-\d{3}/g) || []).map((sb) => ({ sb, name: bySb[sb] ? bySb[sb].name : '', selected: !!selSb[sb] }));
+        const rankWhy = (c.b.qpri ? '; ลำดับ QSPM ในประเด็น = ' + c.b.qpri : '') + (c.b.evg ? '; ระดับหลักฐาน ' + c.b.evg : '');
+        return Object.assign({ order: k + 1, why: why + rankWhy, top, prereqInfo: pre }, c.b);
       });
     });
 

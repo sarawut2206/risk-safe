@@ -8,7 +8,8 @@
   const isStr = (v, max) => typeof v === 'string' && v.trim().length > 0 && v.length <= max;
   const TOWS = ['SO', 'WO', 'ST', 'WT'];
   // ฟิลด์เสริม (ไม่บังคับ): ถ้ามีต้องเป็นข้อความสั้น ไม่เกินความยาวที่กำหนด
-  const OPT = { target: 200, prereq: 300, resources: 300, output: 300, outcome: 300, evid: 60, status: 120 };
+  const EVG = ['A', 'B', 'C', 'D'];
+  const OPT = { target: 200, prereq: 300, resources: 300, output: 300, outcome: 300, evid: 60, status: 120, evsrc: 120, evnote: 400 };
 
   function levelList(v) {
     if (typeof v !== 'string') return null;
@@ -45,6 +46,7 @@
       if (r.online !== 'Y' && r.online !== 'N') bad.push('ออนไลน์ (Y/N)');
       if (r.sb != null && r.sb !== '' && !/^SB-\d{3}$/.test(String(r.sb))) bad.push('รหัส SB');
       if (r.tows != null && r.tows !== '' && TOWS.indexOf(r.tows) < 0) bad.push('TOWS');
+      if (r.evg != null && r.evg !== '' && EVG.indexOf(r.evg) < 0) bad.push('ระดับหลักฐาน (A-D)');
       if (r.qpri != null && r.qpri !== '' && !(Number.isInteger(Number(r.qpri)) && Number(r.qpri) >= 1 && Number(r.qpri) <= 20)) bad.push('ลำดับ QSPM (1-20)');
       Object.keys(OPT).forEach((k) => { if (r[k] != null && r[k] !== '' && !isStr(r[k], OPT[k])) bad.push(k); });
       if (bad.length) { errors.push(at + 'ไม่ผ่าน: ' + bad.join(', ')); return; }
@@ -55,6 +57,7 @@
       };
       if (r.sb) row.sb = String(r.sb);
       if (r.tows) row.tows = r.tows;
+      if (r.evg) row.evg = r.evg;
       if (r.qpri != null && r.qpri !== '') row.qpri = Number(r.qpri);
       Object.keys(OPT).forEach((k) => { if (r[k]) row[k] = String(r[k]).trim(); });
       clean.push(row);

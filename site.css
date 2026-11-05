@@ -125,3 +125,7 @@ a.btn { text-decoration: none; display: inline-block; }
 .xd dt { color: var(--muted); }
 .xd dd { margin: 0; }
 @media (max-width: 640px) { .xd dl { grid-template-columns: 1fr; } .xd dt { margin-top: 4px; } }
+
+/* หลักฐานรายมาตรการและเงื่อนไขก่อนดำเนินการ */
+.evb { margin-top: 6px; font-size: .88rem; }
+.pre { margin-top: 6px; font-size: .88rem; }
