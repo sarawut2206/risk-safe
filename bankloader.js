@@ -6,6 +6,9 @@
   const LEVELS = ['สูง', 'กลาง', 'ต่ำ'];
   const TYPES3 = ['ป้องกัน', 'ปลูกฝัง', 'ปราบปราม'];
   const isStr = (v, max) => typeof v === 'string' && v.trim().length > 0 && v.length <= max;
+  const TOWS = ['SO', 'WO', 'ST', 'WT'];
+  // ฟิลด์เสริม (ไม่บังคับ): ถ้ามีต้องเป็นข้อความสั้น ไม่เกินความยาวที่กำหนด
+  const OPT = { target: 200, prereq: 300, resources: 300, output: 300, outcome: 300, evid: 60, status: 120 };
 
   function levelList(v) {
     if (typeof v !== 'string') return null;
@@ -40,12 +43,19 @@
       if (!levelList(r.risk)) bad.push('เหมาะกับความเสี่ยง');
       if (!levelList(r.ready)) bad.push('เหมาะกับความพร้อม');
       if (r.online !== 'Y' && r.online !== 'N') bad.push('ออนไลน์ (Y/N)');
+      if (r.sb != null && r.sb !== '' && !/^SB-\d{3}$/.test(String(r.sb))) bad.push('รหัส SB');
+      if (r.tows != null && r.tows !== '' && TOWS.indexOf(r.tows) < 0) bad.push('TOWS');
+      Object.keys(OPT).forEach((k) => { if (r[k] != null && r[k] !== '' && !isStr(r[k], OPT[k])) bad.push(k); });
       if (bad.length) { errors.push(at + 'ไม่ผ่าน: ' + bad.join(', ')); return; }
       seen[r.id] = true;
-      clean.push({
+      const row = {
         id: r.id, dom: r.dom, name: r.name.trim(), desc: r.desc.trim(), elem: r.elem, type3: r.type3, pillar: r.pillar.trim(), phase: r.phase.trim(),
         res: res, owner: r.owner.trim(), kpi: r.kpi.trim(), risk: levelList(r.risk).join(','), ready: levelList(r.ready).join(','), online: r.online,
-      });
+      };
+      if (r.sb) row.sb = String(r.sb);
+      if (r.tows) row.tows = r.tows;
+      Object.keys(OPT).forEach((k) => { if (r[k]) row[k] = String(r[k]).trim(); });
+      clean.push(row);
     });
     return { ok: errors.length === 0, errors: errors.slice(0, 8), rows: errors.length ? [] : clean };
   }

@@ -7,9 +7,25 @@ let checks = 0, fails = 0;
 const ok = (name, cond) => { checks++; if (!cond) { fails++; console.log('FAIL', name); } };
 const clone = () => JSON.parse(JSON.stringify(data.bank));
 
-// 1) คลังที่ฝังในเว็บต้องผ่านตัวตรวจทั้ง 62 แถว
+// 1) คลังที่ฝังในเว็บต้องผ่านตัวตรวจทั้ง 68 แถว
 const v = validateBank(clone(), ctx);
-ok('bundled bank valid', v.ok && v.rows.length === 62);
+ok('bundled bank valid', v.ok && v.rows.length === 68);
+ok('SB codes unique and sequential', v.rows.every((r, i) => r.sb === 'SB-' + String(i + 1).padStart(3, '0')));
+ok('extra fields kept', v.rows.every((r) => r.tows && r.target && r.output && r.outcome && r.evid && r.status));
+ok('prerequisites point to existing SB codes', v.rows.every((r) => (r.prereq.match(/SB-\d{3}/g) || []).every((c) => v.rows.some((x) => x.sb === c))));
+ok('backward compatible: row without extra fields is valid', validateBank(clone().map((r) => ({ id: r.id, dom: r.dom, name: r.name, desc: r.desc, elem: r.elem, type3: r.type3, pillar: r.pillar, phase: r.phase, res: r.res, owner: r.owner, kpi: r.kpi, risk: r.risk, ready: r.ready, online: r.online })), ctx).ok);
+
+// 1ข) ข้อมูลตั้งต้นใน apps-script/Code.gs (SEED) ต้องผ่านตัวตรวจ และตรงกับ data.js แถวต่อแถว
+{
+  const vm = require('vm'), fs = require('fs');
+  const src = fs.readFileSync(path.join(__dirname, '..', 'apps-script', 'Code.gs'), 'utf8');
+  const sandbox = {};
+  vm.runInNewContext(src + ';\nthis.HEAD = HEAD; this.SEED = SEED;', sandbox);
+  const rows = sandbox.SEED.map((r) => { const o = {}; sandbox.HEAD.forEach((k, j) => { o[k] = (k === 'res') ? Number(r[j]) : String(r[j]).trim(); }); return o; });
+  const g = validateBank(rows, ctx);
+  ok('Code.gs SEED valid (68 rows)', g.ok && g.rows.length === 68);
+  ok('Code.gs SEED equals data.js', g.ok && JSON.stringify(g.rows) === JSON.stringify(v.rows));
+}
 
 // 2) ข้อมูลผิดรูปแบบต้องถูกปฏิเสธทั้งชุด
 const bad = (name, mut) => { const b = clone(); mut(b); const r = validateBank(b, ctx); ok('reject: ' + name, !r.ok && r.rows.length === 0); };
@@ -24,15 +40,18 @@ bad('ชื่อว่าง', (b) => { b[0].name = '   '; });
 bad('ข้อความยาวเกิน', (b) => { b[0].desc = 'ก'.repeat(601); });
 bad('ประเภท 3 ป. ผิด', (b) => { b[0].type3 = 'อื่น'; });
 bad('ออนไลน์ไม่ใช่ Y/N', (b) => { b[0].online = 'ใช่'; });
+bad('รหัส SB ผิดรูปแบบ', (b) => { b[0].sb = 'SB-1'; });
+bad('TOWS ผิด', (b) => { b[0].tows = 'XX'; });
+bad('ฟิลด์เสริมยาวเกิน', (b) => { b[0].output = 'ก'.repeat(301); });
 bad('แถวน้อยเกินไป', (b) => { b.length = 5; });
 ok('reject non-array', !validateBank({ a: 1 }, ctx).ok);
 
 // 3) fetchBank ด้วย fetch จำลอง
 const respond = (text, status) => async () => ({ ok: status === undefined || status < 400, status: status || 200, text: async () => text });
 (async () => {
-  global.fetch = respond(JSON.stringify({ ok: true, version: 'v9', updated: '2026-11-05', note: 'ทดสอบ', count: 62, bank: clone() }));
+  global.fetch = respond(JSON.stringify({ ok: true, version: 'v9', updated: '2026-11-05', note: 'ทดสอบ', count: 68, bank: clone() }));
   const good = await fetchBank('https://example.test/x', ctx, 1000);
-  ok('fetch ok rows', good.rows.length === 62 && good.version === 'v9' && good.updated === '2026-11-05');
+  ok('fetch ok rows', good.rows.length === 68 && good.version === 'v9' && good.updated === '2026-11-05');
 
   const expectFail = async (name, fn, re) => { try { await fn(); ok(name + ' (ควรล้มเหลว)', false); } catch (e) { ok(name, re.test(e.message)); } };
   global.fetch = respond('<!DOCTYPE html><html>ข้อผิดพลาด ไม่พบฟังก์ชันของสคริปต์: doGet</html>');

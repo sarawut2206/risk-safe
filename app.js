@@ -8,6 +8,9 @@
     ui: { step: 1, rtab: 'risk', riskDom: 'V', sevEl: 'STG', stratDom: 'V', bank: { q: '', dom: '', el: '', t3: '', res: '' } },
   };
   const BUNDLED_BANK = D.bank.slice();
+  const cd = (x) => x.sb || x.id; // รหัสที่แสดง: SB-xxx (ตามดุษฎีนิพนธ์) ถ้าไม่มีใช้รหัสเดิม
+  const extra = (x) => [['กลุ่มเป้าหมาย', x.target], ['เงื่อนไขก่อนดำเนินการ', x.prereq], ['ทรัพยากรที่ต้องใช้', x.resources], ['ผลผลิต', x.output], ['ผลลัพธ์ที่คาดหวัง', x.outcome], ['ประเภท TOWS', x.tows ? x.tows + ' (ตรรกะที่มาของมาตรการ ไม่ใช่สถานะของโรงเรียน)' : ''], ['สถานะหลักฐาน', x.evid], ['สถานะมาตรการ', x.status]].filter((p) => p[1]);
+  const extraHtml = (x) => { const e = extra(x); return e.length ? '<details class="xd"><summary>รายละเอียดเพิ่มเติม</summary><dl>' + e.map((p) => '<dt>' + esc(p[0]) + '</dt><dd>' + esc(p[1]) + '</dd>').join('') + '</dl></details>' : ''; };
   const BANKSRC = { source: 'ฝังในเว็บ', version: '', updated: '', note: '', error: '', loading: false };
   const SHORT_DOM = { V: 'ความรุนแรงของมนุษย์', A: 'อุบัติเหตุและภัยพิบัติ', P: 'การละเมิดสิทธิ', H: 'สุขภาวะกายและจิตใจ' };
   const SHORT_EL = { STG: 'กลยุทธ์', STR: 'โครงสร้าง', SYS: 'ระบบ', STY: 'รูปแบบการบริหาร', STF: 'บุคลากร', SKL: 'ทักษะ', VAL: 'ค่านิยมร่วม' };
@@ -30,7 +33,7 @@
   const TOOL = ['input', 'dash', 'matrix', 'strategy', 'plan', 'rules'];
   const PAGES = [
     { id: 'home', nav: '', title: 'Risk Safe ระบบบริหารความปลอดภัยบนฐานความเสี่ยง', sub: '' },
-    { id: 'bank', nav: 'bank', eyebrow: 'คลังกลยุทธ์', title: 'คลังมาตรการ (Strategy Bank) ฉบับร่างเริ่มต้น', sub: 'ร่างที่ผู้วิจัยจัดทำ ยังไม่ผูกแหล่งอ้างอิงรายข้อและยังไม่ผ่านเดลฟาย ใช้สาธิตการทำงานของระบบ' },
+    { id: 'bank', nav: 'bank', eyebrow: 'คลังกลยุทธ์', title: 'คลังมาตรการ (Strategy Bank) ฉบับร่าง 68 รายการ', sub: 'ร่างที่ผู้วิจัยจัดทำ ยังไม่ได้ตรวจหลักฐานและแหล่งอ้างอิงรายข้อ และยังไม่ผ่านเดลฟาย ใช้สาธิตการทำงานของระบบ' },
     { id: 'risk', nav: 'risk', eyebrow: 'ฐานข้อมูลความเสี่ยง', title: 'ข้อประเมินและเกณฑ์ความเสี่ยง', sub: 'รายการข้อประเมินความเสี่ยง 4 ด้านของภัยและข้อประเมินความพร้อม 7-S ที่เครื่องมือใช้ (ร่างรอเดลฟาย) นี่ไม่ใช่ฐานข้อมูลเหตุการณ์จริงของโรงเรียนใด' },
     { id: 'input', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'ป้อนข้อมูลโรงเรียน', sub: 'กรอก 3 ส่วน: ทรัพยากร ความเสี่ยง 4 ด้านของภัย และความพร้อมตาม 7-S ใช้ข้อมูลจำลองหรือรหัสแทนชื่อจริง' },
     { id: 'dash', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'ภาพรวมความเสี่ยงและความพร้อม', sub: 'สรุปผลจากข้อมูลที่กรอก: ระดับความเสี่ยงรายด้าน ความพร้อมตาม 7-S และกลุ่มแนวทางตอบสนอง' },
@@ -205,7 +208,7 @@
     s += '<div class="card pkg"><div class="lab" style="color:#5d6c80;font-size:.85rem">' + esc(dom.code + ' ' + dom.name) + ' · ความเสี่ยง ' + riskTag(dom.risk) + ' × ความพร้อม ' + readyTag(dom.ready) + '</div><div class="big">' + dom.group + ' ' + esc(dom.pkg.name) + '</div><div>' + esc(dom.pkg.summary) + '</div>' +
       '<div class="legend-row"><span>เริ่มดำเนินการ: <b>' + esc(dom.pkg.start) + '</b></span><span>รอบทบทวน: <b>' + esc(dom.pkg.review) + '</b></span></div><b style="display:block;margin-top:8px">ชุดการตัดสินใจ 6 ข้อ</b><ol>' + dom.pkg.decisions.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ol></div>';
     s += '<div class="card"><h3>มาตรการที่เสนอ (' + dom.measures.length + ' ข้อ)</h3><p class="hint">เรียงตามความตรงกับองค์ประกอบ 7-S ที่ช่องว่างสูงสุด แล้วตามลำดับในคลัง แถบสีเขียวคือมาตรการที่ตอบ 3 อันดับช่องว่างสูงสุด</p><div class="meas">' +
-      dom.measures.map((m) => '<div class="m' + (m.top ? ' top' : '') + '"><h4>' + m.order + '. ' + esc(m.name) + ' <span class="pill">' + m.id + '</span></h4><div>' + esc(m.desc) + '</div><div class="meta"><span class="pill teal">' + esc(SHORT_EL[m.elem]) + '</span><span>ประเภท: ' + esc(m.type3) + '</span><span>ทรัพยากรระดับ ' + m.res + '</span><span>ผู้รับผิดชอบ: ' + esc(m.owner) + '</span></div><div class="kpi"><b>ตัวชี้วัด:</b> ' + esc(m.kpi) + '</div><div class="why"><b>เหตุผลการเลือก:</b> ' + esc(m.why) + '</div></div>').join('') + '</div></div></div>';
+      dom.measures.map((m) => '<div class="m' + (m.top ? ' top' : '') + '"><h4>' + m.order + '. ' + esc(m.name) + ' <span class="pill">' + cd(m) + '</span></h4><div>' + esc(m.desc) + '</div><div class="meta"><span class="pill teal">' + esc(SHORT_EL[m.elem]) + '</span><span>ประเภท: ' + esc(m.type3) + '</span><span>ทรัพยากรระดับ ' + m.res + '</span><span>ผู้รับผิดชอบ: ' + esc(m.owner) + '</span></div><div class="kpi"><b>ตัวชี้วัด:</b> ' + esc(m.kpi) + '</div>' + extraHtml(m) + '<div class="why"><b>เหตุผลการเลือก:</b> ' + esc(m.why) + '</div></div>').join('') + '</div></div></div>';
     s += '<div class="stack"><div class="card"><h3>ช่องว่าง 7-S ที่ใช้เลือกมาตรการ</h3>' + chartPni(out) + '</div>' +
       '<div class="card"><h3>ขั้นต่อไป</h3><p class="hint">นำมาตรการไปจัดทำแผนปฏิบัติการและติดตามผล</p><button class="btn primary" data-go="plan">ไปที่แผนปฏิบัติการ</button> <button class="btn" onclick="window.print()">พิมพ์หน้านี้</button></div></div></div>';
     return s;
@@ -223,7 +226,7 @@
       '<div class="card kpi"><div class="lab">ส่งออก</div><div style="margin-top:6px"><button class="btn sm primary" data-act="csv">ดาวน์โหลด CSV</button> <button class="btn sm" onclick="window.print()">พิมพ์</button></div></div></div>';
     s += '<div class="card" style="margin-top:14px"><h3>ความก้าวหน้ารายด้าน</h3>' + out.domains.map((d) => { const r = rows.filter((x) => x.d.code === d.code), dn = r.filter((x) => S.status[x.key] === 'เสร็จแล้ว').length; return '<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:.9rem"><span>' + esc(d.code + ' ' + SHORT_DOM[d.code]) + ' · ' + (d.group || '') + '</span><span>' + dn + '/' + r.length + '</span></div><div class="prog"><i style="width:' + pct(dn, r.length) + '%"></i></div></div>'; }).join('') + '</div>';
     s += '<div class="card" style="margin-top:14px"><h3>แผนปฏิบัติการ</h3><p class="hint">ปรับสถานะได้ในหน้านี้ (ไม่ถูกบันทึกถาวร) ตัวชี้วัดและผู้รับผิดชอบเป็นข้อเสนอเริ่มต้นจากคลัง ผู้อำนวยการปรับได้</p><div class="scroll"><table><thead><tr><th>ด้าน</th><th>มาตรการ</th><th>ผู้รับผิดชอบ</th><th>ตัวชี้วัด</th><th>เริ่ม</th><th>ทบทวน</th><th>สถานะ</th></tr></thead><tbody>' +
-      rows.map((r) => '<tr><td>' + esc(r.d.code + ' · ' + r.d.group) + '</td><td><b>' + esc(r.m.id + ' ' + r.m.name) + '</b></td><td>' + esc(r.m.owner) + '</td><td>' + esc(r.m.kpi) + '</td><td>' + esc(r.d.pkg.start) + '</td><td>' + esc(r.d.pkg.review) + '</td><td><select class="st" data-st="' + r.key + '" aria-label="สถานะ ' + esc(r.m.id) + '">' + STATUS.map((x) => '<option' + ((S.status[r.key] || STATUS[0]) === x ? ' selected' : '') + '>' + x + '</option>').join('') + '</select></td></tr>').join('') + '</tbody></table></div></div>';
+      rows.map((r) => '<tr><td>' + esc(r.d.code + ' · ' + r.d.group) + '</td><td><b>' + esc(cd(r.m) + ' ' + r.m.name) + '</b></td><td>' + esc(r.m.owner) + '</td><td>' + esc(r.m.kpi) + '</td><td>' + esc(r.d.pkg.start) + '</td><td>' + esc(r.d.pkg.review) + '</td><td><select class="st" data-st="' + r.key + '" aria-label="สถานะ ' + esc(r.m.id) + '">' + STATUS.map((x) => '<option' + ((S.status[r.key] || STATUS[0]) === x ? ' selected' : '') + '>' + x + '</option>').join('') + '</select></td></tr>').join('') + '</tbody></table></div></div>';
     s += '<div class="card" style="margin-top:14px"><h3>บันทึกการทบทวนหลังดำเนินการ (AAR)</h3><p class="hint">สิ่งที่ตั้งใจ สิ่งที่เกิดขึ้นจริง ข้อเรียนรู้ และข้อมูลที่ต้องย้อนกลับไปปรับในขั้นที่ 1–4 (อย่าใส่ชื่อบุคคลหรือรายละเอียดที่ระบุตัวได้)</p><textarea id="aar" aria-label="บันทึกการทบทวนหลังดำเนินการ">' + esc(S.aar) + '</textarea></div>';
     return s;
   }
@@ -244,7 +247,7 @@
   function bankTable() {
     const rows = bankRows();
     return '<p class="hint" aria-live="polite">แสดง ' + rows.length + ' จาก ' + D.bank.length + ' รายการ</p><div class="scroll"><table><thead><tr><th>รหัส</th><th>ด้าน</th><th>มาตรการ</th><th>7-S</th><th>3 ป.</th><th>ระยะ</th><th class="n">ทรัพยากร</th><th>ผู้รับผิดชอบ</th><th>ตัวชี้วัด</th><th>เหมาะกับความเสี่ยง</th><th>เหมาะกับความพร้อม</th></tr></thead><tbody>' +
-      rows.map((x) => '<tr><td>' + x.id + '</td><td>' + x.dom + '</td><td><b>' + esc(x.name) + '</b><br>' + esc(x.desc) + '</td><td>' + esc(SHORT_EL[x.elem]) + '</td><td>' + esc(x.type3) + '</td><td>' + esc(x.phase) + '</td><td class="n">' + x.res + '</td><td>' + esc(x.owner) + '</td><td>' + esc(x.kpi) + '</td><td>' + esc(x.risk) + '</td><td>' + esc(x.ready) + '</td></tr>').join('') + '</tbody></table></div>';
+      rows.map((x) => '<tr><td>' + esc(cd(x)) + (/^เสนอเพิ่ม/.test(x.status || '') ? ' <span class="chip warn">เพิ่มใหม่</span>' : '') + '</td><td>' + x.dom + '</td><td><b>' + esc(x.name) + '</b><br>' + esc(x.desc) + extraHtml(x) + '</td><td>' + esc(SHORT_EL[x.elem]) + '</td><td>' + esc(x.type3) + '</td><td>' + esc(x.phase) + '</td><td class="n">' + x.res + '</td><td>' + esc(x.owner) + '</td><td>' + esc(x.kpi) + '</td><td>' + esc(x.risk) + '</td><td>' + esc(x.ready) + '</td></tr>').join('') + '</tbody></table></div>';
   }
   function bankStatus() {
     const b = BANKSRC, remote = b.source === 'Google Sheets';
@@ -404,7 +407,7 @@
   }
   function csv() {
     const out = getOut(), rows = [['ด้าน', 'กลุ่ม R', 'ความเสี่ยง', 'ความพร้อม', 'ลำดับ', 'รหัส', 'มาตรการ', '7-S', 'ประเภท 3 ป.', 'ทรัพยากร', 'ผู้รับผิดชอบ', 'ตัวชี้วัด', 'เริ่มดำเนินการ', 'รอบทบทวน', 'สถานะ', 'เหตุผลการเลือก']];
-    out.domains.forEach((d) => d.measures.forEach((m) => rows.push([d.code + ' ' + d.name, d.group, d.risk, d.ready, m.order, m.id, m.name, elName(m.elem), m.type3, m.res, m.owner, m.kpi, d.pkg.start, d.pkg.review, S.status[mKey(d.code, m.id)] || STATUS[0], m.why])));
+    out.domains.forEach((d) => d.measures.forEach((m) => rows.push([d.code + ' ' + d.name, d.group, d.risk, d.ready, m.order, cd(m), m.name, elName(m.elem), m.type3, m.res, m.owner, m.kpi, d.pkg.start, d.pkg.review, S.status[mKey(d.code, m.id)] || STATUS[0], m.why])));
     const text = '﻿' + rows.map((r) => r.map((c) => '"' + String(c == null ? '' : c).replace(/"/g, '""') + '"').join(',')).join('\r\n');
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/csv;charset=utf-8' })); a.download = 'r2safe-action-plan-sample.csv'; document.body.append(a); a.click(); a.remove();
   }

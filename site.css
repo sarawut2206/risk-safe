@@ -117,3 +117,11 @@ a.btn { text-decoration: none; display: inline-block; }
 .m3box .matrix .h { color: var(--muted); font-size: .8rem; text-align: center; align-self: center; }
 .m3box .m5-note { color: var(--muted); }
 .m3box .cell { color: #1b2433; }
+
+/* รายละเอียดเพิ่มเติมของมาตรการ (กลุ่มเป้าหมาย เงื่อนไขก่อน ผลผลิต ฯลฯ) */
+.xd { margin-top: 6px; font-size: .9rem; }
+.xd summary { cursor: pointer; color: var(--navy); font-weight: 600; }
+.xd dl { margin: 6px 0 2px; display: grid; grid-template-columns: max-content 1fr; gap: 3px 12px; }
+.xd dt { color: var(--muted); }
+.xd dd { margin: 0; }
+@media (max-width: 640px) { .xd dl { grid-template-columns: 1fr; } .xd dt { margin-top: 4px; } }
