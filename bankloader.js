@@ -45,6 +45,7 @@
       if (r.online !== 'Y' && r.online !== 'N') bad.push('ออนไลน์ (Y/N)');
       if (r.sb != null && r.sb !== '' && !/^SB-\d{3}$/.test(String(r.sb))) bad.push('รหัส SB');
       if (r.tows != null && r.tows !== '' && TOWS.indexOf(r.tows) < 0) bad.push('TOWS');
+      if (r.qpri != null && r.qpri !== '' && !(Number.isInteger(Number(r.qpri)) && Number(r.qpri) >= 1 && Number(r.qpri) <= 20)) bad.push('ลำดับ QSPM (1-20)');
       Object.keys(OPT).forEach((k) => { if (r[k] != null && r[k] !== '' && !isStr(r[k], OPT[k])) bad.push(k); });
       if (bad.length) { errors.push(at + 'ไม่ผ่าน: ' + bad.join(', ')); return; }
       seen[r.id] = true;
@@ -54,6 +55,7 @@
       };
       if (r.sb) row.sb = String(r.sb);
       if (r.tows) row.tows = r.tows;
+      if (r.qpri != null && r.qpri !== '') row.qpri = Number(r.qpri);
       Object.keys(OPT).forEach((k) => { if (r[k]) row[k] = String(r[k]).trim(); });
       clean.push(row);
     });

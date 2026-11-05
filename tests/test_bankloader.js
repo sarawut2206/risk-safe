@@ -43,6 +43,10 @@ bad('ออนไลน์ไม่ใช่ Y/N', (b) => { b[0].online = 'ใ�
 bad('รหัส SB ผิดรูปแบบ', (b) => { b[0].sb = 'SB-1'; });
 bad('TOWS ผิด', (b) => { b[0].tows = 'XX'; });
 bad('ฟิลด์เสริมยาวเกิน', (b) => { b[0].output = 'ก'.repeat(301); });
+bad('qpri = 0', (b) => { b[0].qpri = 0; });
+bad('qpri เกิน 20', (b) => { b[0].qpri = 21; });
+bad('qpri ไม่ใช่จำนวนเต็ม', (b) => { b[0].qpri = 1.5; });
+{ const b = clone(); b[0].qpri = '2'; b[1].qpri = ''; const r = validateBank(b, ctx); ok('qpri "2" (จากชีต) แปลงเป็นตัวเลข และค่าว่างใช้ได้', r.ok && r.rows[0].qpri === 2 && r.rows[1].qpri === undefined); }
 bad('แถวน้อยเกินไป', (b) => { b.length = 5; });
 ok('reject non-array', !validateBank({ a: 1 }, ctx).ok);
 

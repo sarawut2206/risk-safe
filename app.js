@@ -9,7 +9,7 @@
   };
   const BUNDLED_BANK = D.bank.slice();
   const cd = (x) => x.sb || x.id; // รหัสที่แสดง: SB-xxx (ตามดุษฎีนิพนธ์) ถ้าไม่มีใช้รหัสเดิม
-  const extra = (x) => [['กลุ่มเป้าหมาย', x.target], ['เงื่อนไขก่อนดำเนินการ', x.prereq], ['ทรัพยากรที่ต้องใช้', x.resources], ['ผลผลิต', x.output], ['ผลลัพธ์ที่คาดหวัง', x.outcome], ['ประเภท TOWS', x.tows ? x.tows + ' (ตรรกะที่มาของมาตรการ ไม่ใช่สถานะของโรงเรียน)' : ''], ['สถานะหลักฐาน', x.evid], ['สถานะมาตรการ', x.status]].filter((p) => p[1]);
+  const extra = (x) => [['กลุ่มเป้าหมาย', x.target], ['เงื่อนไขก่อนดำเนินการ', x.prereq], ['ทรัพยากรที่ต้องใช้', x.resources], ['ผลผลิต', x.output], ['ผลลัพธ์ที่คาดหวัง', x.outcome], ['ประเภท TOWS', x.tows ? x.tows + ' (ตรรกะที่มาของมาตรการ ไม่ใช่สถานะของโรงเรียน)' : ''], ['ลำดับ QSPM ในประเด็นเดียวกัน (1 = ดีที่สุด)', x.qpri],['สถานะหลักฐาน', x.evid], ['สถานะมาตรการ', x.status]].filter((p) => p[1]);
   const extraHtml = (x) => { const e = extra(x); return e.length ? '<details class="xd"><summary>รายละเอียดเพิ่มเติม</summary><dl>' + e.map((p) => '<dt>' + esc(p[0]) + '</dt><dd>' + esc(p[1]) + '</dd>').join('') + '</dl></details>' : ''; };
   const BANKSRC = { source: 'ฝังในเว็บ', version: '', updated: '', note: '', error: '', loading: false };
   const SHORT_DOM = { V: 'ความรุนแรงของมนุษย์', A: 'อุบัติเหตุและภัยพิบัติ', P: 'การละเมิดสิทธิ', H: 'สุขภาวะกายและจิตใจ' };

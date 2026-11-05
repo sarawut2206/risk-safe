@@ -69,7 +69,8 @@
           b.risk.indexOf(dom.risk) >= 0 &&
           b.ready.indexOf(readyFinal) >= 0 &&
           b.res <= res.code)
-        .map(({ b, idx }) => ({ b, score: (topCodes.indexOf(b.elem) >= 0 ? 20000 : 10000) - idx }))
+        // ลำดับ QSPM (qpri, 1 = ดีที่สุดในประเด็นเดียวกัน) ใช้จัดลำดับภายในกลุ่มเดียวกัน ค่าว่างถือเป็น 1 จึงไม่เปลี่ยนผลถ้ายังไม่มีข้อมูล QSPM
+        .map(({ b, idx }) => ({ b, score: (topCodes.indexOf(b.elem) >= 0 ? 20000 : 10000) - (Math.max(1, Math.floor(Number(b.qpri)) || 1) - 1) * 100 - idx }))
         .sort((x, y) => y.score - x.score)
         .slice(0, res.max);
       dom.measures = cand.map((c, k) => {
