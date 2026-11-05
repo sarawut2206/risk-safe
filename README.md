@@ -14,6 +14,9 @@
 | `index.html`, `style.css`, `app.js` | หน้าเว็บ |
 | `engine.js` | เครื่องคำนวณกลไกตัดสินใจ (ย้ายจากเครื่องมือ Excel ต้นแบบ) |
 | `data.js` | คลังมาตรการ ชุดการตัดสินใจ R1–R9 ข้อคำถามความเสี่ยงและ 7-S ข้อมูลตัวอย่างสมมติ |
+| `bankloader.js`, `config.js` | โหลดคลังมาตรการจาก Google Sheets (อ่านอย่างเดียว) ตรวจข้อมูลก่อนใช้ ถ้าไม่ได้ใช้ข้อมูลที่ฝังไว้ |
+| `apps-script/Code.gs` | โค้ด Google Apps Script (doGet อ่านอย่างเดียว) วางในโครงการ Apps Script แล้ว deploy ดูขั้นตอนในหัวไฟล์ |
 | `tests/test_engine.js` | ทดสอบเทียบผลกับ Excel (`node tests/test_engine.js`) |
+| `tests/test_bankloader.js` | ทดสอบตัวตรวจและตัวโหลดคลังมาตรการ (`node tests/test_bankloader.js`) |
 
 ข้อมูลใน `data.js` ควรแก้ผ่าน commit เพื่อให้มีประวัติการเปลี่ยนแปลง (เช่น แต่ละรอบเดลฟายติด tag) ห้ามนำข้อมูลโรงเรียนจริงหรือข้อมูลบุคคลเข้าที่เก็บนี้

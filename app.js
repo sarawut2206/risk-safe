@@ -7,6 +7,8 @@
     status: {}, aar: '',
     ui: { step: 1, riskDom: 'V', sevEl: 'STG', stratDom: 'V', bank: { q: '', dom: '', el: '', t3: '', res: '' } },
   };
+  const BUNDLED_BANK = D.bank.slice();
+  const BANKSRC = { source: 'ฝังในเว็บ', version: '', updated: '', note: '', error: '', loading: false };
   const SHORT_DOM = { V: 'ความรุนแรงของมนุษย์', A: 'อุบัติเหตุและภัยพิบัติ', P: 'การละเมิดสิทธิ', H: 'สุขภาวะกายและจิตใจ' };
   const SHORT_EL = { STG: 'กลยุทธ์', STR: 'โครงสร้าง', SYS: 'ระบบ', STY: 'รูปแบบการบริหาร', STF: 'บุคลากร', SKL: 'ทักษะ', VAL: 'ค่านิยมร่วม' };
   const STATUS = ['ยังไม่เริ่ม', 'กำลังดำเนินการ', 'เสร็จแล้ว'];
@@ -238,7 +240,29 @@
     return '<p class="hint" aria-live="polite">แสดง ' + rows.length + ' จาก ' + D.bank.length + ' รายการ</p><div class="scroll"><table><thead><tr><th>รหัส</th><th>ด้าน</th><th>มาตรการ</th><th>7-S</th><th>3 ป.</th><th>ระยะ</th><th class="n">ทรัพยากร</th><th>ผู้รับผิดชอบ</th><th>ตัวชี้วัด</th><th>เหมาะกับความเสี่ยง</th><th>เหมาะกับความพร้อม</th></tr></thead><tbody>' +
       rows.map((x) => '<tr><td>' + x.id + '</td><td>' + x.dom + '</td><td><b>' + esc(x.name) + '</b><br>' + esc(x.desc) + '</td><td>' + esc(SHORT_EL[x.elem]) + '</td><td>' + esc(x.type3) + '</td><td>' + esc(x.phase) + '</td><td class="n">' + x.res + '</td><td>' + esc(x.owner) + '</td><td>' + esc(x.kpi) + '</td><td>' + esc(x.risk) + '</td><td>' + esc(x.ready) + '</td></tr>').join('') + '</tbody></table></div>';
   }
-  function pageBank() { return '<div class="card">' + benchFilters() + '<div id="bank-wrap">' + bankTable() + '</div></div>'; }
+  function bankStatus() {
+    const b = BANKSRC, remote = b.source === 'Google Sheets';
+    let s = '<div class="card" style="margin-bottom:14px"><div style="display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap"><div>';
+    s += '<b>แหล่งข้อมูลคลังมาตรการ: </b>' + (b.loading ? '<span class="chip">กำลังโหลดจาก Google Sheets…</span>' : remote ? '<span class="chip ok">Google Sheets</span>' : '<span class="chip warn">ข้อมูลที่ฝังในเว็บ</span>');
+    if (remote) s += ' <span class="muted">เวอร์ชัน ' + esc(b.version || '–') + (b.updated ? ' · อัปเดต ' + esc(b.updated) : '') + (b.note ? ' · ' + esc(b.note) : '') + '</span>';
+    if (!remote && b.error) s += '<div class="hint" style="margin:6px 0 0">โหลดจาก Google Sheets ไม่ได้ จึงใช้ข้อมูลที่ฝังไว้: ' + esc(b.error) + '</div>';
+    if (remote) s += '<div class="hint" style="margin:6px 0 0">ผู้มีสิทธิ์แก้ชีตแก้คลังได้ เว็บตรวจรูปแบบข้อมูลทุกแถวก่อนใช้ ผลวิเคราะห์ทุกหน้าใช้คลังชุดนี้</div>';
+    return s + '</div><button class="btn sm" data-act="reload-bank"' + (b.loading ? ' disabled' : '') + '>โหลดใหม่</button></div></div>';
+  }
+  function pageBank() { return bankStatus() + '<div class="card">' + benchFilters() + '<div id="bank-wrap">' + bankTable() + '</div></div>'; }
+  async function loadRemoteBank() {
+    const cfg = window.RS_CONFIG || {};
+    if (!cfg.bankUrl || !window.RS_BANKLOADER) return;
+    BANKSRC.loading = true; if (cur === 'bank') render(true);
+    try {
+      const r = await RS_BANKLOADER.fetchBank(cfg.bankUrl, { domains: D.domains.map((d) => d.code), elements: D.elements.map((e) => e.code) }, cfg.timeoutMs);
+      D.bank = r.rows; Object.assign(BANKSRC, { source: 'Google Sheets', version: r.version, updated: r.updated, note: r.note, error: '' });
+    } catch (e) {
+      D.bank = BUNDLED_BANK.slice(); Object.assign(BANKSRC, { source: 'ฝังในเว็บ', version: '', updated: '', note: '', error: (e && e.name === 'AbortError') ? 'หมดเวลารอ' : (e && e.message === 'Failed to fetch') ? 'เชื่อมต่อ Google Sheets ไม่ได้ (สคริปต์ยังไม่มี doGet ที่ถูกต้อง หรือยังไม่ได้ deploy ใหม่ หรือเครือข่ายถูกบล็อก)' : String(e && e.message || e).slice(0, 220) });
+    }
+    BANKSRC.loading = false;
+    if (['bank', 'strategy', 'plan', 'dash'].indexOf(cur) >= 0) render(true);
+  }
 
   function pageRules() {
     const meta = [
@@ -261,7 +285,7 @@
     return '<div class="grid g2"><div class="card"><h3>ระบบนี้ตอบคำถาม 5 ข้อ</h3><ol style="padding-left:1.3em"><li>โรงเรียนมีความเสี่ยงด้านใด</li><li>มีความพร้อมในการจัดการความเสี่ยงเพียงใด</li><li>ควรเลือกกลยุทธ์อะไรก่อน</li><li>ต้องใช้ทรัพยากรและมอบหมายใคร</li><li>จะติดตามความก้าวหน้าได้อย่างไร</li></ol>' +
       '<p>จับคู่<b>ระดับความเสี่ยงรายด้านของภัย</b>กับ<b>ระดับความพร้อมตามกรอบ 7-S</b> เป็นกลุ่ม R1–R9 แล้วคัดมาตรการจากคลังพร้อมเหตุผลที่ตรวจย้อนกลับได้</p></div>' +
       '<div class="card"><h3>กระบวนการ 6 ขั้นตอน</h3><ol style="padding-left:1.3em"><li>วิเคราะห์ความเสี่ยง (ISO 31000, L×C)</li><li>วิเคราะห์ความพร้อม (McKinsey 7-S, D และ I)</li><li>จัดลำดับความสำคัญ (PNI Modified = (I−D)/D)</li><li>เลือกกลยุทธ์ (ตาราง Risk × Readiness และคลังมาตรการ)</li><li>ขับเคลื่อน (แผนปฏิบัติการ ผู้รับผิดชอบ)</li><li>ติดตามและเรียนรู้ (ตัวชี้วัด และย้อนกลับไปขั้น 1–4)</li></ol><p class="hint">ขั้นที่ 1 และ 2 ดำเนินการคู่ขนานกัน</p></div></div>' +
-      '<div class="card" style="margin-top:14px"><h3>สถานะของต้นแบบ</h3><ul style="padding-left:1.2em;margin:6px 0"><li>เครื่องคำนวณย้ายจากเครื่องมือ Excel ต้นแบบ และทดสอบเทียบผล 70 รายการกับ Excel ด้วยข้อมูลตัวอย่างชุดเดียวกัน (โฟลเดอร์ <code>tests</code> ใน GitHub)</li><li>ข้อมูลตัวอย่างเป็นโรงเรียนสมมติ ไม่ใช่ผลของโรงเรียนจริง</li><li>เกณฑ์ ตารางตัดสินใจ และคลังมาตรการ 62 รายการเป็นร่างเริ่มต้น ยังไม่ผ่านเดลฟาย การตรวจ IOC และการประเมินโดยผู้ทรงคุณวุฒิ</li><li>ยังไม่มี QSPM ระบบสมาชิก ฐานข้อมูล และการบันทึกประวัติการอนุมัติ ซึ่งวางแผนไว้หลังเกณฑ์ผ่านเดลฟายและได้รับการรับรองจริยธรรมการวิจัย</li><li>ผลของระบบเป็นข้อเสนอสนับสนุนการวางแผน ไม่ใช้แทนดุลยพินิจของผู้อำนวยการ ไม่ใช้ตัดสินหรือจัดอันดับโรงเรียน และไม่ใช้แทนการตอบสนองเหตุฉุกเฉิน</li></ul></div>';
+      '<div class="card" style="margin-top:14px"><h3>สถานะของต้นแบบ</h3><ul style="padding-left:1.2em;margin:6px 0"><li>เครื่องคำนวณย้ายจากเครื่องมือ Excel ต้นแบบ และทดสอบเทียบผล 70 รายการกับ Excel ด้วยข้อมูลตัวอย่างชุดเดียวกัน (โฟลเดอร์ <code>tests</code> ใน GitHub)</li><li>ข้อมูลตัวอย่างเป็นโรงเรียนสมมติ ไม่ใช่ผลของโรงเรียนจริง</li><li>คลังมาตรการดึงจาก Google Sheets (อ่านอย่างเดียว) ถ้าโหลดไม่ได้หรือข้อมูลไม่ผ่านการตรวจ เว็บใช้ข้อมูลที่ฝังไว้ เว็บไม่ส่งข้อมูลที่ผู้ใช้กรอกไปที่ใด</li><li>เกณฑ์ ตารางตัดสินใจ และคลังมาตรการ 62 รายการเป็นร่างเริ่มต้น ยังไม่ผ่านเดลฟาย การตรวจ IOC และการประเมินโดยผู้ทรงคุณวุฒิ</li><li>ยังไม่มี QSPM ระบบสมาชิก ฐานข้อมูล และการบันทึกประวัติการอนุมัติ ซึ่งวางแผนไว้หลังเกณฑ์ผ่านเดลฟายและได้รับการรับรองจริยธรรมการวิจัย</li><li>ผลของระบบเป็นข้อเสนอสนับสนุนการวางแผน ไม่ใช้แทนดุลยพินิจของผู้อำนวยการ ไม่ใช้ตัดสินหรือจัดอันดับโรงเรียน และไม่ใช้แทนการตอบสนองเหตุฉุกเฉิน</li></ul></div>';
   }
 
   // ---------- เราเตอร์และการวาด ----------
@@ -319,6 +343,7 @@
     else if (a === 'tab-strat') { S.ui.stratDom = t.dataset.code; render(true); }
     else if (a === 'strat') { S.ui.stratDom = t.dataset.dom; go('strategy'); }
     else if (a === 'csv') csv();
+    else if (a === 'reload-bank') loadRemoteBank();
     else if (a === 'params-reset') { S.params = Object.assign({}, E.DEFAULT_PARAMS); render(true); }
   });
   document.addEventListener('change', (e) => {
@@ -342,4 +367,5 @@
 
   const h0 = location.hash.replace('#', '');
   cur = RENDER[h0] ? h0 : 'dash'; render();
+  loadRemoteBank();
 })();

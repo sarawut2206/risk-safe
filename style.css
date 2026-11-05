@@ -66,6 +66,7 @@ button, select, input, textarea { font: inherit; color: inherit; }
 .tag.lo { background: var(--green-soft); color: var(--green); } .tag.lo::before { content: "▼ "; }
 .empty { text-align: center; padding: 44px 16px; }
 .empty h2 { font-size: 1.25rem; margin-bottom: 6px; } .empty p { color: var(--muted); max-width: 52ch; margin: 0 auto 14px; }
+.muted { color: var(--muted); }
 .scroll { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: .92rem; }
 th, td { padding: 8px 10px; border-bottom: 1px solid var(--line2); text-align: left; vertical-align: top; }
