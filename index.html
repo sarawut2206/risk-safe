@@ -3,163 +3,46 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>R²-SAFE ต้นแบบระบบตัดสินใจกลยุทธ์ความปลอดภัยสถานศึกษา</title>
+<title>R²-SAFE ระบบช่วยตัดสินใจกลยุทธ์ความปลอดภัยสถานศึกษา (ต้นแบบ)</title>
 <meta name="description" content="ต้นแบบเชิงวิจัย: ระบบช่วยตัดสินใจเลือกกลยุทธ์การบริหารความปลอดภัยสถานศึกษาตามระดับความเสี่ยงและความพร้อมขององค์กร (ข้อมูลจำลอง)">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<a class="skip" href="#main">ข้ามไปเนื้อหา</a>
-
-<header class="top">
-  <div class="wrap">
+<a class="skip" href="#view">ข้ามไปเนื้อหา</a>
+<div class="app">
+  <aside class="side" id="side">
     <div class="brand">
       <span class="logo" aria-hidden="true">R²</span>
-      <div>
-        <h1>R²-SAFE <small>ต้นแบบ V0.1</small></h1>
-        <p>ระบบช่วยตัดสินใจเลือกกลยุทธ์การบริหารความปลอดภัยสถานศึกษา บนฐานความเสี่ยงและความพร้อมขององค์กร</p>
-      </div>
+      <div><b>R²-SAFE</b><small>ต้นแบบเชิงวิจัย V0.2</small></div>
     </div>
-    <nav aria-label="เมนูหลัก" id="tabs" role="tablist">
-      <button role="tab" data-tab="about" aria-selected="true">ภาพรวม</button>
-      <button role="tab" data-tab="input" aria-selected="false">1 ป้อนข้อมูล</button>
-      <button role="tab" data-tab="result" aria-selected="false">2 ผลวิเคราะห์</button>
-      <button role="tab" data-tab="bank" aria-selected="false">คลังมาตรการ</button>
-      <button role="tab" data-tab="rules" aria-selected="false">ตารางตัดสินใจและเกณฑ์</button>
-    </nav>
-  </div>
-</header>
+    <nav id="nav" aria-label="เมนูหลัก"></nav>
+    <div class="side-foot">
+      <div class="chip warn">ข้อมูลจำลอง · เกณฑ์เป็นร่าง</div>
+      <p>ประมวลผลในเบราว์เซอร์ ไม่เก็บและไม่ส่งข้อมูลที่กรอก</p>
+    </div>
+  </aside>
 
-<div class="notice" role="note">
-  <div class="wrap">
-    <strong>ต้นแบบเชิงวิจัย ใช้ข้อมูลจำลอง</strong> เกณฑ์ ตารางตัดสินใจ และคลังมาตรการเป็นร่างเริ่มต้น ยังไม่ผ่านเดลฟาย การตรวจ IOC และการประเมินโดยผู้ทรงคุณวุฒิ
-    <strong>หากเกิดเหตุฉุกเฉินจริง ให้ปฏิบัติตามแผนเผชิญเหตุและกฎหมายทันที ไม่ต้องรอระบบนี้</strong>
-    ผลของระบบไม่ใช้แทนดุลยพินิจของผู้อำนวยการ และไม่ใช้จัดอันดับหรือตัดสินโรงเรียน
-    เว็บนี้ประมวลผลในเบราว์เซอร์ของคุณเท่านั้น ไม่เก็บและไม่ส่งข้อมูลที่กรอกไปที่ใด
+  <div class="main">
+    <header class="bar">
+      <div>
+        <h1 id="page-title">ภาพรวม</h1>
+        <p id="page-sub" class="sub"></p>
+      </div>
+      <div class="bar-actions">
+        <span id="fill-chip" class="chip" aria-live="polite"></span>
+        <button class="btn" id="btn-example">ใส่ข้อมูลตัวอย่าง</button>
+        <button class="btn ghost" id="btn-clear">ล้าง</button>
+      </div>
+    </header>
+    <div class="strip" role="note">
+      <b>เหตุฉุกเฉินจริงให้ปฏิบัติตามแผนเผชิญเหตุและกฎหมายทันที ไม่ต้องรอระบบนี้</b>
+      ผลของระบบเป็นข้อเสนอสนับสนุนการวางแผน ผู้อำนวยการเป็นผู้ตัดสินใจขั้นสุดท้าย ไม่ใช้จัดอันดับหรือตัดสินโรงเรียน
+    </div>
+    <main id="view" tabindex="-1"></main>
+    <footer class="foot">R²-SAFE ต้นแบบประกอบงานวิจัยระดับดุษฎีนิพนธ์ (ร่าง) · ใช้ข้อมูลจำลอง · ซอร์สโค้ดและข้อมูลเปิดใน <a href="https://github.com/sarawut2206/risk-safe">GitHub</a></footer>
   </div>
 </div>
-
-<main id="main" class="wrap">
-
-<!-- ================= ภาพรวม ================= -->
-<section id="tab-about" class="panel" role="tabpanel">
-  <h2>ระบบนี้ตอบคำถามผู้บริหาร 5 ข้อ</h2>
-  <ol class="q">
-    <li>โรงเรียนมีความเสี่ยงด้านใด</li>
-    <li>โรงเรียนมีความพร้อมในการจัดการความเสี่ยงเพียงใด</li>
-    <li>ควรเลือกกลยุทธ์อะไรก่อน</li>
-    <li>ต้องใช้ทรัพยากรและมอบหมายใคร</li>
-    <li>จะติดตามความก้าวหน้าได้อย่างไร</li>
-  </ol>
-  <p>โรงเรียนแต่ละแห่งมีความเสี่ยงและความพร้อมไม่เท่ากัน ระบบจึงไม่ให้ชุดกลยุทธ์เดียวกับทุกโรงเรียน แต่จับคู่<strong>ระดับความเสี่ยงรายด้านของภัย</strong>กับ<strong>ระดับความพร้อมตามกรอบ 7-S</strong> เป็นกลุ่มแนวทางตอบสนอง R1–R9 แล้วคัดมาตรการจากคลังพร้อมแสดงเหตุผลที่ตรวจย้อนกลับได้ ผู้อำนวยการเป็นผู้ตัดสินใจขั้นสุดท้ายเสมอ</p>
-
-  <h3>กระบวนการ 6 ขั้นตอน</h3>
-  <div class="steps">
-    <div class="step"><b>1</b><span>วิเคราะห์ความเสี่ยง<br><small>ISO 31000 · L×C รายด้าน</small></span></div>
-    <div class="step"><b>2</b><span>วิเคราะห์ความพร้อม<br><small>McKinsey 7-S · D และ I</small></span></div>
-    <div class="step"><b>3</b><span>จัดลำดับความสำคัญ<br><small>PNI Modified = (I−D)/D</small></span></div>
-    <div class="step"><b>4</b><span>เลือกกลยุทธ์<br><small>ตาราง Risk × Readiness · คลังมาตรการ</small></span></div>
-    <div class="step"><b>5</b><span>ขับเคลื่อน<br><small>แผนปฏิบัติการ · ผู้รับผิดชอบ</small></span></div>
-    <div class="step"><b>6</b><span>ติดตามและเรียนรู้<br><small>ตัวชี้วัด · ย้อนกลับไปขั้น 1–4</small></span></div>
-  </div>
-  <p class="muted">ขั้นที่ 1 และ 2 ดำเนินการคู่ขนานกัน ผลติดตามในขั้นที่ 6 ย้อนกลับไปปรับข้อมูลและเกณฑ์</p>
-
-  <div class="cta">
-    <button class="btn primary" data-go="input">เริ่มจากข้อมูลตัวอย่าง</button>
-    <button class="btn" data-go="bank">ดูคลังมาตรการ 62 รายการ</button>
-  </div>
-
-  <h3>สถานะของต้นแบบ</h3>
-  <ul>
-    <li>เครื่องคำนวณบนหน้านี้ย้ายมาจากเครื่องมือ Excel ต้นแบบ และผ่านการทดสอบเทียบผล 70 รายการกับ Excel ด้วยข้อมูลตัวอย่างชุดเดียวกัน (ดูโฟลเดอร์ <code>tests</code> ใน GitHub)</li>
-    <li>ข้อมูลตัวอย่างเป็นโรงเรียนสมมติ ไม่ใช่ผลของโรงเรียนจริง</li>
-    <li>ยังไม่มีระบบสมาชิก ฐานข้อมูล และการบันทึกประวัติการอนุมัติ ซึ่งวางแผนไว้ในขั้นพัฒนาต่อ หลังเกณฑ์ผ่านเดลฟายและได้รับการรับรองจริยธรรมการวิจัย</li>
-  </ul>
-</section>
-
-<!-- ================= ป้อนข้อมูล ================= -->
-<section id="tab-input" class="panel" role="tabpanel" hidden>
-  <h2>1 ป้อนข้อมูลโรงเรียน</h2>
-  <p class="muted">ใช้ข้อมูลจำลองหรือรหัสแทนชื่อโรงเรียน อย่ากรอกชื่อบุคคลหรือรายละเอียดเหตุการณ์จริง เว็บนี้ไม่เก็บข้อมูล แต่ข้อมูลจะหายเมื่อปิดหรือรีเฟรชหน้านี้</p>
-  <div class="bar">
-    <button class="btn primary" id="btn-example">ใส่ข้อมูลตัวอย่าง (สมมติ)</button>
-    <button class="btn" id="btn-clear">ล้างข้อมูล</button>
-    <button class="btn" data-go="result">ไปดูผลวิเคราะห์</button>
-    <span id="fill-status" class="muted" aria-live="polite"></span>
-  </div>
-
-  <div class="card">
-    <label for="res-level"><b>ระดับทรัพยากรที่มีสำหรับงานความปลอดภัยปีนี้</b></label>
-    <select id="res-level">
-      <option value="จำกัด">จำกัด (มาตรการทรัพยากรระดับ 1 สูงสุด 4 ข้อต่อด้าน)</option>
-      <option value="ปานกลาง" selected>ปานกลาง (ระดับ 1–2 สูงสุด 6 ข้อ)</option>
-      <option value="เพียงพอ">เพียงพอ (ระดับ 1–3 สูงสุด 8 ข้อ)</option>
-    </select>
-  </div>
-
-  <h3>ส่วนที่ 2 ความเสี่ยง 4 ด้านของภัย <small>L = ความถี่ในปีการศึกษา, C = ความรุนแรงของผลกระทบ (1–5)</small></h3>
-  <details class="legend"><summary>เกณฑ์คะแนน L และ C (ร่างเริ่มต้น รอตรวจโดยเดลฟาย)</summary>
-    <div class="two"><div id="legend-l"></div><div id="legend-c"></div></div>
-  </details>
-  <div id="risk-form"></div>
-
-  <h3>ส่วนที่ 3 ความพร้อมตามกรอบ 7-S <small>D = สภาพปัจจุบัน, I = สภาพที่พึงประสงค์ (1–5)</small></h3>
-  <details class="legend"><summary>เกณฑ์คะแนน D</summary><div id="legend-d"></div></details>
-  <div id="seven-form"></div>
-
-  <div class="bar"><button class="btn primary" data-go="result">ไปดูผลวิเคราะห์</button></div>
-</section>
-
-<!-- ================= ผลวิเคราะห์ ================= -->
-<section id="tab-result" class="panel" role="tabpanel" hidden>
-  <h2>2 ผลวิเคราะห์และมาตรการที่เสนอ</h2>
-  <div id="result-body"></div>
-</section>
-
-<!-- ================= คลังมาตรการ ================= -->
-<section id="tab-bank" class="panel" role="tabpanel" hidden>
-  <h2>คลังมาตรการ (Strategy Bank) ร่างเริ่มต้น 62 รายการ</h2>
-  <p class="muted">ร่างที่ผู้วิจัยจัดทำ ยังไม่ผูกแหล่งอ้างอิงรายข้อและยังไม่ผ่านเดลฟาย ใช้เพื่อสาธิตการทำงานของระบบ</p>
-  <div class="filters">
-    <label>ค้นหา <input type="search" id="f-q" placeholder="ชื่อ รายละเอียด ตัวชี้วัด"></label>
-    <label>ด้านของภัย <select id="f-dom"></select></label>
-    <label>องค์ประกอบ 7-S <select id="f-el"></select></label>
-    <label>ประเภท 3 ป. <select id="f-t3"></select></label>
-    <label>ทรัพยากร <select id="f-res"><option value="">ทั้งหมด</option><option value="1">ระดับ 1</option><option value="2">ระดับ 2</option><option value="3">ระดับ 3</option></select></label>
-  </div>
-  <p id="bank-count" class="muted" aria-live="polite"></p>
-  <div class="scroll"><table id="bank-table"><thead></thead><tbody></tbody></table></div>
-</section>
-
-<!-- ================= ตารางตัดสินใจและเกณฑ์ ================= -->
-<section id="tab-rules" class="panel" role="tabpanel" hidden>
-  <h2>ตารางตัดสินใจ Risk × Readiness (R1–R9)</h2>
-  <div id="matrix"></div>
-  <h3>กฎการตัดสินใจ 8 ข้อ</h3>
-  <ol>
-    <li>จำแนกระดับความเสี่ยงของภัยแต่ละด้าน (พร้อมกฎยกระดับเมื่อมีผลกระทบรุนแรงสูงสุดและเกิดซ้ำ)</li>
-    <li>จำแนกระดับความพร้อมขององค์กร (พร้อมกฎเพดานเมื่อโครงสร้างหรือระบบต่ำกว่าเกณฑ์)</li>
-    <li>จับคู่สองแกนเป็นกลุ่ม R1–R9</li>
-    <li>จัดอันดับช่องว่าง 7-S ด้วย PNI Modified แล้วเลือก 3 องค์ประกอบที่ช่องว่างสูงสุด</li>
-    <li>คัดมาตรการจากคลังที่ตรงกับด้านของภัยและองค์ประกอบ 7-S</li>
-    <li>ใช้ทรัพยากรที่โรงเรียนมีจริงเป็นข้อจำกัดของจำนวนและลำดับมาตรการ</li>
-    <li>ใช้ QSPM จัดลำดับเมื่อมีมาตรการทางเลือกหลายข้อในประเด็นเดียวกัน (ต้นแบบนี้ยังไม่มี QSPM ในหน้าเว็บ)</li>
-    <li>กำหนดผู้รับผิดชอบ ระยะเวลา ตัวชี้วัด และแสดงเหตุผลของการเลือกทุกข้อ</li>
-  </ol>
-  <h3>เกณฑ์เบื้องต้น (แก้ได้เพื่อทดสอบความไว)</h3>
-  <p class="muted">ค่าเริ่มต้นเป็นร่างตามบทที่ 3 ตารางที่ 3.5 ยังไม่ผ่านเดลฟาย เมื่อแก้ค่า ผลวิเคราะห์จะคำนวณใหม่</p>
-  <div class="scroll"><table id="params-table"><thead><tr><th>เกณฑ์</th><th>ค่า</th><th>ความหมาย</th></tr></thead><tbody></tbody></table></div>
-  <button class="btn" id="btn-params-reset">คืนค่าเริ่มต้น</button>
-</section>
-
-</main>
-
-<footer>
-  <div class="wrap">
-    <p>R²-SAFE ต้นแบบประกอบงานวิจัยระดับดุษฎีนิพนธ์ (ร่าง) · ใช้ข้อมูลจำลอง · ไม่เก็บข้อมูลผู้ใช้ · ซอร์สโค้ดและข้อมูลเปิดใน
-    <a href="https://github.com/sarawut2206/risk-safe">GitHub</a></p>
-  </div>
-</footer>
-
+<noscript><p style="padding:20px">หน้านี้ต้องเปิด JavaScript เพื่อคำนวณผลในเบราว์เซอร์</p></noscript>
 <script src="data.js"></script>
 <script src="engine.js"></script>
 <script src="app.js"></script>
