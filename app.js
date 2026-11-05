@@ -1,11 +1,11 @@
-/* R²-SAFE ต้นแบบ V0.2: หน้าจอแดชบอร์ด ประมวลผลในเบราว์เซอร์เท่านั้น ไม่เก็บ ไม่ส่งข้อมูลออก */
+/* Risk Safe (R²-SAFE) ต้นแบบ V0.3: เว็บไซต์พร้อมเครื่องมือ ประมวลผลในเบราว์เซอร์เท่านั้น ไม่เก็บ ไม่ส่งข้อมูลออก */
 (function () {
   'use strict';
   const D = RS_DATA, E = RS_ENGINE;
   const S = {
     risk: {}, seven: {}, resource: 'ปานกลาง', params: Object.assign({}, E.DEFAULT_PARAMS),
     status: {}, aar: '',
-    ui: { step: 1, riskDom: 'V', sevEl: 'STG', stratDom: 'V', bank: { q: '', dom: '', el: '', t3: '', res: '' } },
+    ui: { step: 1, rtab: 'risk', riskDom: 'V', sevEl: 'STG', stratDom: 'V', bank: { q: '', dom: '', el: '', t3: '', res: '' } },
   };
   const BUNDLED_BANK = D.bank.slice();
   const BANKSRC = { source: 'ฝังในเว็บ', version: '', updated: '', note: '', error: '', loading: false };
@@ -14,27 +14,33 @@
   const STATUS = ['ยังไม่เริ่ม', 'กำลังดำเนินการ', 'เสร็จแล้ว'];
   const RANKCOL = { hi: '#d64545', mid: '#e0a526', lo: '#2e9e6b' };
 
+  const LOGO = '<svg viewBox="0 0 40 46" width="34" height="40" aria-hidden="true"><path d="M20 2 3 8v14c0 11 7 19 17 22 10-3 17-11 17-22V8z" fill="#fff"/><path d="M20 5.5 6 10.3V22c0 9.2 5.8 15.8 14 18.6 8.2-2.8 14-9.4 14-18.6V10.3z" fill="#0e1f3f"/><path d="M20 8 9 11.8V21h11z" fill="#d64545"/><path d="M20 8l11 3.8V21H20z" fill="#e0a526"/><path d="M9 21h11v17.3C13.6 36 9 30 9 22z" fill="#2e9e6b"/><path d="M20 21h11v1c0 8-4.6 14-11 16.3z" fill="#3b78c4"/></svg>';
   const ICON = {
-    dash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
-    input: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13 7l4 4"/></svg>',
-    matrix: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>',
-    strategy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>',
-    plan: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg>',
-    bank: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5c0-1 3.6-2 8-2s8 1 8 2-3.6 2-8 2-8-1-8-2z"/><path d="M4 5v7c0 1 3.6 2 8 2s8-1 8-2V5M4 12v7c0 1 3.6 2 8 2s8-1 8-2v-7"/></svg>',
-    rules: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>',
-    about: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>',
+    bank: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5c0-1 3.6-2 8-2s8 1 8 2-3.6 2-8 2-8-1-8-2z"/><path d="M4 5v7c0 1 3.6 2 8 2s8-1 8-2V5M4 12v7c0 1 3.6 2 8 2s8-1 8-2v-7"/></svg>',
+    risk: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 2.5 20h19L12 3z"/><path d="M12 10v5M12 17.6v.4"/></svg>',
+    tool: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>',
   };
-  const PAGES = [
-    { id: 'dash', label: 'ภาพรวม', title: 'ภาพรวมความเสี่ยงและความพร้อม', sub: 'สรุปผลจากข้อมูลที่กรอก: ระดับความเสี่ยงรายด้าน ความพร้อมตาม 7-S และกลุ่มแนวทางตอบสนอง' },
-    { id: 'input', label: 'ป้อนข้อมูล', title: 'ป้อนข้อมูลโรงเรียน', sub: 'กรอก 3 ส่วน: ทรัพยากร ความเสี่ยง 4 ด้านของภัย และความพร้อมตาม 7-S ใช้ข้อมูลจำลองหรือรหัสแทนชื่อจริง' },
-    { id: 'matrix', label: 'ตารางความเสี่ยง × ความพร้อม', title: 'ตารางตัดสินใจ Risk × Readiness (R1–R9)', sub: 'จับคู่ระดับความเสี่ยงรายด้านกับระดับความพร้อมขององค์กร เป็นกลุ่มแนวทางตอบสนอง' },
-    { id: 'strategy', label: 'กลยุทธ์ที่เสนอ', title: 'กลยุทธ์และมาตรการที่ระบบเสนอ', sub: 'พร้อมเหตุผลของการเลือกที่ตรวจย้อนกลับได้ ผู้อำนวยการเป็นผู้ตัดสินใจขั้นสุดท้าย' },
-    { id: 'plan', label: 'แผนปฏิบัติการและติดตามผล', title: 'แผนปฏิบัติการและติดตามผล', sub: 'ผู้รับผิดชอบ ตัวชี้วัด ระยะเวลา และสถานะการดำเนินงาน (ต้นแบบ: สถานะไม่ถูกบันทึกถาวร)' },
-    { sep: 'ข้อมูลอ้างอิง' },
-    { id: 'bank', label: 'คลังมาตรการ', title: 'คลังมาตรการ (Strategy Bank) ร่างเริ่มต้น 62 รายการ', sub: 'ร่างที่ผู้วิจัยจัดทำ ยังไม่ผูกแหล่งอ้างอิงรายข้อและยังไม่ผ่านเดลฟาย ใช้สาธิตการทำงานของระบบ' },
-    { id: 'rules', label: 'กฎและเกณฑ์', title: 'กฎการตัดสินใจและเกณฑ์เบื้องต้น', sub: 'ค่าเริ่มต้นเป็นร่างตามบทที่ 3 ยังไม่ผ่านเดลฟาย แก้ได้เพื่อทดสอบความไวของผล' },
-    { id: 'about', label: 'เกี่ยวกับต้นแบบ', title: 'เกี่ยวกับต้นแบบ R²-SAFE', sub: 'ระบบนี้ตอบอะไร ทำงานอย่างไร และสถานะของต้นแบบ' },
+  // เมนูบน (nav) และหน้าทั้งหมด; field nav = เมนูบนที่ต้องไฮไลต์เมื่ออยู่หน้านี้
+  const NAV = [
+    { id: 'bank', label: 'คลังกลยุทธ์' },
+    { id: 'risk', label: 'ฐานข้อมูลความเสี่ยง' },
+    { id: 'input', label: 'เครื่องมือประเมิน' },
+    { id: 'about', label: 'เกี่ยวกับโครงการ' },
   ];
+  const TOOL = ['input', 'dash', 'matrix', 'strategy', 'plan', 'rules'];
+  const PAGES = [
+    { id: 'home', nav: '', title: 'Risk Safe ระบบบริหารความปลอดภัยบนฐานความเสี่ยง', sub: '' },
+    { id: 'bank', nav: 'bank', eyebrow: 'คลังกลยุทธ์', title: 'คลังมาตรการ (Strategy Bank) ฉบับร่างเริ่มต้น', sub: 'ร่างที่ผู้วิจัยจัดทำ ยังไม่ผูกแหล่งอ้างอิงรายข้อและยังไม่ผ่านเดลฟาย ใช้สาธิตการทำงานของระบบ' },
+    { id: 'risk', nav: 'risk', eyebrow: 'ฐานข้อมูลความเสี่ยง', title: 'ข้อประเมินและเกณฑ์ความเสี่ยง', sub: 'รายการข้อประเมินความเสี่ยง 4 ด้านของภัยและข้อประเมินความพร้อม 7-S ที่เครื่องมือใช้ (ร่างรอเดลฟาย) นี่ไม่ใช่ฐานข้อมูลเหตุการณ์จริงของโรงเรียนใด' },
+    { id: 'input', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'ป้อนข้อมูลโรงเรียน', sub: 'กรอก 3 ส่วน: ทรัพยากร ความเสี่ยง 4 ด้านของภัย และความพร้อมตาม 7-S ใช้ข้อมูลจำลองหรือรหัสแทนชื่อจริง' },
+    { id: 'dash', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'ภาพรวมความเสี่ยงและความพร้อม', sub: 'สรุปผลจากข้อมูลที่กรอก: ระดับความเสี่ยงรายด้าน ความพร้อมตาม 7-S และกลุ่มแนวทางตอบสนอง' },
+    { id: 'matrix', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'ตารางตัดสินใจ Risk × Readiness (R1–R9)', sub: 'จับคู่ระดับความเสี่ยงรายด้านกับระดับความพร้อมขององค์กร เป็นกลุ่มแนวทางตอบสนอง' },
+    { id: 'strategy', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'กลยุทธ์และมาตรการที่ระบบเสนอ', sub: 'พร้อมเหตุผลของการเลือกที่ตรวจย้อนกลับได้ ผู้อำนวยการเป็นผู้ตัดสินใจขั้นสุดท้าย' },
+    { id: 'plan', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'แผนปฏิบัติการและติดตามผล', sub: 'ผู้รับผิดชอบ ตัวชี้วัด ระยะเวลา และสถานะการดำเนินงาน (ต้นแบบ: สถานะไม่ถูกบันทึกถาวร)' },
+    { id: 'rules', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'กฎการตัดสินใจและเกณฑ์เบื้องต้น', sub: 'ค่าเริ่มต้นเป็นร่างตามบทที่ 3 ยังไม่ผ่านเดลฟาย แก้ได้เพื่อทดสอบความไวของผล' },
+    { id: 'about', nav: 'about', eyebrow: 'เกี่ยวกับโครงการ', title: 'เกี่ยวกับต้นแบบ Risk Safe (R²-SAFE)', sub: 'ระบบนี้ตอบอะไร ทำงานอย่างไร และสถานะของต้นแบบ' },
+  ];
+  const TOOLTAB = [['input', 'ป้อนข้อมูล'], ['dash', 'ภาพรวม'], ['matrix', 'ตาราง R1–R9'], ['strategy', 'กลยุทธ์ที่เสนอ'], ['plan', 'แผนปฏิบัติการ'], ['rules', 'กฎและเกณฑ์']];
 
   // ---------- ตัวช่วย ----------
   const $ = (s, r) => (r || document).querySelector(s);
@@ -261,7 +267,7 @@
       D.bank = BUNDLED_BANK.slice(); Object.assign(BANKSRC, { source: 'ฝังในเว็บ', version: '', updated: '', note: '', error: (e && e.name === 'AbortError') ? 'หมดเวลารอ' : (e && e.message === 'Failed to fetch') ? 'เชื่อมต่อ Google Sheets ไม่ได้ (สคริปต์ยังไม่มี doGet ที่ถูกต้อง หรือยังไม่ได้ deploy ใหม่ หรือเครือข่ายถูกบล็อก)' : String(e && e.message || e).slice(0, 220) });
     }
     BANKSRC.loading = false;
-    if (['bank', 'strategy', 'plan', 'dash'].indexOf(cur) >= 0) render(true);
+    if (['home', 'bank', 'strategy', 'plan', 'dash'].indexOf(cur) >= 0) render(true);
   }
 
   function pageRules() {
@@ -288,27 +294,109 @@
       '<div class="card" style="margin-top:14px"><h3>สถานะของต้นแบบ</h3><ul style="padding-left:1.2em;margin:6px 0"><li>เครื่องคำนวณย้ายจากเครื่องมือ Excel ต้นแบบ และทดสอบเทียบผล 70 รายการกับ Excel ด้วยข้อมูลตัวอย่างชุดเดียวกัน (โฟลเดอร์ <code>tests</code> ใน GitHub)</li><li>ข้อมูลตัวอย่างเป็นโรงเรียนสมมติ ไม่ใช่ผลของโรงเรียนจริง</li><li>คลังมาตรการดึงจาก Google Sheets (อ่านอย่างเดียว) ถ้าโหลดไม่ได้หรือข้อมูลไม่ผ่านการตรวจ เว็บใช้ข้อมูลที่ฝังไว้ เว็บไม่ส่งข้อมูลที่ผู้ใช้กรอกไปที่ใด</li><li>เกณฑ์ ตารางตัดสินใจ และคลังมาตรการ 62 รายการเป็นร่างเริ่มต้น ยังไม่ผ่านเดลฟาย การตรวจ IOC และการประเมินโดยผู้ทรงคุณวุฒิ</li><li>ยังไม่มี QSPM ระบบสมาชิก ฐานข้อมูล และการบันทึกประวัติการอนุมัติ ซึ่งวางแผนไว้หลังเกณฑ์ผ่านเดลฟายและได้รับการรับรองจริยธรรมการวิจัย</li><li>ผลของระบบเป็นข้อเสนอสนับสนุนการวางแผน ไม่ใช้แทนดุลยพินิจของผู้อำนวยการ ไม่ใช้ตัดสินหรือจัดอันดับโรงเรียน และไม่ใช้แทนการตอบสนองเหตุฉุกเฉิน</li></ul></div>';
   }
 
+  // ---------- ตาราง 5×5 (L × C) ----------
+  function matrix5() {
+    const p = S.params;
+    const lv = (v) => (v <= p.riskLow ? 'lo' : v <= p.riskMid ? 'mid' : 'hi');
+    let s = '<div class="m5"><div class="m5-y">ความถี่ในปีการศึกษา (L)</div><div class="m5-grid">';
+    for (let l = 5; l >= 1; l--) {
+      s += '<div class="m5-r" title="' + esc((D.lAnchors[l - 1] || [])[1] || '') + '">L' + l + '</div>';
+      for (let c = 1; c <= 5; c++) {
+        const v = l * c, ov = c >= p.overrideC && l >= p.overrideL;
+        s += '<div class="m5c ' + lv(v) + (ov ? ' ov' : '') + '" title="L' + l + ' × C' + c + ' = ' + v + (ov ? ' (เข้ากฎยกระดับ)' : '') + '">' + v + '</div>';
+      }
+    }
+    s += '<div></div>';
+    for (let c = 1; c <= 5; c++) s += '<div class="m5-h" title="' + esc((D.cAnchors[c - 1] || [])[1] || '') + '">C' + c + '</div>';
+    s += '</div></div><div class="m5-note">ผลกระทบ (C) →</div>';
+    s += '<div class="m5-leg"><span><i style="background:#bfecd0"></i>ต่ำ (≤ ' + p.riskLow + ')</span><span><i style="background:#fde9a6"></i>กลาง (≤ ' + p.riskMid + ')</span><span><i style="background:#f1a9a0"></i>สูง (&gt; ' + p.riskMid + ')</span><span>▲ กรอบเส้นประ = เข้ากฎยกระดับ (C ≥ ' + p.overrideC + ' และ L ≥ ' + p.overrideL + ')</span></div>';
+    return s;
+  }
+
+  // ---------- หน้าแรก ----------
+  function pageHome() {
+    const nItems = D.riskItems.length + D.sevenItems.length;
+    const stats = [[D.bank.length, 'มาตรการในคลัง', 'ฉบับร่าง รอเดลฟาย'], [D.domains.length, 'ด้านของภัย', 'V · A · P · H'], [D.elements.length, 'องค์ประกอบ 7-S', 'ตามกรอบ McKinsey'], [nItems, 'ข้อประเมิน', 'ความเสี่ยง + ความพร้อม']];
+    const mods = [
+      ['bank', 'bank', 'คลังกลยุทธ์', 'คลังมาตรการ ' + D.bank.length + ' รายการ กรองตามด้านของภัย องค์ประกอบ 7-S ประเภท 3 ป. และระดับทรัพยากร พร้อมผู้รับผิดชอบและตัวชี้วัด', 'เปิดคลังกลยุทธ์ →'],
+      ['risk', 'risk', 'ฐานข้อมูลความเสี่ยง', 'ข้อประเมินความเสี่ยง ' + D.riskItems.length + ' ข้อใน 4 ด้านของภัย และข้อประเมิน 7-S ' + D.sevenItems.length + ' ข้อ พร้อมเกณฑ์คะแนนและตารางความเสี่ยง 5 × 5', 'ดูข้อประเมินและเกณฑ์ →'],
+      ['input', 'tool', 'เครื่องมือประเมิน', 'กรอกข้อมูลโรงเรียน ระบบวิเคราะห์ความเสี่ยง × ความพร้อม จัดกลุ่ม R1–R9 เสนอมาตรการพร้อมเหตุผล และแผนปฏิบัติการ', 'เริ่มประเมิน →'],
+    ];
+    const steps = [['วิเคราะห์ความเสี่ยง', 'ISO 31000: L × C'], ['วิเคราะห์ความพร้อม', 'McKinsey 7-S: D และ I'], ['จัดลำดับความสำคัญ', 'PNI Modified'], ['เลือกกลยุทธ์', 'ตาราง Risk × Readiness'], ['ขับเคลื่อน', 'แผนปฏิบัติการ'], ['ติดตามและเรียนรู้', 'ตัวชี้วัดและ AAR']];
+    let s = '<section class="hero hexbg"><div class="wrap"><span class="pillb">ต้นแบบงานวิจัยดุษฎีนิพนธ์ · มหาวิทยาลัยสยาม</span>' +
+      '<h1>ระบบบริหารความปลอดภัยบนฐานความเสี่ยง</h1><p class="goldt">คลังกลยุทธ์และเครื่องมือตัดสินใจสำหรับโรงเรียนมัธยมศึกษา สังกัด สพฐ.</p>' +
+      '<p class="lead">จับคู่ระดับความเสี่ยงรายด้านของภัยกับความพร้อมขององค์กรตามกรอบ 7-S เป็นกลุ่มแนวทางตอบสนอง R1–R9 แล้วคัดมาตรการจากคลังพร้อมเหตุผลที่ตรวจย้อนกลับได้ ผู้อำนวยการเป็นผู้ตัดสินใจขั้นสุดท้าย</p>' +
+      '<div class="cta"><a class="btn gold lg" href="#bank" data-go="bank">เข้าสู่คลังกลยุทธ์</a><a class="btn line-w lg" href="#input" data-go="input">ประเมินความพร้อม</a></div>' +
+      '<p class="fine">ต้นแบบเชิงวิจัย ข้อมูลตัวอย่างเป็นโรงเรียนสมมติ ไม่ใช่เว็บไซต์ทางการของ สพฐ. และไม่เก็บหรือส่งข้อมูลที่กรอก</p></div></section>';
+    s += '<section class="stats"><div class="wrap">' + stats.map((x) => '<div class="stat"><b>' + x[0] + '</b><span>' + x[1] + '</span><small>' + x[2] + '</small></div>').join('') + '</div></section>';
+    s += '<section class="sec"><div class="wrap"><h2 class="t">สามส่วนหลักของระบบ</h2><p class="t-sub">จากข้อมูลความเสี่ยงและความพร้อม ไปสู่มาตรการที่ลงมือทำได้จริง</p><div class="mods">' +
+      mods.map((m) => '<div class="mod"><div class="ic">' + ICON[m[1]] + '</div><h3>' + m[2] + '</h3><p>' + m[3] + '</p><a href="#' + m[0] + '" data-go="' + m[0] + '">' + m[4] + '</a></div>').join('') + '</div></div></section>';
+    s += '<section class="sec dark hexbg"><div class="wrap split"><div><span class="pillb">ตารางความเสี่ยง 5 × 5</span><h2>ให้คะแนนทุกข้อด้วยความถี่ × ผลกระทบ</h2>' +
+      '<p>แต่ละข้อประเมินความถี่ (L) และความรุนแรงของผลกระทบ (C) ระดับ 1–5 ดัชนีความเสี่ยงของแต่ละด้านคือค่าเฉลี่ยของ L × C แล้วจัดเป็นระดับต่ำ กลาง สูง</p>' +
+      '<ul class="ticks"><li>ค่าตัดระดับปรับได้ในหน้า "กฎและเกณฑ์" เพื่อทดสอบความไวของผล</li><li>กฎยกระดับ: ข้อที่ผลกระทบรุนแรงสูงสุดและเกิดซ้ำ จัดด้านนั้นเป็นความเสี่ยงสูงทันที</li><li>ความพร้อมวัดจาก 7 องค์ประกอบ มีกฎเพดานเมื่อโครงสร้างหรือระบบอ่อน</li></ul>' +
+      '<p style="margin-top:18px"><a class="btn gold" href="#risk" data-go="risk">ดูข้อประเมินและเกณฑ์</a></p></div><div class="m5box">' + matrix5() + '</div></div></section>';
+    s += '<section class="sec"><div class="wrap"><h2 class="t">กระบวนการ 6 ขั้นตอน</h2><p class="t-sub">ขั้นที่ 1 และ 2 ดำเนินการคู่ขนานกัน แล้ววนกลับมาปรับจากผลการติดตาม</p><div class="flow">' +
+      steps.map((x, i) => '<div class="st"><b>' + (i + 1) + '</b><div>' + x[0] + '</div><small>' + x[1] + '</small></div>').join('') + '</div></div></section>';
+    s += '<section class="noteband"><div class="wrap"><b>ข้อควรทราบก่อนใช้งาน</b><ul><li>เกณฑ์ ตารางตัดสินใจ และคลังมาตรการเป็นร่างเริ่มต้น ยังไม่ผ่านเดลฟายและการตรวจ IOC</li><li>ผลของระบบเป็นข้อเสนอสนับสนุนการวางแผน ไม่ใช้ตัดสินหรือจัดอันดับโรงเรียน และไม่ใช้แทนการตอบสนองเหตุฉุกเฉิน</li><li>ข้อมูลที่กรอกประมวลผลในเบราว์เซอร์ของท่านเท่านั้น และหายเมื่อรีเฟรชหน้า อย่ากรอกชื่อบุคคลหรือรายละเอียดเหตุการณ์จริง</li></ul></div></section>';
+    s += '<section class="ctaband"><div class="wrap"><h2>พร้อมเริ่มต้นบริหารความปลอดภัยอย่างเป็นระบบ</h2><p>ลองกับข้อมูลโรงเรียนสมมติ แล้วดูว่าระบบเสนอมาตรการและเหตุผลอย่างไร</p><a class="btn lg" href="#input" data-go="input">เริ่มต้นใช้งาน</a> <button class="btn lg" style="background:transparent;color:var(--navy)" data-act="example">ดูตัวอย่างผลลัพธ์</button></div></section>';
+    return s;
+  }
+
+  // ---------- ฐานข้อมูลความเสี่ยง (ข้อประเมินและเกณฑ์) ----------
+  function anchorList(title, anchors) {
+    return '<div class="card"><h3>' + title + '</h3><ol style="padding-left:1.3em;margin:6px 0">' + anchors.map((a) => '<li value="' + a[0] + '">' + esc(a[1]) + '</li>').join('') + '</ol></div>';
+  }
+  function pageRisk() {
+    const t = S.ui.rtab;
+    const tab = (id, l) => '<button aria-current="' + (t === id ? 'page' : 'false') + '" data-act="rtab" data-tab="' + id + '">' + l + '</button>';
+    let s = '<div class="toolbar"><div class="tool-tabs">' + tab('risk', 'ข้อประเมินความเสี่ยง (' + D.riskItems.length + ')') + tab('seven', 'ข้อประเมิน 7-S (' + D.sevenItems.length + ')') + tab('scale', 'เกณฑ์คะแนนและตาราง 5×5') + '</div><div class="tool-actions"><a class="btn primary sm" href="#input" data-go="input">ใช้ข้อประเมินเหล่านี้ในเครื่องมือ</a></div></div>';
+    if (t === 'risk') {
+      s += D.domains.map((d) => '<div class="card" style="margin-bottom:14px"><h3>' + esc(d.code + ' ' + d.name) + '</h3><div class="scroll"><table><thead><tr><th>รหัส</th><th>ข้อประเมิน</th><th>พื้นที่ที่เกี่ยวข้อง</th></tr></thead><tbody>' +
+        D.riskItems.filter((x) => x.dom === d.code).map((x) => '<tr><td>' + x.id + '</td><td>' + esc(x.text) + '</td><td>' + esc(x.space) + '</td></tr>').join('') + '</tbody></table></div></div>').join('');
+    } else if (t === 'seven') {
+      s += D.elements.map((e) => '<div class="card" style="margin-bottom:14px"><h3>' + esc(e.code + ' ' + e.name) + '</h3><div class="scroll"><table><thead><tr><th>รหัส</th><th>ข้อประเมิน</th></tr></thead><tbody>' +
+        D.sevenItems.filter((x) => x.elem === e.code).map((x) => '<tr><td>' + x.id + '</td><td>' + esc(x.text) + '</td></tr>').join('') + '</tbody></table></div></div>').join('');
+    } else {
+      s += '<div class="grid g12"><div class="card light"><h3>ตารางความเสี่ยง 5 × 5</h3><p class="hint">ค่าในช่อง = L × C ของแต่ละข้อ (ค่าตัดระดับปรับได้ในหน้า "กฎและเกณฑ์")</p><div class="m5box">' + matrix5() + '</div></div><div class="stack">' +
+        anchorList('เกณฑ์คะแนน L ความถี่ (ร่าง รอเดลฟาย)', D.lAnchors) + anchorList('เกณฑ์คะแนน C ผลกระทบ (ร่าง รอเดลฟาย)', D.cAnchors) + anchorList('เกณฑ์คะแนน D และ I ความพร้อม (ร่าง รอเดลฟาย)', D.dAnchors) + '</div></div>';
+    }
+    return s;
+  }
+
   // ---------- เราเตอร์และการวาด ----------
-  const RENDER = { dash: pageDash, input: pageInput, matrix: pageMatrix, strategy: pageStrategy, plan: pagePlan, bank: pageBank, rules: pageRules, about: pageAbout };
-  let cur = 'dash';
+  const RENDER = { home: pageHome, bank: pageBank, risk: pageRisk, input: pageInput, dash: pageDash, matrix: pageMatrix, strategy: pageStrategy, plan: pagePlan, rules: pageRules, about: pageAbout };
+  let cur = 'home';
   function chip() {
-    const f = filled();
-    const c = $('#fill-chip'); c.textContent = 'กรอกแล้ว ' + f.pct + '%'; c.className = 'chip' + (f.pct === 100 ? ' ok' : '');
+    const c = $('#fill-chip'); if (!c) return;
+    const f = filled(); c.textContent = 'กรอกแล้ว ' + f.pct + '%'; c.className = 'chip' + (f.pct === 100 ? ' ok' : '');
   }
   function buildNav() {
-    $('#nav').innerHTML = PAGES.map((p) => p.sep ? '<div class="sep">' + p.sep + '</div>' : '<button data-go="' + p.id + '" aria-current="' + (p.id === cur ? 'page' : 'false') + '">' + ICON[p.id] + '<span>' + p.label + '</span></button>').join('');
+    const p = PAGES.find((x) => x.id === cur);
+    $('#nav').innerHTML = NAV.map((n) => '<a href="#' + n.id + '" data-go="' + n.id + '"' + (p.nav === n.id ? ' aria-current="page"' : '') + '>' + n.label + '</a>').join('');
+  }
+  function buildFoot() {
+    $('#site-foot').innerHTML = '<div class="wrap"><div class="fcols"><div><div class="logo">' + LOGO + '<span>Risk Safe</span></div><p>ต้นแบบงานวิจัยดุษฎีนิพนธ์ สาขาวิชานวัตกรรมการบริหารการศึกษา มหาวิทยาลัยสยาม ระบบสนับสนุนการเลือกกลยุทธ์การบริหารความปลอดภัยของโรงเรียนมัธยมศึกษาบนฐานความเสี่ยงและความพร้อม</p></div>' +
+      '<div><h4>เมนู</h4>' + NAV.map((n) => '<a href="#' + n.id + '" data-go="' + n.id + '">' + n.label + '</a>').join('') + '<a href="#rules" data-go="rules">กฎและเกณฑ์</a></div>' +
+      '<div><h4>หมายเหตุ</h4><p>ไม่ใช่เว็บไซต์ทางการของ สพฐ. หรือหน่วยงานใด ข้อมูลตัวอย่างเป็นโรงเรียนสมมติ และเว็บไม่เก็บหรือส่งข้อมูลที่ผู้ใช้กรอก</p><a href="https://github.com/sarawut2206/risk-safe" rel="noopener">ซอร์สโค้ดบน GitHub</a></div></div>' +
+      '<div class="fbot"><span>ต้นแบบ V0.3 · ปี 2569 · ผลลัพธ์เป็นข้อเสนอสนับสนุนการวางแผน ไม่แทนดุลยพินิจของผู้อำนวยการ</span><span>เหตุฉุกเฉิน โทร 191 · 1669 · 199</span></div></div>';
+  }
+  function toolbar() {
+    return '<div class="strip">ต้นแบบเพื่อการวิจัย ใช้ข้อมูลจำลอง ไม่ใช้แทนการตอบสนองเหตุฉุกเฉิน (191 ตำรวจ · 1669 การแพทย์ฉุกเฉิน · 199 ดับเพลิง)</div>' +
+      '<div class="toolbar"><div class="tool-tabs">' + TOOLTAB.map((t) => '<button data-go="' + t[0] + '" aria-current="' + (t[0] === cur ? 'page' : 'false') + '">' + t[1] + '</button>').join('') + '</div>' +
+      '<div class="tool-actions"><span class="chip" id="fill-chip"></span><button class="btn sm" data-act="example">ใส่ข้อมูลตัวอย่าง</button><button class="btn sm" data-act="clear">ล้างข้อมูล</button></div></div>';
   }
   function render(keepScroll) {
     const p = PAGES.find((x) => x.id === cur);
-    $('#page-title').textContent = p.title; $('#page-sub').textContent = p.sub;
-    document.title = p.title + ' · R²-SAFE ต้นแบบ';
-    $('#view').innerHTML = RENDER[cur]();
-    buildNav(); chip();
+    document.title = cur === 'home' ? 'Risk Safe ระบบบริหารความปลอดภัยบนฐานความเสี่ยง (ต้นแบบ)' : p.title + ' · Risk Safe ต้นแบบ';
+    if (cur === 'home') $('#view').innerHTML = RENDER.home();
+    else $('#view').innerHTML = '<section class="phero hexbg"><div class="wrap"><span class="eyebrow">' + esc(p.eyebrow) + '</span><h1>' + esc(p.title) + '</h1><p>' + esc(p.sub) + '</p></div></section><div class="wrap body">' + (TOOL.indexOf(cur) >= 0 ? toolbar() : '') + RENDER[cur]() + '</div>';
+    buildNav(); buildFoot(); chip();
     if (!keepScroll) window.scrollTo({ top: 0 });
   }
   function go(id) {
-    if (!RENDER[id]) id = 'dash';
+    if (!RENDER[id]) id = 'home';
     cur = id; try { history.replaceState(null, '', '#' + id); } catch (e) { /* ไม่เป็นไร */ }
+    const nav = $('#nav'); if (nav) nav.classList.remove('open'); const b = $('#burger'); if (b) b.setAttribute('aria-expanded', 'false');
     render();
   }
   function loadExample() {
@@ -324,7 +412,8 @@
   // ---------- เหตุการณ์ ----------
   document.addEventListener('click', (e) => {
     const t = e.target.closest('button, [data-go]'); if (!t) return;
-    if (t.dataset.go) { go(t.dataset.go); return; }
+    if (t.id === 'burger') { const n = $('#nav'); const o = n.classList.toggle('open'); t.setAttribute('aria-expanded', String(o)); return; }
+    if (t.dataset.go) { e.preventDefault(); go(t.dataset.go); return; }
     if (t.matches('.pills button')) {
       const k = t.dataset.kind, id = t.dataset.id, i = +t.dataset.idx, v = +t.dataset.val;
       const st = S[k]; st[id] = st[id] || [null, null]; st[id][i] = st[id][i] === v ? null : v;
@@ -342,6 +431,8 @@
     else if (a === 'tab-sev') { S.ui.sevEl = t.dataset.code; render(true); }
     else if (a === 'tab-strat') { S.ui.stratDom = t.dataset.code; render(true); }
     else if (a === 'strat') { S.ui.stratDom = t.dataset.dom; go('strategy'); }
+    else if (a === 'clear') { S.risk = {}; S.seven = {}; S.status = {}; S.aar = ''; render(true); }
+    else if (a === 'rtab') { S.ui.rtab = t.dataset.tab; render(true); }
     else if (a === 'csv') csv();
     else if (a === 'reload-bank') loadRemoteBank();
     else if (a === 'params-reset') { S.params = Object.assign({}, E.DEFAULT_PARAMS); render(true); }
@@ -361,11 +452,9 @@
     if (t.id === 'f-q') { S.ui.bank.q = t.value; $('#bank-wrap').innerHTML = bankTable(); }
     else if (t.id === 'aar') S.aar = t.value;
   });
-  $('#btn-example').addEventListener('click', () => { loadExample(); go('dash'); });
-  $('#btn-clear').addEventListener('click', () => { S.risk = {}; S.seven = {}; S.status = {}; S.aar = ''; render(true); });
   window.addEventListener('hashchange', () => { const h = location.hash.replace('#', ''); if (h && h !== cur) go(h); });
 
   const h0 = location.hash.replace('#', '');
-  cur = RENDER[h0] ? h0 : 'dash'; render();
+  cur = RENDER[h0] ? h0 : 'home'; render();
   loadRemoteBank();
 })();

@@ -3,45 +3,28 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>R²-SAFE ระบบช่วยตัดสินใจกลยุทธ์ความปลอดภัยสถานศึกษา (ต้นแบบ)</title>
-<meta name="description" content="ต้นแบบเชิงวิจัย: ระบบช่วยตัดสินใจเลือกกลยุทธ์การบริหารความปลอดภัยสถานศึกษาตามระดับความเสี่ยงและความพร้อมขององค์กร (ข้อมูลจำลอง)">
+<title>Risk Safe ระบบบริหารความปลอดภัยบนฐานความเสี่ยง (ต้นแบบ)</title>
+<meta name="description" content="ต้นแบบเชิงวิจัย: คลังกลยุทธ์และเครื่องมือตัดสินใจเลือกกลยุทธ์การบริหารความปลอดภัยสำหรับโรงเรียนมัธยมศึกษา บนฐานความเสี่ยงและความพร้อมขององค์กร (ข้อมูลจำลอง)">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="site.css">
 </head>
 <body>
 <a class="skip" href="#view">ข้ามไปเนื้อหา</a>
-<div class="app">
-  <aside class="side" id="side">
-    <div class="brand">
-      <span class="logo" aria-hidden="true">R²</span>
-      <div><b>R²-SAFE</b><small>ต้นแบบเชิงวิจัย V0.2</small></div>
-    </div>
+<header class="site">
+  <div class="wrap hd">
+    <a class="logo" href="#home" data-go="home" aria-label="Risk Safe หน้าหลัก">
+      <svg viewBox="0 0 40 46" width="34" height="40" aria-hidden="true"><path d="M20 2 3 8v14c0 11 7 19 17 22 10-3 17-11 17-22V8z" fill="#fff"/><path d="M20 5.5 6 10.3V22c0 9.2 5.8 15.8 14 18.6 8.2-2.8 14-9.4 14-18.6V10.3z" fill="#0e1f3f"/><path d="M20 8 9 11.8V21h11z" fill="#d64545"/><path d="M20 8l11 3.8V21H20z" fill="#e0a526"/><path d="M9 21h11v17.3C13.6 36 9 30 9 22z" fill="#2e9e6b"/><path d="M20 21h11v1c0 8-4.6 14-11 16.3z" fill="#3b78c4"/></svg>
+      <span>Risk Safe</span>
+    </a>
+    <button class="burger" id="burger" aria-expanded="false" aria-controls="nav" aria-label="เปิดหรือปิดเมนู">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
     <nav id="nav" aria-label="เมนูหลัก"></nav>
-    <div class="side-foot">
-      <div class="chip warn">ข้อมูลจำลอง · เกณฑ์เป็นร่าง</div>
-      <p>ประมวลผลในเบราว์เซอร์ ไม่เก็บและไม่ส่งข้อมูลที่กรอก (ดึงเฉพาะคลังมาตรการจาก Google Sheets)</p>
-    </div>
-  </aside>
-
-  <div class="main">
-    <header class="bar">
-      <div>
-        <h1 id="page-title">ภาพรวม</h1>
-        <p id="page-sub" class="sub"></p>
-      </div>
-      <div class="bar-actions">
-        <span id="fill-chip" class="chip" aria-live="polite"></span>
-        <button class="btn" id="btn-example">ใส่ข้อมูลตัวอย่าง</button>
-        <button class="btn ghost" id="btn-clear">ล้าง</button>
-      </div>
-    </header>
-    <div class="strip" role="note">
-      <b>เหตุฉุกเฉินจริงให้ปฏิบัติตามแผนเผชิญเหตุและกฎหมายทันที ไม่ต้องรอระบบนี้</b>
-      ผลของระบบเป็นข้อเสนอสนับสนุนการวางแผน ผู้อำนวยการเป็นผู้ตัดสินใจขั้นสุดท้าย ไม่ใช้จัดอันดับหรือตัดสินโรงเรียน
-    </div>
-    <main id="view" tabindex="-1"></main>
-    <footer class="foot">R²-SAFE ต้นแบบประกอบงานวิจัยระดับดุษฎีนิพนธ์ (ร่าง) · ใช้ข้อมูลจำลอง · ซอร์สโค้ดและข้อมูลเปิดใน <a href="https://github.com/sarawut2206/risk-safe">GitHub</a></footer>
+    <a class="btn gold sm hd-cta" href="#input" data-go="input">เปิดเครื่องมือ</a>
   </div>
-</div>
+</header>
+<main id="view" tabindex="-1"></main>
+<footer class="site-foot" id="site-foot"></footer>
 <noscript><p style="padding:20px">หน้านี้ต้องเปิด JavaScript เพื่อคำนวณผลในเบราว์เซอร์</p></noscript>
 <script src="data.js"></script>
 <script src="engine.js"></script>
