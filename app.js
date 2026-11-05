@@ -319,7 +319,7 @@
     const stats = [[D.bank.length, 'มาตรการในคลัง', 'ฉบับร่าง รอเดลฟาย'], [D.domains.length, 'ด้านของภัย', 'V · A · P · H'], [D.elements.length, 'องค์ประกอบ 7-S', 'ตามกรอบ McKinsey'], [nItems, 'ข้อประเมิน', 'ความเสี่ยง + ความพร้อม']];
     const mods = [
       ['bank', 'bank', 'คลังกลยุทธ์', 'คลังมาตรการ ' + D.bank.length + ' รายการ กรองตามด้านของภัย องค์ประกอบ 7-S ประเภท 3 ป. และระดับทรัพยากร พร้อมผู้รับผิดชอบและตัวชี้วัด', 'เปิดคลังกลยุทธ์ →'],
-      ['risk', 'risk', 'ฐานข้อมูลความเสี่ยง', 'ข้อประเมินความเสี่ยง ' + D.riskItems.length + ' ข้อใน 4 ด้านของภัย และข้อประเมิน 7-S ' + D.sevenItems.length + ' ข้อ พร้อมเกณฑ์คะแนนและตารางความเสี่ยง 5 × 5', 'ดูข้อประเมินและเกณฑ์ →'],
+      ['risk', 'risk', 'ฐานข้อมูลความเสี่ยง', 'ข้อประเมินความเสี่ยง ' + D.riskItems.length + ' ข้อใน 4 ด้านของภัย และข้อประเมิน 7-S ' + D.sevenItems.length + ' ข้อ พร้อมเกณฑ์คะแนน L × C และตารางให้คะแนน 5 × 5', 'ดูข้อประเมินและเกณฑ์ →'],
       ['input', 'tool', 'เครื่องมือประเมิน', 'กรอกข้อมูลโรงเรียน ระบบวิเคราะห์ความเสี่ยง × ความพร้อม จัดกลุ่ม R1–R9 เสนอมาตรการพร้อมเหตุผล และแผนปฏิบัติการ', 'เริ่มประเมิน →'],
     ];
     const steps = [['วิเคราะห์ความเสี่ยง', 'ISO 31000: L × C'], ['วิเคราะห์ความพร้อม', 'McKinsey 7-S: D และ I'], ['จัดลำดับความสำคัญ', 'PNI Modified'], ['เลือกกลยุทธ์', 'ตาราง Risk × Readiness'], ['ขับเคลื่อน', 'แผนปฏิบัติการ'], ['ติดตามและเรียนรู้', 'ตัวชี้วัดและ AAR']];
@@ -331,10 +331,10 @@
     s += '<section class="stats"><div class="wrap">' + stats.map((x) => '<div class="stat"><b>' + x[0] + '</b><span>' + x[1] + '</span><small>' + x[2] + '</small></div>').join('') + '</div></section>';
     s += '<section class="sec"><div class="wrap"><h2 class="t">สามส่วนหลักของระบบ</h2><p class="t-sub">จากข้อมูลความเสี่ยงและความพร้อม ไปสู่มาตรการที่ลงมือทำได้จริง</p><div class="mods">' +
       mods.map((m) => '<div class="mod"><div class="ic">' + ICON[m[1]] + '</div><h3>' + m[2] + '</h3><p>' + m[3] + '</p><a href="#' + m[0] + '" data-go="' + m[0] + '">' + m[4] + '</a></div>').join('') + '</div></div></section>';
-    s += '<section class="sec dark hexbg"><div class="wrap split"><div><span class="pillb">ตารางความเสี่ยง 5 × 5</span><h2>ให้คะแนนทุกข้อด้วยความถี่ × ผลกระทบ</h2>' +
-      '<p>แต่ละข้อประเมินความถี่ (L) และความรุนแรงของผลกระทบ (C) ระดับ 1–5 ดัชนีความเสี่ยงของแต่ละด้านคือค่าเฉลี่ยของ L × C แล้วจัดเป็นระดับต่ำ กลาง สูง</p>' +
-      '<ul class="ticks"><li>ค่าตัดระดับปรับได้ในหน้า "กฎและเกณฑ์" เพื่อทดสอบความไวของผล</li><li>กฎยกระดับ: ข้อที่ผลกระทบรุนแรงสูงสุดและเกิดซ้ำ จัดด้านนั้นเป็นความเสี่ยงสูงทันที</li><li>ความพร้อมวัดจาก 7 องค์ประกอบ มีกฎเพดานเมื่อโครงสร้างหรือระบบอ่อน</li></ul>' +
-      '<p style="margin-top:18px"><a class="btn gold" href="#risk" data-go="risk">ดูข้อประเมินและเกณฑ์</a></p></div><div class="m5box">' + matrix5() + '</div></div></section>';
+    s += '<section class="sec dark hexbg"><div class="wrap split"><div><span class="pillb">ตารางตัดสินใจ 3 × 3</span><h2>จับคู่ความเสี่ยง × ความพร้อม เป็นแนวทางตอบสนอง R1–R9</h2>' +
+      '<p>ระบบจำแนกระดับความเสี่ยงของภัยแต่ละด้าน (ต่ำ กลาง สูง) และระดับความพร้อมขององค์กรตามกรอบ 7-S (ต่ำ กลาง สูง) แล้วจับคู่เป็น 1 ใน 9 กลุ่ม โดยแต่ละกลุ่มมีชุดการตัดสินใจ 6 ข้อและมาตรการจากคลังกลยุทธ์</p>' +
+      '<ul class="ticks"><li>ดัชนีความเสี่ยงรายด้าน = ค่าเฉลี่ย L × C (ความถี่ × ผลกระทบ ระดับ 1–5) มีกฎยกระดับเมื่อมีผลกระทบรุนแรงสูงสุดและเกิดซ้ำ</li><li>ความพร้อมวัดจาก 7 องค์ประกอบ มีกฎเพดานเมื่อโครงสร้างหรือระบบอ่อน</li><li>ตารางนี้เป็นต้นแบบเพื่อตรวจสอบกับผู้เชี่ยวชาญ ไม่ใช่เกณฑ์ที่ผ่านเดลฟายแล้ว</li></ul>' +
+      '<p style="margin-top:18px"><a class="btn gold" href="#matrix" data-go="matrix">ดูกลุ่ม R1–R9 ทั้งหมด</a></p></div><div class="m5box m3box">' + matrixHtml(null, false) + '<div class="m5-note">แถว = ระดับความเสี่ยง · คอลัมน์ = ระดับความพร้อม · สีเข้มกว่า = เร่งด่วนกว่า</div></div></div></section>';
     s += '<section class="sec"><div class="wrap"><h2 class="t">กระบวนการ 6 ขั้นตอน</h2><p class="t-sub">ขั้นที่ 1 และ 2 ดำเนินการคู่ขนานกัน แล้ววนกลับมาปรับจากผลการติดตาม</p><div class="flow">' +
       steps.map((x, i) => '<div class="st"><b>' + (i + 1) + '</b><div>' + x[0] + '</div><small>' + x[1] + '</small></div>').join('') + '</div></div></section>';
     s += '<section class="noteband"><div class="wrap"><b>ข้อควรทราบก่อนใช้งาน</b><ul><li>เกณฑ์ ตารางตัดสินใจ และคลังมาตรการเป็นร่างเริ่มต้น ยังไม่ผ่านเดลฟายและการตรวจ IOC</li><li>ผลของระบบเป็นข้อเสนอสนับสนุนการวางแผน ไม่ใช้ตัดสินหรือจัดอันดับโรงเรียน และไม่ใช้แทนการตอบสนองเหตุฉุกเฉิน</li><li>ข้อมูลที่กรอกประมวลผลในเบราว์เซอร์ของท่านเท่านั้น และหายเมื่อรีเฟรชหน้า อย่ากรอกชื่อบุคคลหรือรายละเอียดเหตุการณ์จริง</li></ul></div></section>';
@@ -349,7 +349,7 @@
   function pageRisk() {
     const t = S.ui.rtab;
     const tab = (id, l) => '<button aria-current="' + (t === id ? 'page' : 'false') + '" data-act="rtab" data-tab="' + id + '">' + l + '</button>';
-    let s = '<div class="toolbar"><div class="tool-tabs">' + tab('risk', 'ข้อประเมินความเสี่ยง (' + D.riskItems.length + ')') + tab('seven', 'ข้อประเมิน 7-S (' + D.sevenItems.length + ')') + tab('scale', 'เกณฑ์คะแนนและตาราง 5×5') + '</div><div class="tool-actions"><a class="btn primary sm" href="#input" data-go="input">ใช้ข้อประเมินเหล่านี้ในเครื่องมือ</a></div></div>';
+    let s = '<div class="toolbar"><div class="tool-tabs">' + tab('risk', 'ข้อประเมินความเสี่ยง (' + D.riskItems.length + ')') + tab('seven', 'ข้อประเมิน 7-S (' + D.sevenItems.length + ')') + tab('scale', 'เกณฑ์คะแนนรายข้อ') + '</div><div class="tool-actions"><a class="btn primary sm" href="#input" data-go="input">ใช้ข้อประเมินเหล่านี้ในเครื่องมือ</a></div></div>';
     if (t === 'risk') {
       s += D.domains.map((d) => '<div class="card" style="margin-bottom:14px"><h3>' + esc(d.code + ' ' + d.name) + '</h3><div class="scroll"><table><thead><tr><th>รหัส</th><th>ข้อประเมิน</th><th>พื้นที่ที่เกี่ยวข้อง</th></tr></thead><tbody>' +
         D.riskItems.filter((x) => x.dom === d.code).map((x) => '<tr><td>' + x.id + '</td><td>' + esc(x.text) + '</td><td>' + esc(x.space) + '</td></tr>').join('') + '</tbody></table></div></div>').join('');
@@ -357,7 +357,7 @@
       s += D.elements.map((e) => '<div class="card" style="margin-bottom:14px"><h3>' + esc(e.code + ' ' + e.name) + '</h3><div class="scroll"><table><thead><tr><th>รหัส</th><th>ข้อประเมิน</th></tr></thead><tbody>' +
         D.sevenItems.filter((x) => x.elem === e.code).map((x) => '<tr><td>' + x.id + '</td><td>' + esc(x.text) + '</td></tr>').join('') + '</tbody></table></div></div>').join('');
     } else {
-      s += '<div class="grid g12"><div class="card light"><h3>ตารางความเสี่ยง 5 × 5</h3><p class="hint">ค่าในช่อง = L × C ของแต่ละข้อ (ค่าตัดระดับปรับได้ในหน้า "กฎและเกณฑ์")</p><div class="m5box">' + matrix5() + '</div></div><div class="stack">' +
+      s += '<div class="grid g12"><div class="card light"><h3>ตารางให้คะแนนรายข้อ L × C (5 × 5)</h3><p class="hint">ใช้ให้คะแนนแต่ละข้อประเมิน ไม่ใช่ตารางตัดสินใจ (ตารางตัดสินใจคือ 3 × 3 ในหน้า R1–R9) ค่าในช่อง = L × C ของแต่ละข้อ (ค่าตัดระดับปรับได้ในหน้า "กฎและเกณฑ์")</p><div class="m5box">' + matrix5() + '</div></div><div class="stack">' +
         anchorList('เกณฑ์คะแนน L ความถี่ (ร่าง รอเดลฟาย)', D.lAnchors) + anchorList('เกณฑ์คะแนน C ผลกระทบ (ร่าง รอเดลฟาย)', D.cAnchors) + anchorList('เกณฑ์คะแนน D และ I ความพร้อม (ร่าง รอเดลฟาย)', D.dAnchors) + '</div></div>';
     }
     return s;

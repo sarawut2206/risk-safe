@@ -112,3 +112,8 @@ a.btn { text-decoration: none; display: inline-block; }
 .tabs button[aria-pressed="true"] { background: var(--navy); border-color: var(--navy); }
 .step.on { border-color: var(--navy); background: var(--blue-soft); } .step.on b { background: var(--navy); }
 @media print { .site, .site-foot, .toolbar, .phero { display: none !important; } }
+.m3box { background: #fff; border-color: var(--line); color: var(--ink); }
+.m3box .matrix { gap: 6px; }
+.m3box .matrix .h { color: var(--muted); font-size: .8rem; text-align: center; align-self: center; }
+.m3box .m5-note { color: var(--muted); }
+.m3box .cell { color: #1b2433; }
