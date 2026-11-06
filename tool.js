@@ -78,16 +78,16 @@
 
     // ---------- เปลือกแอป ----------
     const NAVB = [['dash', 'หน้าแรก', 'home'], ['rassess', 'ความเสี่ยง', 'alert'], ['ready', 'ความพร้อม', 'shieldcheck'], ['strategy', 'กลยุทธ์', 'target'], ['plan', 'แผนงาน', 'calendar']];
-    const ACTIVE = { school: 'dash', matrix: 'dash', rules: 'dash', pni: 'strategy' };
+    const ACTIVE = { school: 'dash', matrix: 'dash', rules: 'dash', pni: 'strategy', explain: 'strategy', track: 'plan', evaluate: 'dash', lab: 'dash' };
     function shell(cur, inner) {
       const act = ACTIVE[cur] || cur;
       return '<div class="tapp">' +
         '<div class="thead"><div class="tbrand">' + LOGO + '<div><b>R<sup>2</sup>-SAFE</b><span>ภาพรวมความปลอดภัยของโรงเรียน</span></div></div><div class="till">' + SCHOOL + '</div></div>' +
         '<div class="tctx"><span class="aud">' + ic('people', 18) + 'สำหรับผู้บริหารสถานศึกษา (ผู้อำนวยการโรงเรียน)</span>' +
         '<div class="ctxrow"><span>' + ic('building', 18) + '<small>โรงเรียน</small><b>' + esc(S.school.name || 'ยังไม่ระบุ') + '</b></span><span>' + ic('calendar', 18) + '<small>ปีการศึกษา</small><b>' + esc(S.school.year || '–') + '</b></span><button class="lnk" data-go="school">แก้ไข</button></div>' +
-        '<div class="ttools"><span class="chip" id="fill-chip"></span><button class="lnk" data-act="example">ใส่ข้อมูลตัวอย่าง</button><button class="lnk" data-act="clear">ล้างข้อมูล</button><button class="lnk" data-go="rules">กฎและเกณฑ์</button></div></div>' +
+        '<div class="ttools"><span class="chip" id="fill-chip"></span><button class="lnk" data-act="example">ใส่ข้อมูลตัวอย่าง</button><button class="lnk" data-act="clear">ล้างข้อมูล</button><button class="lnk" data-go="rules">กฎและเกณฑ์</button><button class="lnk" data-go="explain">กฎตัดสินใจ</button><button class="lnk" data-go="track">ติดตามผล</button><button class="lnk" data-go="evaluate">ประเมินนวัตกรรม</button><button class="lnk" data-go="lab">ห้องวิเคราะห์</button></div></div>' +
         '<div class="tbody">' + inner + '</div>' +
-        '<p class="tnote">ต้นแบบเพื่อการวิจัย ใช้ข้อมูลจำลอง ข้อมูลที่กรอกอยู่ในเบราว์เซอร์นี้เท่านั้นและหายเมื่อรีเฟรช ไม่ใช้แทนการตอบสนองเหตุฉุกเฉิน (191 ตำรวจ · 1669 การแพทย์ฉุกเฉิน · 199 ดับเพลิง)</p>' +
+        '<p class="tnote">ต้นแบบเพื่อการวิจัย ใช้ข้อมูลจำลอง ข้อมูลที่กรอกอยู่ในเบราว์เซอร์นี้เท่านั้นและหายเมื่อรีเฟรช (ดาวน์โหลดแฟ้มงานเก็บไว้ได้ที่หน้า &quot;ติดตามผล&quot;) ไม่ใช้แทนการตอบสนองเหตุฉุกเฉิน (191 ตำรวจ · 1669 การแพทย์ฉุกเฉิน · 199 ดับเพลิง)</p>' +
         '<nav class="bnav" aria-label="เมนูเครื่องมือ">' + NAVB.map((n) => '<button data-go="' + n[0] + '"' + (n[0] === act ? ' aria-current="page"' : '') + '>' + ic(n[2], 26) + '<span>' + n[1] + '</span></button>').join('') + '</nav></div>';
     }
 
@@ -197,6 +197,7 @@
       s += '<div class="tgrid g2">' + card('สิ่งที่ควรดำเนินการก่อน', '<p class="hint">จากด้านที่เสี่ยงสูงสุด (' + esc(c.SHORT_DOM[w.code]) + ' · กลุ่ม ' + w.group + ') เรียงตามกฎคัดเลือกของระบบ</p><ol class="nowl">' + now.map((m) => '<li><b>' + esc(m.name) + '</b><small>' + esc(c.cd(m)) + ' · ผู้รับผิดชอบ: ' + esc(m.owner) + '</small></li>').join('') + '</ol><p><button class="tbtn sm" data-act="strat" data-dom="' + w.code + '"><span>ดูมาตรการทั้งหมด</span>' + ic('chev', 16) + '</button></p>', { icon: 'clipboard', cls: 'blue' }) +
         card('เอกสารล่าสุด', (S.docs.length ? '<ul class="doclist">' + S.docs.slice(-3).reverse().map((d) => '<li><span class="di sm">' + ic('doc', 20) + '</span><span class="dn"><b>' + esc(d.name) + '</b><small>' + DOC_NAME[d.type] + ' · เพิ่มเมื่อ ' + dateTh(d.date) + '</small></span></li>').join('') + '</ul>' : '<p class="muted">ยังไม่มีเอกสารในรายการ เพิ่มได้ที่หน้า "ข้อมูลโรงเรียน"</p>') + '<p><button class="tbtn sm" data-go="school"><span>จัดการเอกสาร</span>' + ic('chev', 16) + '</button></p>', { icon: 'doc' }) + '</div>';
       s += '<div class="row-btns two"><button class="tbtn primary" data-go="rassess">' + ic('bars', 22) + '<span>ปรับคะแนนความเสี่ยง</span>' + ic('chev', 18) + '</button><button class="tbtn green" data-go="plan">' + ic('calendar', 22) + '<span>ดูแผนปฏิบัติการ</span>' + ic('chev', 18) + '</button></div>';
+      s += card('ต่อยอด: อธิบายผล เรียนรู้ และพิสูจน์', '<div class="xlinks"><button class="tbtn" data-go="explain">' + ic('bulb', 22) + '<span><b>กฎตัดสินใจและเหตุผล</b><small>ทำไมเลือก ทำไมไม่เลือกอย่างอื่น</small></span>' + ic('chev', 18) + '</button><button class="tbtn" data-go="track">' + ic('flag', 22) + '<span><b>ติดตามผลและบทเรียน</b><small>บันทึกผลและประเมินซ้ำเป็นรอบ</small></span>' + ic('chev', 18) + '</button><button class="tbtn" data-go="evaluate">' + ic('clipboard', 22) + '<span><b>ประเมินนวัตกรรม</b><small>แบบประเมินผู้บริหารและผู้เชี่ยวชาญ</small></span>' + ic('chev', 18) + '</button><button class="tbtn" data-go="lab">' + ic('bars', 22) + '<span><b>ห้องวิเคราะห์ผู้วิจัย</b><small>รวมผลหลายโรงเรียนและตัวชี้วัด</small></span>' + ic('chev', 18) + '</button></div>', { icon: 'bulb' });
       return s;
     }
 
@@ -291,7 +292,7 @@
       s += card('มาตรการที่แนะนำ (' + dom.measures.length + ' ข้อ)', '<p class="hint">เรียงตามกฎคัดเลือกของระบบ: องค์ประกอบ 7-S ที่ช่องว่างสูงสุดก่อน แล้วลำดับ QSPM (ถ้ามี) ระดับหลักฐาน A→D และลำดับในคลัง แถบสีเขียวคือมาตรการที่ตอบ 3 อันดับช่องว่างสูงสุด ผู้อำนวยการเป็นผู้ตัดสินใจขั้นสุดท้าย</p><div class="meas">' +
         dom.measures.map((m) => '<div class="m' + (m.top ? ' top' : '') + '"><div class="mh"><span class="no">' + m.order + '</span><h4>' + esc(m.name) + ' <span class="pill">' + c.cd(m) + '</span></h4></div><div>' + esc(m.desc) + '</div><div class="meta"><span class="pill teal">' + esc(c.SHORT_EL[m.elem]) + '</span><span>ประเภท: ' + esc(m.type3) + '</span><span>ทรัพยากรระดับ ' + m.res + '</span><span>ผู้รับผิดชอบ: ' + esc(m.owner) + '</span></div><div class="kpi"><b>ตัวชี้วัด:</b> ' + esc(m.kpi) + '</div>' + c.evBadge(m) + c.preHtml(m) + c.extraHtml(m) + '<div class="why"><b>เหตุผลการเลือก:</b> ' + esc(m.why) + '</div></div>').join('') + '</div>', { icon: 'target' });
       s += c.stretchHtml(dom);
-      s += '<div class="row-btns two"><button class="tbtn" data-go="pni"><span>ดูช่องว่าง (PNI)</span></button><button class="tbtn primary" data-go="plan">' + ic('clipboard', 22) + '<span>สร้างแผนปฏิบัติการ</span>' + ic('chev', 18) + '</button></div>';
+      s += '<div class="row-btns two"><button class="tbtn" data-go="explain">' + ic('bulb', 22) + '<span>ทำไมจึงเลือกแบบนี้และไม่เลือกอย่างอื่น</span></button><button class="tbtn" data-go="pni"><span>ดูช่องว่าง (PNI)</span></button><button class="tbtn primary" data-go="plan">' + ic('clipboard', 22) + '<span>สร้างแผนปฏิบัติการ</span>' + ic('chev', 18) + '</button></div>';
       return s;
     }
 
@@ -310,7 +311,7 @@
       s += card('แผนปฏิบัติการ', '<p class="hint">ปรับสถานะได้ในหน้านี้ (ไม่ถูกบันทึกถาวร) ตัวชี้วัดและผู้รับผิดชอบเป็นข้อเสนอเริ่มต้นจากคลัง ผู้อำนวยการปรับได้ ระยะเวลาเป็นช่วงที่ตารางตัดสินใจแนะนำ ยังไม่ใช่วันที่กำหนดจริง</p><div class="plan">' +
         rows.map((r, i) => '<div class="pr ' + ({ 'เสร็จแล้ว': 'done', 'กำลังดำเนินการ': 'doing' }[st(r.key)] || 'todo') + '"><span class="no">' + (i + 1) + '</span><div class="pb"><b>' + esc(c.cd(r.m) + ' ' + r.m.name) + '</b><small>' + esc(HZ[r.d.code][0]) + ' · ' + r.d.group + ' · ผู้รับผิดชอบ: ' + esc(r.m.owner) + '</small><small>ตัวชี้วัด: ' + esc(r.m.kpi) + '</small><small>เริ่ม: ' + esc(r.d.pkg.start) + ' · ทบทวน: ' + esc(r.d.pkg.review) + '</small></div><select class="st" data-st="' + r.key + '" aria-label="สถานะ ' + esc(r.m.id) + '">' + c.STATUS.map((x) => '<option' + (st(r.key) === x ? ' selected' : '') + '>' + x + '</option>').join('') + '</select></div>').join('') + '</div>', { icon: 'clipboard' });
       s += card('บันทึกการทบทวนหลังดำเนินการ (AAR)', '<p class="hint">สิ่งที่ตั้งใจ สิ่งที่เกิดขึ้นจริง ข้อเรียนรู้ และข้อมูลที่ต้องย้อนกลับไปปรับในขั้นที่ 1–4 (อย่าใส่ชื่อบุคคลหรือรายละเอียดที่ระบุตัวได้)</p><textarea id="aar" aria-label="บันทึกการทบทวนหลังดำเนินการ">' + esc(S.aar) + '</textarea>', { icon: 'doc' });
-      s += '<div class="row-btns two"><button class="tbtn primary" data-act="csv">' + ic('download', 22) + '<span>ดาวน์โหลด CSV</span></button><button class="tbtn green" onclick="window.print()">' + ic('print', 22) + '<span>พิมพ์แผน</span></button></div>';
+      s += '<div class="row-btns two"><button class="tbtn primary" data-act="csv">' + ic('download', 22) + '<span>ดาวน์โหลด CSV</span></button><button class="tbtn green" onclick="window.print()">' + ic('print', 22) + '<span>พิมพ์แผน</span></button><button class="tbtn" data-go="track">' + ic('flag', 22) + '<span>บันทึกผลและบทเรียน</span>' + ic('chev', 18) + '</button></div>';
       return s;
     }
 
@@ -343,7 +344,8 @@
       });
     }
 
-    return { shell, bind, pages: { dash: pageDash, school: pageSchool, rassess: pageRassess, ready: pageReady, pni: pagePni, matrix: pageMatrix, strategy: pageStrategy, plan: pagePlan }, ids: ['dash', 'school', 'rassess', 'ready', 'pni', 'matrix', 'strategy', 'plan', 'rules'] };
+    const h = { ic, banner, card, btn, lv, lvr, empty, hasData, dateTh, sizeOf, HZ, EL_IC, RC, RCR, SCHOOL };
+    return { h, shell, bind, pages: { dash: pageDash, school: pageSchool, rassess: pageRassess, ready: pageReady, pni: pagePni, matrix: pageMatrix, strategy: pageStrategy, plan: pagePlan }, ids: ['dash', 'school', 'rassess', 'ready', 'pni', 'matrix', 'strategy', 'plan', 'rules'] };
   }
   root.RS_TOOL = { create };
 })(window);

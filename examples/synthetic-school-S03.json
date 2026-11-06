@@ -1,0 +1,419 @@
+{
+ "schema": "r2safe-school-report",
+ "version": 1,
+ "generatedAt": "2026-11-06T05:56:57.147Z",
+ "synthetic": true,
+ "code": "S03",
+ "arm": "intervention",
+ "school": {
+  "sizeBand": "กลาง",
+  "year": "2569",
+  "province": ""
+ },
+ "resource": "จำกัด",
+ "snapshots": [
+  {
+   "label": "ก่อนเริ่ม",
+   "date": "2026-01-15T00:00:00Z",
+   "resource": "จำกัด",
+   "ready": {
+    "mean": 2.4714,
+    "level": "ต่ำ",
+    "floorHit": false
+   },
+   "domains": {
+    "V": {
+     "rd": 10.875,
+     "risk": "กลาง",
+     "override": false,
+     "cell": "R4"
+    },
+    "A": {
+     "rd": 6.375,
+     "risk": "สูง",
+     "override": true,
+     "cell": "R1"
+    },
+    "P": {
+     "rd": 3.5714,
+     "risk": "ต่ำ",
+     "override": false,
+     "cell": "R7"
+    },
+    "H": {
+     "rd": 7,
+     "risk": "สูง",
+     "override": true,
+     "cell": "R1"
+    }
+   },
+   "elements": {
+    "STG": 2.5,
+    "STR": 2.8,
+    "SYS": 2,
+    "STY": 3,
+    "STF": 2.2,
+    "SKL": 2,
+    "VAL": 2.8
+   }
+  },
+  {
+   "label": "รอบที่ 1",
+   "date": "2026-06-15T00:00:00Z",
+   "resource": "จำกัด",
+   "ready": {
+    "mean": 2.9476,
+    "level": "กลาง",
+    "floorHit": false
+   },
+   "domains": {
+    "V": {
+     "rd": 10.875,
+     "risk": "กลาง",
+     "override": false,
+     "cell": "R5"
+    },
+    "A": {
+     "rd": 6.375,
+     "risk": "สูง",
+     "override": true,
+     "cell": "R2"
+    },
+    "P": {
+     "rd": 3.5714,
+     "risk": "ต่ำ",
+     "override": false,
+     "cell": "R8"
+    },
+    "H": {
+     "rd": 7,
+     "risk": "สูง",
+     "override": true,
+     "cell": "R2"
+    }
+   },
+   "elements": {
+    "STG": 2.8333,
+    "STR": 3.4,
+    "SYS": 2.5,
+    "STY": 3.2,
+    "STF": 3,
+    "SKL": 2.5,
+    "VAL": 3.2
+   }
+  }
+ ],
+ "measures": [
+  {
+   "sb": "SB-001",
+   "dom": "V",
+   "cell": "R4",
+   "order": 1,
+   "res": 1,
+   "status": "เสร็จแล้ว",
+   "fidelity": 75,
+   "costLevel": 1,
+   "effect": 3,
+   "kpi": {
+    "before": 10,
+    "after": 6,
+    "dir": "down"
+   },
+   "barriers": [],
+   "repeat": "ใช่"
+  },
+  {
+   "sb": "SB-002",
+   "dom": "V",
+   "cell": "R4",
+   "order": 2,
+   "res": 1,
+   "status": "เสร็จแล้ว",
+   "fidelity": 100,
+   "costLevel": 1,
+   "effect": 4,
+   "kpi": {
+    "before": 10,
+    "after": 6,
+    "dir": "down"
+   },
+   "barriers": [],
+   "repeat": "ใช่"
+  },
+  {
+   "sb": "SB-053",
+   "dom": "V",
+   "cell": "R4",
+   "order": 3,
+   "res": 1,
+   "status": "เสร็จแล้ว",
+   "fidelity": 50,
+   "costLevel": 1,
+   "effect": 2,
+   "kpi": {
+    "before": 10,
+    "after": 6,
+    "dir": "down"
+   },
+   "barriers": [],
+   "repeat": "ใช่"
+  },
+  {
+   "sb": "SB-060",
+   "dom": "V",
+   "cell": "R4",
+   "order": 4,
+   "res": 1,
+   "status": "เสร็จแล้ว",
+   "fidelity": 100,
+   "costLevel": 1,
+   "effect": 3,
+   "kpi": {
+    "before": 10,
+    "after": 6,
+    "dir": "down"
+   },
+   "barriers": [],
+   "repeat": "ใช่"
+  },
+  {
+   "sb": "SB-015",
+   "dom": "A",
+   "cell": "R1",
+   "order": 1,
+   "res": 1,
+   "status": "เสร็จแล้ว",
+   "fidelity": 50,
+   "costLevel": 1,
+   "effect": 2,
+   "kpi": {
+    "before": 10,
+    "after": 6,
+    "dir": "down"
+   },
+   "barriers": [
+    "B3"
+   ],
+   "repeat": "ใช่"
+  },
+  {
+   "sb": "SB-053",
+   "dom": "A",
+   "cell": "R1",
+   "order": 2,
+   "res": 1,
+   "status": "เสร็จแล้ว",
+   "fidelity": 75,
+   "costLevel": 2,
+   "effect": 2,
+   "kpi": {
+    "before": 10,
+    "after": 12,
+    "dir": "down"
+   },
+   "barriers": [
+    "B2"
+   ],
+   "repeat": "ใช่"
+  },
+  {
+   "sb": "SB-054",
+   "dom": "A",
+   "cell": "R1",
+   "order": 3,
+   "res": 1,
+   "status": "เสร็จแล้ว",
+   "fidelity": 50,
+   "costLevel": 1,
+   "effect": 5,
+   "kpi": {
+    "before": 10,
+    "after": 6,
+    "dir": "down"
+   },
+   "barriers": [
+    "B3"
+   ],
+   "repeat": "ใช่"
+  },
+  {
+   "sb": "SB-060",
+   "dom": "A",
+   "cell": "R1",
+   "order": 4,
+   "res": 1,
+   "status": "เสร็จแล้ว",
+   "fidelity": 50,
+   "costLevel": 1,
+   "effect": 2,
+   "kpi": {
+    "before": 10,
+    "after": 6,
+    "dir": "down"
+   },
+   "barriers": [
+    "B5"
+   ],
+   "repeat": "ใช่"
+  },
+  {
+   "sb": "SB-027",
+   "dom": "P",
+   "cell": "R7",
+   "order": 1,
+   "res": 1,
+   "status": "เสร็จแล้ว",
+   "fidelity": 75,
+   "costLevel": 1,
+   "effect": 4,
+   "kpi": {
+    "before": 10,
+    "after": 12,
+    "dir": "down"
+   },
+   "barriers": [
+    "B5"
+   ],
+   "repeat": "ใช่"
+  },
+  {
+   "sb": "SB-053",
+   "dom": "P",
+   "cell": "R7",
+   "order": 2,
+   "res": 1,
+   "status": "กำลังดำเนินการ",
+   "fidelity": 100,
+   "costLevel": 2,
+   "effect": 2,
+   "kpi": {
+    "before": 10,
+    "after": 6,
+    "dir": "down"
+   },
+   "barriers": [
+    "B5"
+   ],
+   "repeat": "ไม่แน่ใจ"
+  },
+  {
+   "sb": "SB-054",
+   "dom": "P",
+   "cell": "R7",
+   "order": 3,
+   "res": 1,
+   "status": "เสร็จแล้ว",
+   "fidelity": 100,
+   "costLevel": 2,
+   "effect": 5,
+   "kpi": {
+    "before": 10,
+    "after": 6,
+    "dir": "down"
+   },
+   "barriers": [],
+   "repeat": "ใช่"
+  },
+  {
+   "sb": "SB-060",
+   "dom": "P",
+   "cell": "R7",
+   "order": 4,
+   "res": 1,
+   "status": "เสร็จแล้ว",
+   "fidelity": 100,
+   "costLevel": 1,
+   "effect": 3,
+   "kpi": {
+    "before": 10,
+    "after": 6,
+    "dir": "down"
+   },
+   "barriers": [
+    "B5"
+   ],
+   "repeat": "ใช่"
+  },
+  {
+   "sb": "SB-040",
+   "dom": "H",
+   "cell": "R1",
+   "order": 1,
+   "res": 1,
+   "status": "เสร็จแล้ว",
+   "fidelity": 50,
+   "costLevel": 1,
+   "effect": 4,
+   "kpi": {
+    "before": 10,
+    "after": 6,
+    "dir": "down"
+   },
+   "barriers": [],
+   "repeat": "ใช่"
+  },
+  {
+   "sb": "SB-053",
+   "dom": "H",
+   "cell": "R1",
+   "order": 2,
+   "res": 1,
+   "status": "กำลังดำเนินการ",
+   "fidelity": 100,
+   "costLevel": 1,
+   "effect": 2,
+   "kpi": {
+    "before": 10,
+    "after": 12,
+    "dir": "down"
+   },
+   "barriers": [],
+   "repeat": "ใช่"
+  },
+  {
+   "sb": "SB-054",
+   "dom": "H",
+   "cell": "R1",
+   "order": 3,
+   "res": 1,
+   "status": "เสร็จแล้ว",
+   "fidelity": 75,
+   "costLevel": 2,
+   "effect": 4,
+   "kpi": {
+    "before": 10,
+    "after": 6,
+    "dir": "down"
+   },
+   "barriers": [],
+   "repeat": "ใช่"
+  },
+  {
+   "sb": "SB-060",
+   "dom": "H",
+   "cell": "R1",
+   "order": 4,
+   "res": 1,
+   "status": "ยังไม่เริ่ม",
+   "fidelity": null,
+   "costLevel": null,
+   "effect": null,
+   "kpi": {
+    "before": null,
+    "after": null,
+    "dir": "up"
+   },
+   "barriers": [],
+   "repeat": ""
+  }
+ ],
+ "custom": [
+  {
+   "dom": "V",
+   "elem": "SYS",
+   "name": "ระบบเพื่อนช่วยเพื่อนช่วงพักกลางวัน",
+   "effect": 4,
+   "desc": ""
+  }
+ ]
+}

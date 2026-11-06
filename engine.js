@@ -19,7 +19,23 @@
   const isNum = (v) => typeof v === 'number' && isFinite(v);
   const mean = (a) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : NaN);
 
-  function analyze(input, data, paramsIn) {
+  // ตัวจัดระดับ (ใช้ซ้ำในชั้นกฎตัดสินใจและชุดกรณีผู้เชี่ยวชาญ ให้ตรรกะเดียวกับ analyze ทุกครั้ง)
+  function classifyRisk(rd, override, P) {
+    P = Object.assign({}, DEFAULT_PARAMS, P || {});
+    return !isFinite(rd) ? null : override ? 'สูง' : rd <= P.riskLow ? 'ต่ำ' : rd <= P.riskMid ? 'กลาง' : 'สูง';
+  }
+  function classifyReady(meanD, strD, sysD, P) {
+    P = Object.assign({}, DEFAULT_PARAMS, P || {});
+    const before = !isFinite(meanD) ? null : meanD <= P.readyLow ? 'ต่ำ' : meanD <= P.readyMid ? 'กลาง' : 'สูง';
+    const floorHit = before === 'สูง' && (strD < P.floorD || sysD < P.floorD);
+    return { before, final: floorHit ? 'กลาง' : before, floorHit };
+  }
+  function cellOf(risk, ready) {
+    return risk && ready ? 'R' + (RISK_ORDER.indexOf(risk) * 3 + READY_ORDER.indexOf(ready) + 1) : null;
+  }
+
+  function analyze(input, data, paramsIn, opts) {
+    const guard = opts && typeof opts.guard === 'function' ? opts.guard : null; // ชั้นกฎกลยุทธ์ (ไม่ใส่ = ผลตรงกับ Excel)
     const P = Object.assign({}, DEFAULT_PARAMS, paramsIn || {});
     const res = RESOURCE[input.resource] || RESOURCE['ปานกลาง'];
 
@@ -38,10 +54,9 @@
       .forEach((e, k) => { e.rank = k + 1; });
     const dMeans = elements.map((e) => e.d).filter(isFinite);
     const readyMean = mean(dMeans);
-    const readyBefore = !isFinite(readyMean) ? null : readyMean <= P.readyLow ? 'ต่ำ' : readyMean <= P.readyMid ? 'กลาง' : 'สูง';
     const byCode = Object.fromEntries(elements.map((e) => [e.code, e]));
-    const floorHit = readyBefore === 'สูง' && (byCode.STR.d < P.floorD || byCode.SYS.d < P.floorD);
-    const readyFinal = floorHit ? 'กลาง' : readyBefore;
+    const rc = classifyReady(readyMean, byCode.STR.d, byCode.SYS.d, P);
+    const readyBefore = rc.before, floorHit = rc.floorHit, readyFinal = rc.final;
     const top3 = elements.filter((e) => e.rank && e.rank <= 3).sort((a, b) => a.rank - b.rank);
 
     // ---- ขั้นที่ 1: ความเสี่ยงรายด้าน และขั้นที่ 4: กลุ่ม R ----
@@ -52,8 +67,8 @@
       const rd = pairs.length ? pairs.reduce((s, p) => s + p[0] * p[1], 0) / pairs.length : NaN;
       const cmax = cAll.length ? Math.max.apply(null, cAll) : NaN;
       const override = pairs.some((p) => p[1] === P.overrideC && p[0] >= P.overrideL);
-      const risk = !isFinite(rd) ? null : override ? 'สูง' : rd <= P.riskLow ? 'ต่ำ' : rd <= P.riskMid ? 'กลาง' : 'สูง';
-      const group = risk && readyFinal ? 'R' + (RISK_ORDER.indexOf(risk) * 3 + READY_ORDER.indexOf(readyFinal) + 1) : null;
+      const risk = classifyRisk(rd, override, P);
+      const group = cellOf(risk, readyFinal);
       const pkg = group ? data.packages.find((p) => p.code === group) : null;
       return { code: dom.code, name: dom.name, n: pairs.length, rd, cmax, override, risk, ready: readyFinal, group, pkg, measures: [] };
     });
@@ -70,7 +85,20 @@
         (Math.max(1, Math.min(20, Math.floor(Number(b.qpri)) || 1)) - 1) * 1000 - (GRADE[b.evg] || 0) * 100 - idx;
       const fits = (b) => (b.dom === dom.code || b.dom === 'X') && b.risk.indexOf(dom.risk) >= 0 && b.ready.indexOf(readyFinal) >= 0;
       const ranked = data.bank.map((b, idx) => ({ b, score: keyOf(b, idx) })).filter(({ b }) => fits(b)).sort((x, y) => y.score - x.score);
-      const cand = ranked.filter(({ b }) => b.res <= res.code).slice(0, res.max);
+      let cand = ranked.filter(({ b }) => b.res <= res.code).slice(0, res.max);
+      dom.engineIds = cand.map(({ b }) => b.id); dom.swaps = []; dom.unmet = [];
+      if (guard) { const g = guard({ dom, cand, ranked, resCode: res.code, cap: res.max, data }); if (g && g.cand) { cand = g.cand; dom.swaps = g.swaps || []; dom.unmet = g.unmet || []; } }
+      // ร่องรอยการจับคู่: ทุกมาตรการในคลังผ่านด่านใดและตกที่ด่านใด (ใช้อธิบายว่าทำไมเลือกและทำไมไม่เลือก)
+      const fitPos = {}; ranked.forEach(({ b }, k) => { fitPos[b.id] = k + 1; });
+      const poolPos = {}; ranked.filter(({ b }) => b.res <= res.code).forEach(({ b }, k) => { poolPos[b.id] = k + 1; });
+      const chosen = {}; cand.forEach(({ b }) => { chosen[b.id] = true; });
+      dom.eval = data.bank.map((b, idx) => {
+        const gates = { dom: b.dom === dom.code || b.dom === 'X', risk: b.risk.indexOf(dom.risk) >= 0, ready: b.ready.indexOf(readyFinal) >= 0, res: b.res <= res.code };
+        const swapped = dom.swaps.some((s) => s.out === b.id);
+        const reason = chosen[b.id] ? 'selected' : swapped ? 'swapped' : !gates.dom ? 'dom' : !gates.risk ? 'risk' : !gates.ready ? 'ready' : !gates.res ? 'res' : 'cap';
+        return { id: b.id, sb: b.sb || '', gates, reason, fitRank: fitPos[b.id] || null, poolRank: poolPos[b.id] || null, score: keyOf(b, idx), top: topCodes.indexOf(b.elem) >= 0 };
+      });
+      dom.pool = { cap: res.max, nFit: ranked.length, nPool: Object.keys(poolPos).length, nSelected: cand.length, cutScore: cand.length ? cand[cand.length - 1].score : null };
       // มาตรการที่เหมาะแต่ใช้ทรัพยากรเกินที่มี ไม่ตัดทิ้งเงียบ ๆ แต่แยกแสดง (ข้อ B5: เสนอขอสนับสนุนจากต้นสังกัด/เครือข่าย)
       dom.stretch = ranked.filter(({ b }) => b.res > res.code).slice(0, 2).map(({ b }) => Object.assign({
         why: 'เหมาะกับความเสี่ยงระดับ' + dom.risk + ' และความพร้อมระดับ' + readyFinal + ' แต่ต้องใช้ทรัพยากรระดับ ' + b.res + ' เกินที่มี (' + input.resource + ') จึงไม่รวมในรายการหลัก ควรพิจารณาขอสนับสนุนจากต้นสังกัดหรือเครือข่าย',
@@ -90,7 +118,9 @@
         // เงื่อนไขก่อนดำเนินการ: แจ้งว่ามาตรการที่ต้องมีก่อนอยู่ในรายการด้วยหรือไม่ (ไม่ได้สลับลำดับอัตโนมัติ ผู้อำนวยการตรวจสอบเอง)
         const pre = (String(c.b.prereq || '').match(/SB-\d{3}/g) || []).map((sb) => ({ sb, name: bySb[sb] ? bySb[sb].name : '', selected: !!selSb[sb] }));
         const rankWhy = (c.b.qpri ? '; ลำดับ QSPM ในประเด็น = ' + c.b.qpri : '') + (c.b.evg ? '; ระดับหลักฐาน ' + c.b.evg : '');
-        return Object.assign({ order: k + 1, why: why + rankWhy, top, prereqInfo: pre }, c.b);
+        const sw = dom.swaps.find((s) => s.in === c.b.id);
+        const ruleWhy = sw ? '; เพิ่มตามกฎ ' + sw.rule + ' (' + sw.label + ')' + (sw.out ? ' แทน ' + (bySb[sw.outSb] ? sw.outSb : sw.out) : '') : '';
+        return Object.assign({ order: k + 1, why: why + rankWhy + ruleWhy, top, prereqInfo: pre, viaRule: sw ? sw.rule : '' }, c.b);
       });
     });
 
@@ -100,7 +130,7 @@
     };
   }
 
-  const api = { analyze, DEFAULT_PARAMS, RESOURCE };
+  const api = { analyze, classifyRisk, classifyReady, cellOf, DEFAULT_PARAMS, RESOURCE, RISK_ORDER, READY_ORDER };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.RS_ENGINE = api;
 })(typeof window !== 'undefined' ? window : this);

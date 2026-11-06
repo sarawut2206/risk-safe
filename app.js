@@ -5,7 +5,11 @@
   const S = {
     risk: {}, seven: {}, resource: 'ปานกลาง', params: Object.assign({}, E.DEFAULT_PARAMS),
     status: {}, aar: '', docs: [], school: { name: '', students: '', staff: '', year: '2569', province: '' },
-    ui: { step: 1, rtab: 'risk', riskDom: 'V', sevEl: 'STG', stratDom: 'V', mxDom: '', docType: 'SAR', bank: { q: '', dom: '', el: '', t3: '', res: '', ev: '' } },
+    // ติดตามผลและบทเรียน / แบบประเมินนวัตกรรม / ห้องวิเคราะห์ของผู้วิจัย (ทั้งหมดอยู่ในเบราว์เซอร์นี้ ส่งออกเป็นไฟล์เมื่อผู้ใช้สั่งเท่านั้น)
+    track: { logs: {}, snaps: [], custom: [], code: '', arm: '', consent: false, saveLocal: false, includeText: false, includeProvince: false, snapLabel: '' },
+    eval: { admin: { code: '', items: {}, sus: {}, comment: '' }, expert: { code: '', field: '', cases: {}, items: {}, comment: '' } },
+    lab: { reports: [], experts: [], admins: [], msgs: [], learnP: {}, crit: {} },
+    ui: { step: 1, rtab: 'risk', riskDom: 'V', sevEl: 'STG', stratDom: 'V', mxDom: '', docType: 'SAR', useRules: true, exTab: 'rules', exDom: '', exCell: '', exRes: 1, exFilter: '', trkTab: 'log', evTab: 'admin', labTab: 'import', lgOpen: {}, bank: { q: '', dom: '', el: '', t3: '', res: '', ev: '' } },
   };
   const BUNDLED_BANK = D.bank.slice();
   const cd = (x) => x.sb || x.id; // รหัสที่แสดง: SB-xxx (ตามดุษฎีนิพนธ์) ถ้าไม่มีใช้รหัสเดิม
@@ -32,9 +36,10 @@
     { id: 'bank', label: 'คลังกลยุทธ์' },
     { id: 'risk', label: 'ฐานข้อมูลความเสี่ยง' },
     { id: 'input', label: 'เครื่องมือประเมิน' },
+    { id: 'evaluate', label: 'ประเมินนวัตกรรม' },
     { id: 'about', label: 'เกี่ยวกับโครงการ' },
   ];
-  const TOOL = ['school', 'dash', 'rassess', 'ready', 'pni', 'matrix', 'strategy', 'plan', 'rules'];
+  const TOOL = ['school', 'dash', 'rassess', 'ready', 'pni', 'matrix', 'strategy', 'plan', 'explain', 'track', 'evaluate', 'lab', 'rules'];
   const PAGES = [
     { id: 'home', nav: '', title: 'Risk Safe ระบบบริหารความปลอดภัยบนฐานความเสี่ยง', sub: '' },
     { id: 'bank', nav: 'bank', eyebrow: 'คลังกลยุทธ์', title: 'คลังมาตรการ (Strategy Bank) ฉบับร่าง 68 รายการ', sub: 'ร่างที่ผู้วิจัยจัดทำ ยังไม่ได้ตรวจหลักฐานและแหล่งอ้างอิงรายข้อ และยังไม่ผ่านเดลฟาย ใช้สาธิตการทำงานของระบบ' },
@@ -48,6 +53,10 @@
     { id: 'strategy', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'กลยุทธ์และมาตรการที่ระบบเสนอ', sub: 'พร้อมเหตุผลของการเลือกที่ตรวจย้อนกลับได้ ผู้อำนวยการเป็นผู้ตัดสินใจขั้นสุดท้าย' },
     { id: 'plan', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'แผนปฏิบัติการและติดตามผล', sub: 'ผู้รับผิดชอบ ตัวชี้วัด ระยะเวลา และสถานะการดำเนินงาน (ต้นแบบ: สถานะไม่ถูกบันทึกถาวร)' },
     { id: 'rules', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'กฎการตัดสินใจและเกณฑ์เบื้องต้น', sub: 'ค่าเริ่มต้นเป็นร่างตามบทที่ 3 ยังไม่ผ่านเดลฟาย แก้ได้เพื่อทดสอบความไวของผล' },
+    { id: 'explain', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'กฎตัดสินใจและเหตุผลของผลลัพธ์', sub: '' },
+    { id: 'track', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'ติดตามผลและบทเรียน', sub: '' },
+    { id: 'evaluate', nav: 'evaluate', eyebrow: 'ประเมินนวัตกรรม', title: 'ประเมินนวัตกรรม', sub: '' },
+    { id: 'lab', nav: 'evaluate', eyebrow: 'ประเมินนวัตกรรม', title: 'ห้องวิเคราะห์ของผู้วิจัย', sub: '' },
     { id: 'about', nav: 'about', eyebrow: 'เกี่ยวกับโครงการ', title: 'เกี่ยวกับต้นแบบ Risk Safe (R²-SAFE)', sub: 'ระบบนี้ตอบอะไร ทำงานอย่างไร และสถานะของต้นแบบ' },
   ];
   
@@ -59,7 +68,7 @@
   const riskTag = (l) => (l ? '<span class="tag ' + cls[l] + '">' + l + '</span>' : '–');
   const readyTag = (l) => (l ? '<span class="tag ' + ({ 'สูง': 'lo', 'กลาง': 'mid', 'ต่ำ': 'hi' }[l]) + '">' + l + '</span>' : '–');
   const elName = (c) => (D.elements.find((e) => e.code === c) || {}).name || c;
-  const getOut = () => E.analyze({ risk: S.risk, seven: S.seven, resource: S.resource }, D, S.params);
+  const getOut = () => E.analyze({ risk: S.risk, seven: S.seven, resource: S.resource }, D, S.params, S.ui.useRules === false ? null : { guard: RS_DECISION.guard });
   const filled = () => {
     const r = D.riskItems.filter((x) => { const p = S.risk[x.id] || []; return p[0] != null && p[1] != null; }).length;
     const s = D.sevenItems.filter((x) => { const p = S.seven[x.id] || []; return p[0] != null && p[1] != null; }).length;
@@ -237,7 +246,10 @@
   // ---------- เราเตอร์และการวาด ----------
   const UI = RS_TOOL.create({ S, D, E, esc, fmt, getOut, cd, evBadge, preHtml, extraHtml, stretchHtml, pills, legendBox, filled, domFill, uniq, mKey, STATUS, SHORT_DOM, SHORT_EL, render: (k) => render(k) });
   UI.bind();
-  const RENDER = Object.assign({ home: pageHome, bank: pageBank, risk: pageRisk, rules: pageRules, about: pageAbout }, UI.pages);
+  const UI2 = RS_TOOL2.create({ S, D, E, esc, fmt, getOut, cd, mKey, SHORT_DOM, SHORT_EL, render: (k) => render(k) }, UI.h);
+  UI2.bind();
+  UI2.restore();
+  const RENDER = Object.assign({ home: pageHome, bank: pageBank, risk: pageRisk, rules: pageRules, about: pageAbout }, UI.pages, UI2.pages);
   let cur = 'home';
   function chip() {
     const c = $('#fill-chip'); if (!c) return;
@@ -260,7 +272,7 @@
     else if (TOOL.indexOf(cur) >= 0 && cur !== 'rules') $('#view').innerHTML = UI.shell(cur, RENDER[cur]());
     else $('#view').innerHTML = '<section class="phero hexbg"><div class="wrap"><span class="eyebrow">' + esc(p.eyebrow) + '</span><h1>' + esc(p.title) + '</h1><p>' + esc(p.sub) + '</p></div></section><div class="wrap body">' + RENDER[cur]() + '</div>';
     document.body.classList.toggle('tool-on', TOOL.indexOf(cur) >= 0 && cur !== 'rules');
-    buildNav(); buildFoot(); chip();
+    buildNav(); buildFoot(); chip(); UI2.persist();
     if (!keepScroll) window.scrollTo({ top: 0 });
   }
   function go(id) {
@@ -303,7 +315,11 @@
     else if (a === 'tab-sev') { S.ui.sevEl = t.dataset.code; render(true); }
     else if (a === 'tab-strat') { S.ui.stratDom = t.dataset.code; render(true); }
     else if (a === 'strat') { S.ui.stratDom = t.dataset.dom; go('strategy'); }
-    else if (a === 'clear') { S.risk = {}; S.seven = {}; S.status = {}; S.aar = ''; S.docs = []; render(true); }
+    else if (a === 'clear') {
+      const has = S.track.snaps.length || Object.keys(S.track.logs).length || S.track.custom.length;
+      if (has && !window.confirm('ล้างข้อมูลทั้งหมดรวมถึงบันทึกติดตามผลและรอบประเมินที่บันทึกไว้ใช่หรือไม่ (ดาวน์โหลดแฟ้มงานไว้ก่อนได้ที่หน้า "ติดตามผล")')) return;
+      S.risk = {}; S.seven = {}; S.status = {}; S.aar = ''; S.docs = []; S.track.logs = {}; S.track.snaps = []; S.track.custom = []; render(true);
+    }
     else if (a === 'rtab') { S.ui.rtab = t.dataset.tab; render(true); }
     else if (a === 'csv') csv();
     else if (a === 'reload-bank') loadRemoteBank();

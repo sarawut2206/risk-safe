@@ -1,0 +1,82 @@
+/* Risk Safe V0.6: สไตล์ของหน้า กฎตัดสินใจ / ติดตามผล / ประเมินนวัตกรรม / ห้องวิเคราะห์ (ใช้ตัวแปรสีเดียวกับ tool.css) */
+.tapp .xtabs { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 10px; margin: 0 0 6px; -webkit-overflow-scrolling: touch; }
+.xtabs button { flex: none; border: 1.5px solid #cfe0f2; background: #fff; color: #12304f; border-radius: 999px; padding: 9px 16px; font-weight: 800; font-size: .95rem; cursor: pointer; min-height: 42px; }
+.xtabs button[aria-selected="true"] { background: linear-gradient(100deg, #1d63b8, #1989b3); border-color: transparent; color: #fff; }
+.xchip { display: inline-block; border-radius: 999px; padding: 2px 10px; font-size: .8rem; font-weight: 800; background: #e8eef5; color: #3d5873; vertical-align: middle; white-space: nowrap; }
+.xchip.ok { background: #d4f1cc; color: #17653f; } .xchip.no { background: #ffd9d6; color: #c8372d; } .xchip.warn { background: #ffeaa8; color: #7a5200; } .xchip.blue { background: #e1eefc; color: #1d63b8; } .xchip.teal { background: #d9f4ee; color: #0f6f61; }
+.xt { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; vertical-align: middle; flex: none; }
+.xt.ok { background: #d4f1cc; color: #17653f; } .xt.no { background: #ffd9d6; color: #c8372d; }
+.xwarn { display: flex; gap: 8px; align-items: flex-start; background: #fff4d3; border: 1px solid #f2e0a8; color: #6b4a00; border-radius: 14px; padding: 10px 12px; margin: 10px 0; font-size: .92rem; line-height: 1.55; }
+.xwarn .ic { flex: none; margin-top: 2px; }
+.xh3 { font-size: 1.15rem; font-weight: 800; margin: 0 0 6px; } .xh4 { font-size: 1rem; font-weight: 800; margin: 14px 0 4px; } .xsec { font-size: 1.2rem; font-weight: 800; margin: 18px 2px 4px; color: #12304f; }
+.xmeta { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 8px 0; color: #55697f; font-size: .92rem; } .xmeta b { color: #12304f; }
+
+/* สวิตช์ */
+.xsw { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.xsw small { display: block; color: #55697f; font-size: .85rem; line-height: 1.5; margin-top: 3px; }
+.xswbtn { flex: none; position: relative; width: 56px; height: 32px; border-radius: 999px; border: 0; background: #b9c8d8; cursor: pointer; padding: 0; }
+.xswbtn i { position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .3); transition: left .15s; }
+.xswbtn[aria-checked="true"] { background: linear-gradient(100deg, #1d63b8, #12908f); } .xswbtn[aria-checked="true"] i { left: 27px; }
+
+/* ตาราง R1-R9 */
+.xmx { display: grid; grid-template-columns: 74px repeat(3, 1fr); gap: 8px; align-items: stretch; }
+.xcorner { font-size: .7rem; color: #55697f; display: grid; place-items: center; text-align: center; line-height: 1.3; }
+.xh { display: grid; place-items: center; text-align: center; font-weight: 800; font-size: .84rem; color: #35506b; background: #eaf3ff; border-radius: 10px; padding: 6px 4px; }
+.xm { text-align: left; border: 2px solid transparent; border-radius: 14px; padding: 8px 9px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-height: 96px; font: inherit; color: #12304f; }
+.xm b { font-size: 1.05rem; } .xm span { font-size: .8rem; line-height: 1.35; font-weight: 700; } .xm small { color: #55697f; font-size: .72rem; } .xm em { font-style: normal; font-size: .72rem; font-weight: 800; color: #1d63b8; }
+.xr-hi { background: #ffe2df; } .xr-mid { background: #fff0bd; } .xr-lo { background: #dcf4d5; }
+.xm.sel { border-color: #1d63b8; box-shadow: 0 0 0 3px rgba(29, 99, 184, .2); }
+@media (max-width: 560px) { .xmx { grid-template-columns: 52px repeat(3, 1fr); gap: 5px; } .xm { padding: 6px; min-height: 88px; } .xm span { font-size: .72rem; } .xh { font-size: .72rem; } }
+
+/* รายการ ลำดับ กล่อง */
+.xl { list-style: none; margin: 8px 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.xl li { line-height: 1.55; } .xl li small { display: block; color: #55697f; font-size: .82rem; margin-top: 2px; }
+.xl.chk li { display: flex; gap: 8px; align-items: flex-start; } .xl.chk li > span:not(.xt) { flex: 1; min-width: 0; }
+.xo { margin: 6px 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; line-height: 1.55; } .xo.big { gap: 10px; } .xo small { color: #55697f; }
+.xbox { border-radius: 14px; padding: 10px 14px; margin: 10px 0; background: #eef6fd; border: 1px solid #dbe8f5; font-size: .92rem; line-height: 1.55; }
+.xbox ul { margin: 6px 0 0; padding-left: 20px; } .xbox p { margin: 6px 0 0; }
+.xbox.no { background: #fff1ef; border-color: #f6cdc8; } .xbox.warn { background: #fff7de; border-color: #f2e0a8; }
+.xscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 8px 0; }
+.xtb { width: 100%; border-collapse: collapse; font-size: .9rem; min-width: 520px; }
+.xtb th { background: #eaf3ff; color: #12304f; text-align: left; padding: 8px 10px; font-weight: 800; white-space: nowrap; }
+.xtb td { padding: 8px 10px; border-top: 1px solid #e3eef9; vertical-align: top; line-height: 1.5; }
+.xtb.xsm { font-size: .84rem; min-width: 0; } .xtb.xsm td, .xtb.xsm th { padding: 5px 7px; text-align: center; }
+.xg4 { display: inline-flex; align-items: center; gap: 4px; margin: 0 8px 4px 0; font-size: .82rem; white-space: nowrap; }
+.xdet { padding: 12px 16px; } .xdet > summary { cursor: pointer; font-weight: 800; color: #1d63b8; } .xdet[open] > summary { margin-bottom: 8px; }
+.xfil { margin: 6px 0; } .xfil select, .xrow select, .xrow input, .xfull input, .xfull select, .xfull textarea, .lgf select, .lgf textarea, .lgk input, .lgk select, .xnf input { border: 1.5px solid #c9dcf0; border-radius: 12px; padding: 9px 12px; font: inherit; background: #fff; color: #12304f; max-width: 100%; }
+
+/* มาตรวัดระยะห่างจากเส้นแบ่ง */
+.xg { margin: 10px 0 18px; } .xgl { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: .9rem; margin-bottom: 8px; } .xgl span { color: #55697f; font-size: .8rem; }
+.xgb { position: relative; height: 18px; border-radius: 9px; background: #e8eef5; margin: 22px 8px 26px; }
+.xgb i { position: absolute; top: 0; bottom: 0; } .xgb i:first-child { border-radius: 9px 0 0 9px; } .xgb i:last-of-type { border-radius: 0 9px 9px 0; }
+.xgb u { position: absolute; top: -4px; bottom: -4px; width: 2px; background: #35506b; text-decoration: none; } .xgb u s { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); font-size: .72rem; color: #35506b; text-decoration: none; margin-top: 2px; }
+.xgb em { position: absolute; top: -9px; width: 14px; height: 36px; margin-left: -7px; background: #12304f; border-radius: 7px; border: 2px solid #fff; box-shadow: 0 1px 5px rgba(0, 0, 0, .4); } .xgb em s { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); font-size: .78rem; font-weight: 800; color: #12304f; text-decoration: none; margin-bottom: 2px; white-space: nowrap; }
+
+/* ทำไมไม่เลือก */
+.xcons { display: flex; flex-direction: column; gap: 10px; } .xcon { border: 1px solid #e3eef9; border-radius: 14px; padding: 10px 14px; background: #fafcff; } .xcon ul { margin: 6px 0 4px; padding-left: 20px; line-height: 1.55; } .xcon small { color: #55697f; display: block; line-height: 1.5; } .xch { font-size: .98rem; }
+.xbar { display: flex; height: 22px; border-radius: 11px; overflow: hidden; background: #e8eef5; margin: 8px 0; } .xbar i { display: block; height: 100%; }
+.xleg { list-style: none; display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 0; margin: 6px 0; font-size: .85rem; } .xleg li { display: flex; align-items: center; gap: 6px; } .xleg i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.xcvt .xcv { text-align: center; font-weight: 800; } .xcvt .xcv small { display: block; font-size: .65rem; font-weight: 400; color: #55697f; } .xcv.z { background: #ffd9d6; color: #c8372d; } .xcv.l { background: #ffe3c2; color: #8a4a00; } .xcv.m { background: #fff0bd; color: #7a5200; } .xcv.h { background: #dcf4d5; color: #17653f; } .xcvt th { text-align: center; }
+
+/* ติดตามผล */
+.lgrow { border-top: 1px solid #e3eef9; } .lgrow:first-of-type { border-top: 0; }
+.lgh { width: 100%; display: flex; align-items: center; gap: 8px; text-align: left; background: none; border: 0; padding: 12px 2px; cursor: pointer; font: inherit; color: #12304f; flex-wrap: wrap; } .lgh > span { flex: 1 1 200px; min-width: 0; line-height: 1.45; } .lgh .ic { transition: transform .15s; } .lgh[aria-expanded="true"] .ic { transform: rotate(90deg); }
+.lgf { padding: 4px 2px 14px; display: flex; flex-direction: column; gap: 14px; } .lgr > b { display: block; margin-bottom: 6px; } .lgr label { display: flex; flex-direction: column; gap: 4px; font-weight: 700; font-size: .92rem; } .lgr small { color: #55697f; font-weight: 400; }
+.lgk { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; } .lgk label { flex: 1 1 130px; }
+.xchips { display: flex; flex-wrap: wrap; gap: 8px; } .xchips button { border: 1.5px solid #cfe0f2; background: #fff; border-radius: 12px; padding: 8px 14px; min-height: 42px; min-width: 46px; font: inherit; font-weight: 700; color: #12304f; cursor: pointer; } .xchips button[aria-checked="true"] { background: linear-gradient(100deg, #1d63b8, #1989b3); border-color: transparent; color: #fff; }
+.xcks { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px 12px; } .xck { display: flex; gap: 8px; align-items: flex-start; font-size: .92rem; line-height: 1.45; margin: 6px 0; font-weight: 600; } .xck.big { margin: 12px 0; } .xck input { margin-top: 4px; width: 18px; height: 18px; flex: none; } .xck small { color: #55697f; font-weight: 400; }
+.xrow { display: flex; gap: 12px; align-items: flex-end; margin: 8px 0; } .xrow.wrap { flex-wrap: wrap; } .xrow label, .xfull, .xnf { display: flex; flex-direction: column; gap: 4px; font-weight: 700; font-size: .92rem; } .xrow label { flex: 1 1 180px; } .xfull { margin: 10px 0; } .xfull textarea { resize: vertical; }
+.xnfs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 6px 0; } .xnf { font-size: .82rem; } .xnf input { width: 100%; }
+
+/* แบบประเมิน */
+.xq { padding: 10px 0; border-top: 1px solid #e3eef9; } .xq:first-of-type { border-top: 0; } .xq p { margin: 0 0 8px; line-height: 1.55; }
+.xcase .xh3 { color: #1d63b8; }
+.tapp .pbar { height: 10px; border-radius: 6px; background: #e1ecf8; overflow: hidden; margin: 6px 0 12px; } .tapp .pbar > i { display: block; height: 100%; background: linear-gradient(90deg, #12908f, #52b788); }
+
+/* ตัวชี้วัด */
+.xscore { list-style: none; margin: 10px 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.xscore li { display: flex; gap: 12px; align-items: center; border: 1px solid #e3eef9; border-radius: 14px; padding: 10px 12px; background: #fafcff; }
+.xscore li.ok { background: #effaec; border-color: #bfe6b7; } .xscore li.no { background: #fff3f1; border-color: #f6cdc8; }
+.xscore li > div { flex: 1; min-width: 0; line-height: 1.5; } .xscore small { display: block; color: #55697f; font-size: .84rem; } .xsid { width: 34px; height: 34px; border-radius: 10px; background: #e1eefc; color: #1d63b8; display: grid; place-items: center; font-weight: 800; flex: none; }
+.xlinks { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; } .xlinks .tbtn { justify-content: flex-start; text-align: left; } .xlinks .tbtn > span { flex: 1; display: flex; flex-direction: column; } .xlinks small { font-weight: 400; color: #55697f; font-size: .8rem; }
+@media print { .xtabs, .xsw, .xchips button:not([aria-checked="true"]) { display: none; } }
