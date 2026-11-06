@@ -1,0 +1,89 @@
+/* Risk Safe V0.5: โทนสีเดียวกันทั้งเว็บ (ฟ้า-เขียวน้ำทะเล พื้นฟ้าอ่อน การ์ดขาวมุมมน) ให้ตรงกับส่วนเครื่องมือ
+   โหลดต่อจาก site.css และก่อน tool.css ไม่แก้ตรรกะหรือข้อความใดๆ */
+:root {
+  --bg: #eef6fd; --line: #dbe8f5; --line2: #e8f1fa; --navy: #12355f; --blue: #1d63b8; --blue-soft: #e3eefb;
+  --teal: #0f7b6c; --gold: #ffe39b; --cream: #eef6fd;
+  --grad: linear-gradient(100deg, #1d63b8 0%, #1b86b5 55%, #12908f 100%);
+  --shadow: 0 6px 18px rgba(30, 80, 140, .10);
+  --r: 20px;
+}
+body { background: linear-gradient(180deg, #dcecfa 0, #eef6fd 360px, #f4f8fc 100%) fixed; color: #12304f; }
+body.tool-on { background: linear-gradient(180deg, #dcecfa 0, #eef6fd 360px, #f4f8fc 100%) fixed; }
+
+/* ----- ส่วนหัวและท้าย ----- */
+.site { background: linear-gradient(100deg, #12427c 0%, #1d63b8 60%, #15818f 100%); border-bottom: 0; box-shadow: 0 4px 16px rgba(18, 53, 95, .25); }
+#nav a { color: #e6f1fb; border-radius: 12px; }
+#nav a:hover { background: rgba(255, 255, 255, .14); }
+#nav a[aria-current="page"] { color: #fff; background: rgba(255, 255, 255, .22); }
+.btn.gold { background: #fff; border-color: #fff; color: #1d4f93; font-weight: 800; }
+.btn.gold:hover { background: #eaf4ff; }
+.site-foot { background: linear-gradient(100deg, #12427c, #1b5fa5 60%, #15818f); }
+.site-foot h4 { color: #ffe39b; }
+.site-foot a:hover { color: #ffe39b; }
+.fbot { color: #bcd3ea; }
+.burger { border-radius: 12px; }
+@media (max-width: 860px) { #nav { background: #1b5fa5; } }
+
+/* ----- แบนเนอร์ (แทนพื้นกรมท่าลายหกเหลี่ยม) ----- */
+.hexbg { background-color: #1d63b8; background-image: var(--grad); }
+.hero::after { background: #e2effb; }
+.pillb, .phero .eyebrow { background: rgba(255, 255, 255, .18); border-color: rgba(255, 255, 255, .35); }
+.hero .goldt { color: #ffe39b; }
+.hero p.lead, .phero p, .hero .fine { color: #e8f3fc; }
+.phero { border-radius: 0 0 28px 28px; box-shadow: 0 10px 24px rgba(29, 99, 184, .22); }
+.stats { background: linear-gradient(100deg, #1d63b8, #12908f); }
+.stat { border-left-color: rgba(255, 255, 255, .22); }
+.stat b { color: #ffe39b; font-family: inherit; font-weight: 800; }
+.stat span { color: #eaf4fd; } .stat small { color: #c4dcf0; }
+.dark { background: var(--grad); }
+.split p, .ticks li { color: #eaf4fd; }
+.ticks li::before { color: #ffe39b; }
+.sec h2.t { color: #12304f; }
+.noteband { background: #fff4d3; border-color: #f2e0a8; }
+.ctaband { background: var(--grad); color: #fff; }
+.ctaband h2 { color: #fff; } .ctaband p { color: #eaf4fd; }
+.ctaband .btn { background: #fff; border-color: #fff; color: #1d4f93; }
+
+/* ----- การ์ดและส่วนประกอบ ----- */
+.mod { background: #fff; color: #12304f; border: 1px solid #e3eef9; border-radius: 22px; box-shadow: 0 8px 22px rgba(30, 80, 140, .12); }
+.mod .ic { background: #e1eefc; color: #1d63b8; border-radius: 16px; }
+.mod h3 { color: #12304f; } .mod p { color: #55697f; }
+.mod a { color: #1d63b8; }
+.flow .st { border-color: #e3eef9; border-radius: 18px; box-shadow: 0 4px 12px rgba(30, 80, 140, .08); }
+.flow .st b { background: #12908f; color: #fff; }
+.card { border: 1px solid #e3eef9; border-radius: 20px; box-shadow: var(--shadow); padding: 18px 20px; }
+.card h2, .card h3 { color: #12304f; font-weight: 800; }
+.btn { border-radius: 14px; border-color: #b9d3ee; padding: 9px 16px; font-weight: 700; }
+.btn:hover { background: #eef6ff; border-color: #9cc0e6; }
+.btn.primary { background: var(--grad); border-color: transparent; color: #fff; }
+.btn.primary:hover { background: var(--grad); filter: brightness(1.07); }
+.btn.line-w { border-radius: 14px; }
+.btn.lg { border-radius: 16px; }
+.chip { background: #e3eefb; color: #3d5873; } .chip.warn { background: #ffeaa8; color: #7a5200; } .chip.ok { background: #d4f1cc; color: #17653f; }
+.pill { background: #e3eefb; color: #35506b; } .pill.teal { background: #d9f4ee; color: #0f6f61; }
+.tag { padding: 2px 12px; font-weight: 800; }
+.tag.hi { background: #ffd9d6; color: #c8372d; } .tag.mid { background: #ffeaa8; color: #7a5200; } .tag.lo { background: #d4f1cc; color: #17653f; }
+table { font-size: .93rem; }
+th { background: #eaf3ff; color: #12304f; }
+tr:hover td { background: #f4f9ff; }
+.tool-tabs { border-radius: 16px; border-color: #dbe8f5; box-shadow: 0 3px 10px rgba(30, 80, 140, .08); }
+.tool-tabs button { border-radius: 12px; }
+.tool-tabs button[aria-current="page"] { background: var(--grad); color: #fff; }
+.tabs button { border-color: #c9dcf0; font-weight: 700; }
+.tabs button[aria-pressed="true"] { background: #1d63b8; border-color: #1d63b8; color: #fff; }
+.filters input, .filters select, input[type="search"], .field select, select { border-radius: 12px; border-color: #c9dcf0; }
+.legend-box { background: #f1f7fd; border-color: #dbe8f5; border-radius: 14px; }
+.m { border-radius: 16px; border-color: #dbe8f5; }
+.m .why { background: #f1f7fd; }
+.m.top { border-left-color: #2e9e6b; }
+.xd summary { color: #1d63b8; }
+.evb, .pre { line-height: 1.5; }
+.strip { background: #fff4d3; border-color: #f2e0a8; border-radius: 14px; }
+.m5box, .m3box { border-radius: 20px; }
+.m5c { border-radius: 12px; }
+.matrix .cell { border-radius: 14px; }
+.cell.cur { border-color: #f0b73c; box-shadow: 0 0 0 3px rgba(240, 183, 60, .45); }
+.u1, .u2 { background: #ffd9d6; } .u3, .u4, .u5 { background: #ffeaa8; } .u6, .u7 { background: #d6e8fb; } .u8, .u9 { background: #d4f1cc; }
+.prog { background: #e1ecf8; } .prog > i { background: linear-gradient(90deg, #12908f, #52b788); }
+textarea { border-radius: 14px; border-color: #c9dcf0; }
+code { background: #e3eefb; border-radius: 6px; padding: 0 5px; }

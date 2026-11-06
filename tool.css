@@ -1,5 +1,5 @@
 /* Risk Safe V0.4: หน้าตาแบบแอป (มือถือก่อน) ของส่วนเครื่องมือประเมิน ขอบเขตอยู่ใต้ .tapp เท่านั้น */
-body.tool-on { background: linear-gradient(180deg, #dcecfa 0, #eef6fd 340px, #f4f8fc 100%) fixed; }
+
 body.tool-on .site-foot { margin-top: 0; }
 .tapp { --ink: #12304f; --mut: #55697f; --b1: #1d63b8; --b2: #12908f; --ln: #dbe8f5; --red: #c8372d; --redbg: #ffd9d6; --yel: #7a5200; --yelbg: #ffeaa8; --grn: #17653f; --grnbg: #d4f1cc;
   max-width: 1020px; margin: 0 auto; padding: 0 14px 6px; color: var(--ink); }
