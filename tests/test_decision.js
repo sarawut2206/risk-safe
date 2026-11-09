@@ -76,4 +76,59 @@ console.log('  คลังบางที่สุดที่ทรัพย�
 const seq = Dc.sequence(d0); eq('sequence same size', seq.length, d0.measures.length); eq('sequence same ids', seq.map((s) => s.id).sort().join(), d0.measures.map((m) => m.id).sort().join());
 // 7) ข้อมูลว่างต้องไม่ล้ม
 const empty = E.analyze({ risk: {}, seven: {}, resource: 'จำกัด' }, data, null, { guard: Dc.guard }); ok('empty ok', empty.domains.every((d) => d.group === null && d.measures.length === 0));
+// 8) ตารางเงื่อนไขของแต่ละช่องต้องตรงกับข้อกำหนดที่เขียนแยกไว้ตรงนี้ (กันการแก้ตารางผิดโดยตัวตรวจกฎผ่านเอง)
+const SPEC = { R1: ['CONTROL>=1', 'FOUNDATION>=1'], R2: ['CONTROL>=1', 'CAPABILITY>=1'], R3: ['CONTROL>=1', 'SUSTAIN>=1', 'PROACTIVE>=1'],
+  R4: ['PROACTIVE>=1', 'FOUNDATION>=1', 'CAPABILITY>=1'], R5: ['PROACTIVE>=1', 'CAPABILITY>=1'], R6: ['PROACTIVE>=1', 'SUSTAIN>=1'],
+  R7: ['REPRESS<=1', 'FOUNDATION>=1'], R8: ['REPRESS<=1', 'CAPABILITY>=1'], R9: ['REPRESS<=1', 'SUSTAIN>=1'] };
+Object.keys(SPEC).forEach((k) => {
+  const got = Dc.requirements(k).map((r) => r.pred + (r.min != null ? '>=' + r.min : '<=' + r.max)).sort().join();
+  eq(k + ' requirement table matches the written specification', got, SPEC[k].slice().sort().join());
+});
+// 9) การสลับของตัวบังคับกฎต้องเลือกมาตรการอันดับท้ายสุดที่ถอดได้โดยไม่ทำให้เงื่อนไขที่ผ่านอยู่แล้วเสียไป (คำนวณซ้ำด้วยวิธีตรง ๆ)
+let swapChecked = 0, swapBad = 0;
+for (let t = 0; t < 300; t++) {
+  const riskT = ['สูง', 'กลาง', 'ต่ำ'][t % 3], readyT = ['ต่ำ', 'กลาง', 'สูง'][Math.floor(t / 3) % 3];
+  const lo = { 'สูง': [3.2, 5], 'กลาง': [2, 3.2], 'ต่ำ': [1, 2] }[riskT], dd = { 'ต่ำ': [1.2, 2.4], 'กลาง': [2.8, 3.2], 'สูง': [3.8, 4.8] }[readyT];
+  const input = { risk: {}, seven: {}, resource: 'จำกัด' };
+  data.riskItems.forEach((it) => { const v = lo[0] + r() * (lo[1] - lo[0]); input.risk[it.id] = [Math.max(1, Math.min(5, Math.round(v))), Math.max(1, Math.min(5, Math.round(v + (r() - 0.5))))]; });
+  data.sevenItems.forEach((it) => { const d = Math.max(1, Math.min(5, Math.round(dd[0] + r() * (dd[1] - dd[0])))); input.seven[it.id] = [d, Math.min(5, d + 1)]; });
+  const o = E.analyze(input, data, null, { guard: Dc.guard });
+  o.domains.forEach((d) => {
+    if (!d.group || !d.swaps.length) return;
+    const s = d.swaps[0]; if (!s.out) return;
+    const byId = {}; data.bank.forEach((b) => { byId[b.id] = b; });
+    const cur = d.engineIds.map((id) => byId[id]), add = byId[s.in], reqs = Dc.requirements(d.group);
+    const sat = (list, q) => { const c = list.filter((b) => Dc.PRED[q.pred].test(b)).length; return (q.min == null || c >= q.min) && (q.max == null || c <= q.max); };
+    const q = reqs.find((x) => x.src === s.rule && x.pred === s.pred), before = reqs.map((x) => sat(cur, x));
+    const removable = cur.filter((v) => { const after = cur.filter((x) => x !== v).concat([add]); return reqs.every((x, k) => !before[k] || sat(after, x)) && sat(after, q); });
+    swapChecked++; if (!removable.length || removable[removable.length - 1].id !== s.out) swapBad++;
+  });
+}
+ok('guard swaps (' + swapChecked + ') always remove the lowest-ranked removable measure', swapChecked > 20 && swapBad === 0, 'checked ' + swapChecked + ' bad ' + swapBad);
+// 10) ตัวอธิบายเหตุผล (whyNot / explainDomain) ต้องสอดคล้องกับผลคัดเลือกจริงในทุกด้าน
+let expl = 0;
+const scenarios = [guarded].concat(Array.from({ length: 40 }, (_, t) => {
+  const lo = [[1, 2], [2, 3.2], [3.2, 5]][t % 3], dd = [[1.2, 2.4], [2.8, 3.2], [3.8, 4.8]][Math.floor(t / 3) % 3];
+  const input = { risk: {}, seven: {}, resource: ['จำกัด', 'ปานกลาง', 'เพียงพอ'][t % 3] };
+  data.riskItems.forEach((it) => { const v = lo[0] + r() * (lo[1] - lo[0]); input.risk[it.id] = [Math.max(1, Math.min(5, Math.round(v))), Math.max(1, Math.min(5, Math.round(v + (r() - 0.5))))]; });
+  data.sevenItems.forEach((it) => { const d = Math.max(1, Math.min(5, Math.round(dd[0] + r() * (dd[1] - dd[0])))); input.seven[it.id] = [d, Math.min(5, d + 1)]; });
+  return E.analyze(input, data, null, { guard: Dc.guard });
+}));
+scenarios.forEach((o) => o.domains.forEach((d) => {
+  if (!d.group) return; expl++;
+  const x = Dc.explainDomain(d, o, data), w = x.why, c = w.counts;
+  eq('counts sum to bank size', c.selected + c.swapped + c.dom + c.risk + c.ready + c.res + c.cap, data.bank.length);
+  Object.keys(c).forEach((k) => eq('count[' + k + '] equals tally of rows with that reason', c[k], w.rows.filter((m) => m.reason === k).length));
+  eq('selected count equals plan size', c.selected, d.measures.length); eq('selected rows equal plan size', w.selected.length, d.measures.length);
+  ok('selected rows pass all four gates', w.selected.every((m) => m.gates.dom && m.gates.risk && m.gates.ready && m.gates.res));
+  ok('selected rows keep plan order', w.selected.every((m, k) => m.id === d.measures[k].id));
+  ok('every row has a reason text', w.rows.every((m) => m.reasonText && m.reasonText.length > 2));
+  ok('counterfactual present for every non-selected fit/gate failure', w.rows.filter((m) => ['risk', 'ready', 'res', 'cap', 'swapped'].indexOf(m.reason) >= 0).every((m) => m.counterfactual && m.counterfactual.length > 5));
+  const caps = w.rows.filter((m) => m.reason === 'cap').sort((a, b) => a.poolRank - b.poolRank);
+  eq('near-miss list is the best-ranked capped measures', w.nearMiss.map((m) => m.id).join(), caps.slice(0, 3).map((m) => m.id).join());
+  ok('capped measures rank below the cut', caps.every((m) => m.poolRank > Math.min.apply(null, w.selected.map((s) => s.poolRank || 0).filter(Boolean)) - 1));
+  eq('explain checks == requirements', x.checks.length, Dc.requirements(d.group).length); eq('explain contrast 8 cells', x.contrast.length, 8); eq('explain sequence size', x.sequence.length, d.measures.length);
+  w.selected.forEach((m, k) => { const nx = w.selected[k + 1]; if (nx && m.top && !nx.top) ok('tie-break cites 7-S gap when only the first is in top-3', /7-S/.test(m.tie), m.tie); });
+}));
+ok('explainer exercised on many domains', expl > 100, expl);
 console.log(checks + ' checks, ' + fails + ' failed'); process.exit(fails ? 1 : 0);

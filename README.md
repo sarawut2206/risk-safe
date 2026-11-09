@@ -46,3 +46,14 @@
 - ข้อมูลที่ผู้ใช้กรอกอยู่ในเบราว์เซอร์ ส่งออกเป็นไฟล์ในเครื่องเมื่อผู้ใช้สั่งเท่านั้น รายงานส่งผู้วิจัยไม่มีชื่อโรงเรียนและข้อความอิสระโดยปริยาย
 
 ทดสอบ: `node tests/test_engine.js && node tests/test_bankloader.js && node tests/test_decision.js && node tests/test_stats.js && node tests/test_learn.js && node tests/test_eval.js && node tests/test_examples.js`
+
+## การพิสูจน์ความถูกต้องของกลไก (V0.7)
+
+- `tests/test_boundary.js` ค่าตัดทุกจุด กฎยกระดับ กฎเพดาน ครบ 9 ช่อง × 4 ด้าน × 3 ทรัพยากร (108 ฉากทัศน์) เอกภาพ ความไม่ขึ้นกับลำดับข้อ ข้อมูลไม่ครบ
+- `tools/dump_for_diff.js` + `tools/diff_test.py` ทดสอบเทียบสองการเขียน (Python เขียนแยก) 3,000 โปรไฟล์ 147,000 จุดตรวจ
+- `tools/mutation.js` ทดสอบการกลายพันธุ์ 30 แบบ (ใส่ข้อผิดพลาดในสำเนา แล้วดูว่าชุดทดสอบจับได้)
+- `tools/sensitivity.js` ความไวของช่อง R ต่อคะแนนคลาดเคลื่อนและค่าตัด (จำลอง) · `tools/simulate_concordance.js` กำลังของเกณฑ์ kappa/alpha ของกรณีจำลอง 27 กรณี (จำลอง) · `tools/map_7s_constructs.js` จับคู่ข้อประเมิน 7-S กับทฤษฎีความพร้อม
+- ผลของเครื่องมือเหล่านี้อยู่ใน `analysis/` ผลจากการจำลองไม่ใช่ผลวิจัย
+- แก้ข้อบกพร่อง: ค่าตัดใช้ค่าคลาดเคลื่อน 1e-9 กันเลขทศนิยม (เช่น 2.6000000000000005) และแก้ตัวนับเหตุผล "ถูกสลับตามกฎ"
+
+ทดสอบเพิ่ม: `node tests/test_boundary.js` · เทียบ Python: `node tools/dump_for_diff.js 3000 && python tools/diff_test.py`

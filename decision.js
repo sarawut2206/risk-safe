@@ -254,7 +254,7 @@
 
   function whyNot(dom, out, data) {
     const byId = {}; data.bank.forEach((b) => { byId[b.id] = b; });
-    const cnt = { selected: 0, dom: 0, risk: 0, ready: 0, res: 0, cap: 0 };
+    const cnt = { selected: 0, swapped: 0, dom: 0, risk: 0, ready: 0, res: 0, cap: 0 };
     dom.eval.forEach((e) => { cnt[e.reason]++; });
     const row = (e) => { const b = byId[e.id]; return { id: e.id, sb: e.sb, name: b.name, reason: e.reason, reasonText: REASON_TXT[e.reason], poolRank: e.poolRank, fitRank: e.fitRank, top: e.top, elem: b.elem, res: b.res, riskSet: b.risk, readySet: b.ready, evg: b.evg || '', counterfactual: '' }; };
     const rows = dom.eval.map(row);

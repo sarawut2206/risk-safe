@@ -1,0 +1,193 @@
+{
+ "suites": [
+  "test_engine.js",
+  "test_decision.js",
+  "test_boundary.js"
+ ],
+ "total": 30,
+ "killed": 30,
+ "survived": 0,
+ "mutation_score_pct": 100,
+ "results": [
+  {
+   "name": "M01 ค่าตัดความเสี่ยงต่ำ ≤ เป็น <",
+   "file": "engine.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_boundary.js"
+  },
+  {
+   "name": "M02 ค่าตัดความเสี่ยงกลาง ≤ เป็น <",
+   "file": "engine.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_boundary.js"
+  },
+  {
+   "name": "M03 ค่าตัดความพร้อมต่ำ ≤ เป็น <",
+   "file": "engine.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_boundary.js"
+  },
+  {
+   "name": "M04 ค่าตัดความพร้อมกลาง ≤ เป็น <",
+   "file": "engine.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_boundary.js"
+  },
+  {
+   "name": "M05 กฎเพดานใช้ && แทน ||",
+   "file": "engine.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_engine.js"
+  },
+  {
+   "name": "M06 กฎเพดานตัดเงื่อนไขระบบ",
+   "file": "engine.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_engine.js"
+  },
+  {
+   "name": "M07 กฎยกระดับเปลี่ยน L≥2 เป็น L>2",
+   "file": "engine.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_engine.js"
+  },
+  {
+   "name": "M08 ปิดกฎยกระดับ",
+   "file": "engine.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_engine.js"
+  },
+  {
+   "name": "M09 สูตรช่อง R คูณ 3 เป็น 2",
+   "file": "engine.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_engine.js"
+  },
+  {
+   "name": "M10 เพดานจำนวนข้อเกินหนึ่ง",
+   "file": "engine.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_engine.js"
+  },
+  {
+   "name": "M11 ตัวกรองทรัพยากร ≤ เป็น <",
+   "file": "engine.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_engine.js"
+  },
+  {
+   "name": "M12 ตัดน้ำหนัก 7-S ช่องว่างสูง",
+   "file": "engine.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_engine.js"
+  },
+  {
+   "name": "M13 ไม่ใช้ลำดับ QSPM",
+   "file": "engine.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_engine.js"
+  },
+  {
+   "name": "M14 ไม่กรองระดับความเสี่ยงของมาตรการ",
+   "file": "engine.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_engine.js"
+  },
+  {
+   "name": "M15 ไม่กรองระดับความพร้อมของมาตรการ",
+   "file": "engine.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_engine.js"
+  },
+  {
+   "name": "M16 ดัชนีความเสี่ยงหารด้วยจำนวนข้อทั้งหมดแทนข้อที่ตอบ",
+   "file": "engine.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_boundary.js"
+  },
+  {
+   "name": "M17 PNI ไม่หารด้วย D",
+   "file": "engine.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_engine.js"
+  },
+  {
+   "name": "D01 เงื่อนไข A1 ใช้กลุ่มผิด",
+   "file": "decision.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_decision.js"
+  },
+  {
+   "name": "D02 ตัวบังคับกฎไม่ทำงาน",
+   "file": "decision.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_decision.js"
+  },
+  {
+   "name": "D03 ตัวตรวจกฎใช้ > แทน ≥",
+   "file": "decision.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_decision.js"
+  },
+  {
+   "name": "D04 ปิดธงใกล้เส้นแบ่งด้านความเสี่ยง",
+   "file": "decision.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_decision.js"
+  },
+  {
+   "name": "D05 เกณฑ์ที่ต้องเกินของช่องเป้าหมายสลับกัน (ความพร้อม)",
+   "file": "decision.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_decision.js"
+  },
+  {
+   "name": "D06 แปลงรหัสช่องเป็นระดับผิด",
+   "file": "decision.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_decision.js"
+  },
+  {
+   "name": "D07 เงื่อนไข B3 ใช้กลุ่มผิด",
+   "file": "decision.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_decision.js"
+  },
+  {
+   "name": "D08 ข้อจำกัดปราบปรามเมื่อความเสี่ยงต่ำหลวมขึ้น",
+   "file": "decision.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_decision.js"
+  },
+  {
+   "name": "D09 เลือกผู้ถูกสลับจากอันดับสูงสุดแทนอันดับท้าย",
+   "file": "decision.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_decision.js"
+  },
+  {
+   "name": "W01 รายการ \"ใกล้ได้รับเลือก\" เรียงกลับด้าน",
+   "file": "decision.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_decision.js"
+  },
+  {
+   "name": "W02 เหตุผลลำดับ 7-S ใช้เงื่อนไขกลับ",
+   "file": "decision.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_decision.js"
+  },
+  {
+   "name": "W03 นับเหตุผลตกด่านผิดกลุ่ม",
+   "file": "decision.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_decision.js"
+  },
+  {
+   "name": "D10 ขอบเขตระยะห่างเส้นแบ่งความเสี่ยงคำนวณจากค่าตัดผิด",
+   "file": "decision.js",
+   "status": "ถูกจับได้",
+   "killedBy": "test_decision.js"
+  }
+ ]
+}

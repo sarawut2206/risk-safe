@@ -1,0 +1,71 @@
+{
+ "n_profiles": 6000,
+ "noise_prob_per_item": 0.2,
+ "reps": 5,
+ "units": 120000,
+ "flip_rate_pct": 10.3,
+ "near_flag_share_pct": 23.4,
+ "flip_rate_if_near_pct": 28,
+ "flip_rate_if_not_near_pct": 4.9,
+ "sensitivity_of_near_flag_pct": 63.8,
+ "ppv_of_near_flag_pct": 28,
+ "single_item_pair_flip_rate_pct": 2.6,
+ "threshold_pm10_flip_rate_pct": 22.1,
+ "override_cases_flip_rate_pct": 3,
+ "by_cell": [
+  {
+   "cell": "R1",
+   "n": 18540,
+   "flip_rate_pct": 4.1,
+   "near_share_pct": 14.3
+  },
+  {
+   "cell": "R2",
+   "n": 8955,
+   "flip_rate_pct": 9.2,
+   "near_share_pct": 41.7
+  },
+  {
+   "cell": "R3",
+   "n": 18605,
+   "flip_rate_pct": 4.6,
+   "near_share_pct": 14.2
+  },
+  {
+   "cell": "R4",
+   "n": 12265,
+   "flip_rate_pct": 22.7,
+   "near_share_pct": 25.7
+  },
+  {
+   "cell": "R5",
+   "n": 5955,
+   "flip_rate_pct": 28.3,
+   "near_share_pct": 49
+  },
+  {
+   "cell": "R6",
+   "n": 11925,
+   "flip_rate_pct": 24.2,
+   "near_share_pct": 26.8
+  },
+  {
+   "cell": "R7",
+   "n": 17975,
+   "flip_rate_pct": 4.8,
+   "near_share_pct": 17.5
+  },
+  {
+   "cell": "R8",
+   "n": 8190,
+   "flip_rate_pct": 10.3,
+   "near_share_pct": 44.7
+  },
+  {
+   "cell": "R9",
+   "n": 17590,
+   "flip_rate_pct": 4.8,
+   "near_share_pct": 16.7
+  }
+ ]
+}

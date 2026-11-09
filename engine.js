@@ -20,14 +20,16 @@
   const mean = (a) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : NaN);
 
   // ตัวจัดระดับ (ใช้ซ้ำในชั้นกฎตัดสินใจและชุดกรณีผู้เชี่ยวชาญ ให้ตรรกะเดียวกับ analyze ทุกครั้ง)
+  // ค่าตัดเป็น "ไม่เกิน": เติมค่าคลาดเคลื่อนเล็กน้อย (EPS) กันเลขทศนิยมคลาดเคลื่อน เช่น 2.6000000000000005 ที่ควรเท่ากับ 2.60 พอดี
+  const EPS = 1e-9;
   function classifyRisk(rd, override, P) {
     P = Object.assign({}, DEFAULT_PARAMS, P || {});
-    return !isFinite(rd) ? null : override ? 'สูง' : rd <= P.riskLow ? 'ต่ำ' : rd <= P.riskMid ? 'กลาง' : 'สูง';
+    return !isFinite(rd) ? null : override ? 'สูง' : rd <= P.riskLow + EPS ? 'ต่ำ' : rd <= P.riskMid + EPS ? 'กลาง' : 'สูง';
   }
   function classifyReady(meanD, strD, sysD, P) {
     P = Object.assign({}, DEFAULT_PARAMS, P || {});
-    const before = !isFinite(meanD) ? null : meanD <= P.readyLow ? 'ต่ำ' : meanD <= P.readyMid ? 'กลาง' : 'สูง';
-    const floorHit = before === 'สูง' && (strD < P.floorD || sysD < P.floorD);
+    const before = !isFinite(meanD) ? null : meanD <= P.readyLow + EPS ? 'ต่ำ' : meanD <= P.readyMid + EPS ? 'กลาง' : 'สูง';
+    const floorHit = before === 'สูง' && (strD < P.floorD - EPS || sysD < P.floorD - EPS);
     return { before, final: floorHit ? 'กลาง' : before, floorHit };
   }
   function cellOf(risk, ready) {
