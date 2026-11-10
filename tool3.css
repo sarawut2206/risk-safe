@@ -1,0 +1,51 @@
+/* Risk Safe V0.8: สไตล์ระบบรวบรวมข้อมูลสถานศึกษา (ใช้ร่วมกับ tool.css และ tool2.css) */
+.tapp .xok { display: flex; gap: 8px; align-items: flex-start; background: #e9f8e6; border: 1px solid #bfe6b7; color: #17653f; border-radius: 14px; padding: 10px 12px; margin: 10px 0; font-size: .92rem; line-height: 1.55; }
+.tapp .xok .ic { flex: none; margin-top: 2px; }
+.cpmode { margin: 0 0 14px; }
+.cph { margin-bottom: 4px; }
+.cpnav { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 10px; -webkit-overflow-scrolling: touch; }
+.cpnav button { flex: none; border: 1.5px solid #cfe0f2; background: #fff; color: #12304f; border-radius: 999px; padding: 9px 16px; font: inherit; font-weight: 800; font-size: .95rem; cursor: pointer; min-height: 42px; }
+.cpnav button[aria-current="page"] { background: linear-gradient(100deg, #1d63b8, #1989b3); border-color: transparent; color: #fff; }
+.cpwho { display: flex; align-items: center; gap: 8px; margin: 0 2px 12px; color: #35506b; font-size: .95rem; flex-wrap: wrap; }
+.cpwho b { color: #12304f; }
+.cpforms { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); margin-bottom: 14px; }
+.cpform { position: relative; margin: 0 !important; padding-top: 22px; }
+.cpform h2 { font-size: 1.1rem; font-weight: 800; margin: 0 0 6px; padding-right: 44px; }
+.cpno { position: absolute; top: 12px; right: 14px; font-size: 1.5rem; font-weight: 800; color: #b9d3ee; }
+.cproles { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.cproles li { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; border-top: 1px solid #e3eef9; padding-top: 8px; }
+.cproles li > span:first-child { flex: 1 1 180px; min-width: 0; line-height: 1.4; font-size: .93rem; }
+.cproles2 { display: grid; gap: 10px; }
+.cproles2 .tbtn { justify-content: flex-start; text-align: left; }
+.cpstick { position: sticky; top: 8px; z-index: 5; padding: 10px 16px; margin-bottom: 14px; }
+.cpprog { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; flex-wrap: wrap; font-size: .95rem; }
+.cpprog span { color: #55697f; font-size: .85rem; }
+.cpgrid { display: grid; gap: 14px 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.cpf { display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: .93rem; }
+.cpf small { color: #55697f; font-weight: 400; font-size: .8rem; line-height: 1.45; }
+.cpf input[type="text"], .cpf select, .cpf textarea, .cpyear input { border: 1.5px solid #c9dcf0; border-radius: 12px; padding: 10px 12px; font: inherit; background: #fff; color: #12304f; max-width: 100%; }
+.cpf textarea { resize: vertical; }
+.cpq { padding: 12px 0; border-top: 1px solid #e3eef9; scroll-margin-top: 90px; }
+.cpq:first-of-type { border-top: 0; }
+.cpq > p { margin: 0 0 8px; line-height: 1.55; }
+.cpq .id { display: inline-block; background: #e1eefc; color: #1d63b8; border-radius: 8px; padding: 0 8px; font-weight: 800; font-size: .82rem; margin-right: 4px; }
+.cprow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 6px 0; }
+.cprow > b { width: 22px; color: #1d63b8; flex: none; }
+.cprow small { flex: 1 1 100%; color: #55697f; font-size: .8rem; line-height: 1.4; padding-left: 30px; }
+.cpc button { min-width: 44px; padding: 8px 12px; }
+.cpmiss { background: #fff7de; border-radius: 12px; box-shadow: inset 4px 0 0 #e0a526; padding-left: 10px; }
+.cpleg { list-style: none; margin: 4px 0 8px; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: .9rem; line-height: 1.45; }
+.cpleg b { display: inline-block; width: 18px; color: #1d63b8; }
+.cpdet { padding: 8px 12px; background: #f4f9ff; border-radius: 14px; margin: 8px 0; }
+.cpyear { display: flex; flex-direction: column; gap: 4px; font-weight: 600; font-size: .88rem; }
+.cppad { padding: 8px 4px; }
+.cpapp .tcard > h2 .ic { margin-right: 4px; }
+@media (max-width: 520px) { .cpstick { top: 4px; } .cpform { padding-right: 14px; } }
+@media print {
+  .site, .site-foot, .cpnav, .cpstick, .row-btns, .xtabs, .cpmode, .tnote, .burger { display: none !important; }
+  .cpapp .tcard { box-shadow: none; break-inside: avoid; border: 1px solid #999; }
+  .cpq { break-inside: avoid; }
+  .xchips button { border: 1px solid #555; background: #fff !important; color: #000 !important; }
+  .xchips button[aria-checked="true"] { background: #ddd !important; font-weight: 800; }
+  body { background: #fff !important; }
+}

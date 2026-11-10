@@ -9,7 +9,10 @@
     track: { logs: {}, snaps: [], custom: [], code: '', arm: '', consent: false, saveLocal: false, includeText: false, includeProvince: false, snapLabel: '' },
     eval: { admin: { code: '', items: {}, sus: {}, comment: '' }, expert: { code: '', field: '', cases: {}, items: {}, comment: '' } },
     lab: { reports: [], experts: [], admins: [], msgs: [], learnP: {}, crit: {} },
-    ui: { step: 1, rtab: 'risk', riskDom: 'V', sevEl: 'STG', stratDom: 'V', mxDom: '', docType: 'SAR', useRules: true, exTab: 'rules', exDom: '', exCell: '', exRes: 1, exFilter: '', trkTab: 'log', evTab: 'admin', labTab: 'import', lgOpen: {}, bank: { q: '', dom: '', el: '', t3: '', res: '', ev: '' } },
+    // ระบบรวบรวมข้อมูลสถานศึกษา: ร่างอยู่ในเบราว์เซอร์นี้ ส่งออกเมื่อผู้ตอบกดส่งหรือดาวน์โหลดเองเท่านั้น (ดู tool3.js)
+    collect: { code: '', pin: '', role: '', drafts: {}, storeOk: true, msg: '', remote: null },
+    clab: { payloads: [], roster: [], msgs: [], mode: 'all', base: '' },
+    ui: { step: 1, rtab: 'risk', riskDom: 'V', sevEl: 'STG', stratDom: 'V', mxDom: '', docType: 'SAR', useRules: true, clabTab: 'import', cdraft: null, exTab: 'rules', exDom: '', exCell: '', exRes: 1, exFilter: '', trkTab: 'log', evTab: 'admin', labTab: 'import', lgOpen: {}, bank: { q: '', dom: '', el: '', t3: '', res: '', ev: '' } },
   };
   const BUNDLED_BANK = D.bank.slice();
   const cd = (x) => x.sb || x.id; // รหัสที่แสดง: SB-xxx (ตามดุษฎีนิพนธ์) ถ้าไม่มีใช้รหัสเดิม
@@ -37,8 +40,10 @@
     { id: 'risk', label: 'ฐานข้อมูลความเสี่ยง' },
     { id: 'input', label: 'เครื่องมือประเมิน' },
     { id: 'evaluate', label: 'ประเมินนวัตกรรม' },
+    { id: 'portal', label: 'เก็บข้อมูลโรงเรียน' },
     { id: 'about', label: 'เกี่ยวกับโครงการ' },
   ];
+  const PORTAL = ['portal', 'form1', 'form2', 'form3', 'collectlab'];
   const TOOL = ['school', 'dash', 'rassess', 'ready', 'pni', 'matrix', 'strategy', 'plan', 'explain', 'track', 'evaluate', 'lab', 'rules'];
   const PAGES = [
     { id: 'home', nav: '', title: 'Risk Safe ระบบบริหารความปลอดภัยบนฐานความเสี่ยง', sub: '' },
@@ -57,6 +62,11 @@
     { id: 'track', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'ติดตามผลและบทเรียน', sub: '' },
     { id: 'evaluate', nav: 'evaluate', eyebrow: 'ประเมินนวัตกรรม', title: 'ประเมินนวัตกรรม', sub: '' },
     { id: 'lab', nav: 'evaluate', eyebrow: 'ประเมินนวัตกรรม', title: 'ห้องวิเคราะห์ของผู้วิจัย', sub: '' },
+    { id: 'portal', nav: 'portal', eyebrow: 'เก็บข้อมูลโรงเรียน', title: 'ระบบรวบรวมข้อมูลสถานศึกษา', sub: '' },
+    { id: 'form1', nav: 'portal', eyebrow: 'เก็บข้อมูลโรงเรียน', title: 'แบบสอบถามความเสี่ยงและความพร้อม', sub: '' },
+    { id: 'form2', nav: 'portal', eyebrow: 'เก็บข้อมูลโรงเรียน', title: 'แบบบันทึกจำนวนเหตุการณ์', sub: '' },
+    { id: 'form3', nav: 'portal', eyebrow: 'เก็บข้อมูลโรงเรียน', title: 'แบบตรวจเอกสารนโยบาย', sub: '' },
+    { id: 'collectlab', nav: 'portal', eyebrow: 'เก็บข้อมูลโรงเรียน', title: 'แดชบอร์ดผู้วิจัย', sub: '' },
     { id: 'about', nav: 'about', eyebrow: 'เกี่ยวกับโครงการ', title: 'เกี่ยวกับต้นแบบ Risk Safe (R²-SAFE)', sub: 'ระบบนี้ตอบอะไร ทำงานอย่างไร และสถานะของต้นแบบ' },
   ];
   
@@ -171,7 +181,7 @@
     return '<div class="grid g2"><div class="card"><h3>ระบบนี้ตอบคำถาม 5 ข้อ</h3><ol style="padding-left:1.3em"><li>โรงเรียนมีความเสี่ยงด้านใด</li><li>มีความพร้อมในการจัดการความเสี่ยงเพียงใด</li><li>ควรเลือกกลยุทธ์อะไรก่อน</li><li>ต้องใช้ทรัพยากรและมอบหมายใคร</li><li>จะติดตามความก้าวหน้าได้อย่างไร</li></ol>' +
       '<p>จับคู่<b>ระดับความเสี่ยงรายด้านของภัย</b>กับ<b>ระดับความพร้อมตามกรอบ 7-S</b> เป็นกลุ่ม R1–R9 แล้วคัดมาตรการจากคลังพร้อมเหตุผลที่ตรวจย้อนกลับได้</p></div>' +
       '<div class="card"><h3>กระบวนการ 6 ขั้นตอน</h3><ol style="padding-left:1.3em"><li>วิเคราะห์ความเสี่ยง (ISO 31000, L×C)</li><li>วิเคราะห์ความพร้อม (McKinsey 7-S, D และ I)</li><li>จัดลำดับความสำคัญ (PNI Modified = (I−D)/D)</li><li>เลือกกลยุทธ์ (ตาราง Risk × Readiness และคลังมาตรการ)</li><li>ขับเคลื่อน (แผนปฏิบัติการ ผู้รับผิดชอบ)</li><li>ติดตามและเรียนรู้ (ตัวชี้วัด และย้อนกลับไปขั้น 1–4)</li></ol><p class="hint">ขั้นที่ 1 และ 2 ดำเนินการคู่ขนานกัน</p></div></div>' +
-      '<div class="card" style="margin-top:14px"><h3>สถานะของต้นแบบ</h3><ul style="padding-left:1.2em;margin:6px 0"><li>เครื่องคำนวณย้ายจากเครื่องมือ Excel ต้นแบบ และทดสอบเทียบผล 70 รายการกับ Excel ด้วยข้อมูลตัวอย่างชุดเดียวกัน (โฟลเดอร์ <code>tests</code> ใน GitHub)</li><li>ข้อมูลตัวอย่างเป็นโรงเรียนสมมติ ไม่ใช่ผลของโรงเรียนจริง</li><li>คลังมาตรการดึงจาก Google Sheets (อ่านอย่างเดียว) ถ้าโหลดไม่ได้หรือข้อมูลไม่ผ่านการตรวจ เว็บใช้ข้อมูลที่ฝังไว้ เว็บไม่ส่งข้อมูลที่ผู้ใช้กรอกไปที่ใด</li><li>เกณฑ์ ตารางตัดสินใจ และคลังมาตรการ 68 รายการเป็นร่างเริ่มต้น ยังไม่ผ่านเดลฟาย การตรวจ IOC และการประเมินโดยผู้ทรงคุณวุฒิ</li><li>ยังไม่มี QSPM ระบบสมาชิก ฐานข้อมูล และการบันทึกประวัติการอนุมัติ ซึ่งวางแผนไว้หลังเกณฑ์ผ่านเดลฟายและได้รับการรับรองจริยธรรมการวิจัย</li><li>ผลของระบบเป็นข้อเสนอสนับสนุนการวางแผน ไม่ใช้แทนดุลยพินิจของผู้อำนวยการ ไม่ใช้ตัดสินหรือจัดอันดับโรงเรียน และไม่ใช้แทนการตอบสนองเหตุฉุกเฉิน</li></ul></div>';
+      '<div class="card" style="margin-top:14px"><h3>สถานะของต้นแบบ</h3><ul style="padding-left:1.2em;margin:6px 0"><li>เครื่องคำนวณย้ายจากเครื่องมือ Excel ต้นแบบ และทดสอบเทียบผล 70 รายการกับ Excel ด้วยข้อมูลตัวอย่างชุดเดียวกัน (โฟลเดอร์ <code>tests</code> ใน GitHub)</li><li>ข้อมูลตัวอย่างเป็นโรงเรียนสมมติ ไม่ใช่ผลของโรงเรียนจริง</li><li>คลังมาตรการดึงจาก Google Sheets (อ่านอย่างเดียว) ถ้าโหลดไม่ได้หรือข้อมูลไม่ผ่านการตรวจ เว็บใช้ข้อมูลที่ฝังไว้ เครื่องมือประเมินไม่ส่งข้อมูลที่ผู้ใช้กรอกไปที่ใด ส่วนระบบรวบรวมข้อมูลสถานศึกษาส่งข้อมูลถึงผู้วิจัยเฉพาะเมื่อผู้วิจัยเปิดใช้และผู้ตอบกดส่งเอง</li><li>เกณฑ์ ตารางตัดสินใจ และคลังมาตรการ 68 รายการเป็นร่างเริ่มต้น ยังไม่ผ่านเดลฟาย การตรวจ IOC และการประเมินโดยผู้ทรงคุณวุฒิ</li><li>ยังไม่มี QSPM ระบบสมาชิก ฐานข้อมูล และการบันทึกประวัติการอนุมัติ ซึ่งวางแผนไว้หลังเกณฑ์ผ่านเดลฟายและได้รับการรับรองจริยธรรมการวิจัย</li><li>ผลของระบบเป็นข้อเสนอสนับสนุนการวางแผน ไม่ใช้แทนดุลยพินิจของผู้อำนวยการ ไม่ใช้ตัดสินหรือจัดอันดับโรงเรียน และไม่ใช้แทนการตอบสนองเหตุฉุกเฉิน</li></ul></div>';
   }
 
   // ---------- ตาราง 5×5 (L × C) ----------
@@ -207,7 +217,7 @@
       '<h1>ระบบบริหารความปลอดภัยบนฐานความเสี่ยง</h1><p class="goldt">คลังกลยุทธ์และเครื่องมือตัดสินใจสำหรับโรงเรียนมัธยมศึกษา สังกัด สพฐ.</p>' +
       '<p class="lead">จับคู่ระดับความเสี่ยงรายด้านของภัยกับความพร้อมขององค์กรตามกรอบ 7-S เป็นกลุ่มแนวทางตอบสนอง R1–R9 แล้วคัดมาตรการจากคลังพร้อมเหตุผลที่ตรวจย้อนกลับได้ ผู้อำนวยการเป็นผู้ตัดสินใจขั้นสุดท้าย</p>' +
       '<div class="cta"><a class="btn gold lg" href="#bank" data-go="bank">เข้าสู่คลังกลยุทธ์</a><a class="btn line-w lg" href="#input" data-go="input">ประเมินความพร้อม</a></div>' +
-      '<p class="fine">ต้นแบบเชิงวิจัย ข้อมูลตัวอย่างเป็นโรงเรียนสมมติ ไม่ใช่เว็บไซต์ทางการของ สพฐ. และไม่เก็บหรือส่งข้อมูลที่กรอก</p></div></section>';
+      '<p class="fine">ต้นแบบเชิงวิจัย ข้อมูลตัวอย่างเป็นโรงเรียนสมมติ ไม่ใช่เว็บไซต์ทางการของ สพฐ. และเครื่องมือประเมินไม่เก็บหรือส่งข้อมูลที่กรอก (ระบบรวบรวมข้อมูลสถานศึกษาส่งข้อมูลถึงผู้วิจัยเมื่อเปิดใช้และผู้ตอบกดส่งเท่านั้น)</p></div></section>';
     s += '<section class="stats"><div class="wrap">' + stats.map((x) => '<div class="stat"><b>' + x[0] + '</b><span>' + x[1] + '</span><small>' + x[2] + '</small></div>').join('') + '</div></section>';
     s += '<section class="sec"><div class="wrap"><h2 class="t">สามส่วนหลักของระบบ</h2><p class="t-sub">จากข้อมูลความเสี่ยงและความพร้อม ไปสู่มาตรการที่ลงมือทำได้จริง</p><div class="mods">' +
       mods.map((m) => '<div class="mod"><div class="ic">' + ICON[m[1]] + '</div><h3>' + m[2] + '</h3><p>' + m[3] + '</p><a href="#' + m[0] + '" data-go="' + m[0] + '">' + m[4] + '</a></div>').join('') + '</div></div></section>';
@@ -249,7 +259,9 @@
   const UI2 = RS_TOOL2.create({ S, D, E, esc, fmt, getOut, cd, mKey, SHORT_DOM, SHORT_EL, render: (k) => render(k) }, UI.h);
   UI2.bind();
   UI2.restore();
-  const RENDER = Object.assign({ home: pageHome, bank: pageBank, risk: pageRisk, rules: pageRules, about: pageAbout }, UI.pages, UI2.pages);
+  const UI3 = RS_TOOL3.create({ S, D, E, esc, fmt, LOGO, go: (id) => go(id), render: (k) => render(k) }, UI.h);
+  UI3.bind();
+  const RENDER = Object.assign({ home: pageHome, bank: pageBank, risk: pageRisk, rules: pageRules, about: pageAbout }, UI.pages, UI2.pages, UI3.pages);
   let cur = 'home';
   function chip() {
     const c = $('#fill-chip'); if (!c) return;
@@ -262,16 +274,17 @@
   function buildFoot() {
     $('#site-foot').innerHTML = '<div class="wrap"><div class="fcols"><div><div class="logo">' + LOGO + '<span>Risk Safe</span></div><p>ต้นแบบงานวิจัยดุษฎีนิพนธ์ สาขาวิชานวัตกรรมการบริหารการศึกษา มหาวิทยาลัยสยาม ระบบสนับสนุนการเลือกกลยุทธ์การบริหารความปลอดภัยของโรงเรียนมัธยมศึกษาบนฐานความเสี่ยงและความพร้อม</p></div>' +
       '<div><h4>เมนู</h4>' + NAV.map((n) => '<a href="#' + n.id + '" data-go="' + n.id + '">' + n.label + '</a>').join('') + '<a href="#rules" data-go="rules">กฎและเกณฑ์</a></div>' +
-      '<div><h4>หมายเหตุ</h4><p>ไม่ใช่เว็บไซต์ทางการของ สพฐ. หรือหน่วยงานใด ข้อมูลตัวอย่างเป็นโรงเรียนสมมติ และเว็บไม่เก็บหรือส่งข้อมูลที่ผู้ใช้กรอก</p><a href="https://github.com/sarawut2206/risk-safe" rel="noopener">ซอร์สโค้ดบน GitHub</a></div></div>' +
+      '<div><h4>หมายเหตุ</h4><p>ไม่ใช่เว็บไซต์ทางการของ สพฐ. หรือหน่วยงานใด ข้อมูลตัวอย่างเป็นโรงเรียนสมมติ และเครื่องมือประเมินไม่เก็บหรือส่งข้อมูลที่ผู้ใช้กรอก (ระบบรวบรวมข้อมูลสถานศึกษาส่งข้อมูลถึงผู้วิจัยเฉพาะเมื่อผู้วิจัยเปิดใช้และผู้ตอบกดส่งเอง)</p><a href="https://github.com/sarawut2206/risk-safe" rel="noopener">ซอร์สโค้ดบน GitHub</a></div></div>' +
       '<div class="fbot"><span>ต้นแบบ V0.3 · ปี 2569 · ผลลัพธ์เป็นข้อเสนอสนับสนุนการวางแผน ไม่แทนดุลยพินิจของผู้อำนวยการ</span><span>เหตุฉุกเฉิน โทร 191 · 1669 · 199</span></div></div>';
   }
   function render(keepScroll) {
     const p = PAGES.find((x) => x.id === cur);
     document.title = cur === 'home' ? 'Risk Safe ระบบบริหารความปลอดภัยบนฐานความเสี่ยง (ต้นแบบ)' : p.title + ' · Risk Safe ต้นแบบ';
     if (cur === 'home') $('#view').innerHTML = RENDER.home();
+    else if (PORTAL.indexOf(cur) >= 0) $('#view').innerHTML = RENDER[cur]();
     else if (TOOL.indexOf(cur) >= 0 && cur !== 'rules') $('#view').innerHTML = UI.shell(cur, RENDER[cur]());
     else $('#view').innerHTML = '<section class="phero hexbg"><div class="wrap"><span class="eyebrow">' + esc(p.eyebrow) + '</span><h1>' + esc(p.title) + '</h1><p>' + esc(p.sub) + '</p></div></section><div class="wrap body">' + RENDER[cur]() + '</div>';
-    document.body.classList.toggle('tool-on', TOOL.indexOf(cur) >= 0 && cur !== 'rules');
+    document.body.classList.toggle('tool-on', (TOOL.indexOf(cur) >= 0 && cur !== 'rules') || PORTAL.indexOf(cur) >= 0);
     buildNav(); buildFoot(); chip(); UI2.persist();
     if (!keepScroll) window.scrollTo({ top: 0 });
   }
@@ -341,9 +354,13 @@
     if (t.id === 'f-q') { S.ui.bank.q = t.value; $('#bank-wrap').innerHTML = bankTable(); }
     else if (t.id === 'aar') S.aar = t.value;
   });
-  window.addEventListener('hashchange', () => { const h = location.hash.replace('#', ''); if (h && h !== cur) go(h); });
+  // อ่านรหัสโรงเรียนและผู้ตอบจากลิงก์ (#form1?s=S001&r=R2) แล้วล้างพารามิเตอร์ออกจากแถบที่อยู่
+  function parseHash() { const raw = location.hash.replace('#', ''), i = raw.indexOf('?'), q = {}; if (i >= 0) raw.slice(i + 1).split('&').forEach((kv) => { const p = kv.split('='); if (p[0]) { try { q[decodeURIComponent(p[0])] = decodeURIComponent(p[1] || ''); } catch (e) { /* ข้าม */ } } }); return { id: i < 0 ? raw : raw.slice(0, i), q }; }
+  window.addEventListener('hashchange', () => { const ph = parseHash(); UI3.applyQuery(ph.q); if (ph.id && (ph.id !== cur || Object.keys(ph.q).length)) go(ph.id); });
 
-  const h0 = location.hash.replace('#', '');
+  const ph0 = parseHash(); UI3.applyQuery(ph0.q);
+  const h0 = ph0.id;
   cur = RENDER[h0] ? h0 : (h0 === 'input' ? 'dash' : 'home'); render();
+  if (Object.keys(ph0.q).length) { try { history.replaceState(null, '', '#' + cur); } catch (e) { /* ไม่เป็นไร */ } }
   loadRemoteBank();
 })();

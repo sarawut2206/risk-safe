@@ -69,10 +69,12 @@
       const rd = pairs.length ? pairs.reduce((s, p) => s + p[0] * p[1], 0) / pairs.length : NaN;
       const cmax = cAll.length ? Math.max.apply(null, cAll) : NaN;
       const override = pairs.some((p) => p[1] === P.overrideC && p[0] >= P.overrideL);
-      const risk = classifyRisk(rd, override, P);
+      // ข้อมูลระดับโรงเรียนที่รวมจากหลายคนเป็นค่าเฉลี่ย กฎยกระดับตรวจจากคำตอบรายคนแล้วส่งมาเป็นธงรายด้าน (input.overrideDomains) ถ้าไม่ส่งมาก็ไม่มีผล
+      const forced = !!(input.overrideDomains && input.overrideDomains[dom.code]);
+      const risk = classifyRisk(rd, override || forced, P);
       const group = cellOf(risk, readyFinal);
       const pkg = group ? data.packages.find((p) => p.code === group) : null;
-      return { code: dom.code, name: dom.name, n: pairs.length, rd, cmax, override, risk, ready: readyFinal, group, pkg, measures: [] };
+      return { code: dom.code, name: dom.name, n: pairs.length, rd, cmax, override: override || forced, risk, ready: readyFinal, group, pkg, measures: [] };
     });
 
     // ---- ขั้นที่ 4: เลือกมาตรการจากคลัง (กฎ 8 ข้อ ข้อ 4–8) ----
