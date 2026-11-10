@@ -76,7 +76,7 @@
       return '<p class="hint">เลือกจากชื่อโครงการด้วยคำสำคัญเท่านั้น (ไม่ใช่การประเมิน) ติ๊กออกรายการที่ไม่เกี่ยว รายการที่เป็นเบี้ยประกันหรือค่าตรวจสุขภาพที่มักมาจากเงินผู้ปกครองไม่ถูกติ๊กไว้ให้ ยอดเงินอ่านจากช่องแรกที่พบตัวเลขในแถวนั้น ตรวจกับตารางต้นฉบับ</p>' +
         doms.map((d) => '<h4 class="pldom">' + esc(PR.DOM_NAME[d]) + '</h4>' + res.projects.map((p, i) => [p, i]).filter((x) => x[0].dom === d).map((x) => {
           const p = x[0], i = x[1];
-          return '<label class="plpr"><input type="checkbox" data-ppsel="' + i + '" data-pi="' + id + '"' + (P.psel[i] ? ' checked' : '') + (p.amount == null ? ' disabled' : '') + '><span><b>' + esc(p.code) + '</b> ' + esc(p.title) + (p.soft ? ' <span class="chip warn">มักเป็นเงินผู้ปกครอง</span>' : '') + '<small>หน้า ' + p.page + ' · ' + (p.amount != null ? fmt(p.amount) + ' บาท' : 'ไม่พบตัวเลขงบในแถวนี้') + '</small></span></label>';
+          return '<label class="plpr"><input type="checkbox" data-ppsel="' + i + '" data-pi="' + id + '"' + (P.psel[i] ? ' checked' : '') + '><span><b>' + esc(p.code) + '</b> ' + esc(p.title) + (p.soft ? ' <span class="chip warn">มักเป็นเงินผู้ปกครอง</span>' : '') + '<small>หน้า ' + p.page + ' · ' + (p.amount != null ? fmt(p.amount) + ' บาท' : 'ไม่พบตัวเลขงบในแถวนี้ (ติ๊กได้ นับเป็น 0 บาท)') + '</small></span></label>';
         }).join('')).join('') +
         '<p class="pltot" id="pl-tot-' + id + '">' + totHtml() + '</p>' +
         (cfg.budgetTo ? '<label class="plpr plbud"><input type="checkbox" data-pbud="1" data-pi="' + id + '"' + (P.bud ? ' checked' : '') + '><span>นำช่วงงบที่คำนวณได้ไปกรอกในช่อง "ช่วงงบประมาณด้านความปลอดภัยต่อปี" <small>ผู้ตอบควรตรวจว่ายอดนี้ตรงกับงบด้านความปลอดภัยของโรงเรียนจริงหรือไม่ ก่อนติ๊ก</small></span></label>' : '');
@@ -107,12 +107,21 @@
       s += '<details class="xd"><summary>ข้อสังเกตจากเนื้อหาแผน (เอกสารความปลอดภัย D1–D5 และหัวข้อ 7-S)</summary>' + hintsHtml(res) + '</details>';
       return s;
     }
+    function pendingHtml() {
+      const done = (P.filled || []).map((x) => x.label), rows = [];
+      Object.keys(MAP).forEach((k) => {
+        const ev = P.res && P.res.evidence.find((e) => e.key === k), v = P.edit[k]; if (!ev || v == null || v === '' || done.indexOf(ev.label) >= 0) return;
+        const m = MAP[k], opt = m.options && m.options.find((o) => o[0] === v); rows.push(ev.label + ' = ' + (opt ? opt[1] : v));
+      });
+      if (cfg.budgetTo && P.res && P.res.projects.length) rows.push('ช่วงงบด้านความปลอดภัย = ' + PR.budgetBand(total()) + ' (คำนวณจากโครงการที่ติ๊กไว้)');
+      return rows.length ? '<p class="hint"><b>ยังไม่ได้กรอกให้ เพราะต้องตรวจเองก่อน:</b> ' + rows.map(esc).join(' · ') + ' (ปรับและกด "นำค่าที่แก้หรือติ๊กไปกรอกใหม่" ในรายละเอียดด้านล่าง)</p>' : '';
+    }
     function summaryHtml(res) {
       const n = (P.filled || []).length;
       return '<p class="xok" role="status">' + ic('check', 18) + ' อ่าน "' + esc(P.file) + '" (' + res.totalPages + ' หน้า) แล้ว กรอกให้อัตโนมัติ ' + n + ' ช่อง' + (n ? '' : ' (ไม่พบค่าที่รู้จัก)') + '</p>' +
         (n ? '<ul class="plfilled">' + P.filled.map((x) => '<li><span>' + esc(x.label) + '</span><b>' + esc(x.value) + '</b></li>').join('') + '</ul>' : '') +
         (P.checks && P.checks.length ? '<p class="hint"><b>ข้อควรตรวจ</b></p><ul class="plchk">' + P.checks.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul>' : '') +
-        '<p class="hint">เพิ่มไฟล์นี้ในรายการเอกสารด้านล่างแล้ว ค่าที่กรอกให้แก้ได้ที่ช่องด้านล่างโดยตรง <button class="lnk" data-act="plan-scroll" data-pi="' + id + '">ดูที่มาของแต่ละค่า โครงการด้านความปลอดภัย และข้อสังเกตจากแผน</button></p>';
+        pendingHtml() + '<p class="hint">' + (cfg.record ? 'เพิ่มไฟล์นี้ในรายการเอกสารด้านล่างแล้ว ' : '') + 'ค่าที่กรอกให้แก้ได้ที่ช่องด้านล่างโดยตรง <button class="lnk" data-act="plan-scroll" data-pi="' + id + '">ดูที่มาของแต่ละค่า โครงการด้านความปลอดภัย และข้อสังเกตจากแผน</button></p>';
     }
     function card() {
       let s = '<p class="hint">' + cfg.intro + '</p>' + pickRow() + statusHtml();
@@ -122,17 +131,19 @@
     }
     function detail() {
       const res = P.res; if (!cfg.auto || !res || res.empty) return '';
-      return cfg.card('ที่มาของค่าที่อ่านได้และโครงการด้านความปลอดภัย', '<span id="plan-detail-' + id + '"></span>' + reviewHtml(res), { icon: 'doc' });
+      const body = '<span id="plan-detail-' + id + '"></span>' + reviewHtml(res);
+      if (cfg.detailCollapsed) return '<details class="xd pldet"><summary>ดูที่มาของค่า ปรับค่า และโครงการด้านความปลอดภัยที่อ่านได้จากแผน</summary>' + body + '</details>';
+      return cfg.card('ที่มาของค่าที่อ่านได้และโครงการด้านความปลอดภัย', body, { icon: 'doc' });
     }
 
     function apply(silent) {
       let n = 0; const bad = []; P.filled = []; P.checks = [];
       Object.keys(MAP).forEach((k) => {
         if (!P.sel[k]) return; const v = String(P.edit[k] == null ? '' : P.edit[k]).trim(); if (v === '') return;
-        const m = MAP[k], label = (P.res && P.res.evidence.find((e) => e.key === k) || {}).label || k;
+        const m = MAP[k], ev = P.res && P.res.evidence.find((e) => e.key === k), label = (ev || {}).label || k;
+        if (silent && cfg.autoConf && cfg.autoConf.indexOf((ev || {}).conf || 'high') < 0) return;
         if (m.check && !m.check(v)) { bad.push(label); return; }
         cfg.set(m.to, v); n++;
-        const ev = P.res && P.res.evidence.find((e) => e.key === k);
         P.filled.push({ label: label, value: /^\d+$/.test(v) && k !== 'fiscalYear' ? fmt(v) : v });
         if (ev && ev.note) P.checks.push(label + ': ' + ev.note);
       });
@@ -148,7 +159,7 @@
         if (t.dataset.act === 'plan-pick') { const f = document.getElementById('plan-file-' + id); if (f) f.click(); }
         else if (t.dataset.act === 'plan-clear') { clean(); cfg.render(); }
         else if (t.dataset.act === 'plan-apply') apply();
-        else if (t.dataset.act === 'plan-scroll') { const d = document.getElementById('plan-detail-' + id); if (d) d.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        else if (t.dataset.act === 'plan-scroll') { const d = document.getElementById('plan-detail-' + id); if (d) { const dt = d.closest('details'); if (dt) dt.open = true; d.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }
       });
       document.addEventListener('change', (e) => {
         const t = e.target; if (!mine(t)) return;

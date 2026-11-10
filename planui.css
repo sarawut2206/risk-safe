@@ -37,3 +37,8 @@
 .plfilled span { font-size: .8rem; color: #55697f; font-weight: 700; }
 .plfilled b { overflow-wrap: anywhere; font-size: 1.05rem; }
 .plchk { margin: 4px 0 8px; padding-left: 20px; font-size: .88rem; line-height: 1.5; color: #55697f; }
+.pldet { margin: 0 0 14px; background: #fff; border-radius: 16px; padding: 10px 14px; border: 1px solid #e3eef9; }
+.cpguide { background: #f4f9ff; border-radius: 14px; padding: 10px 14px; margin: 8px 0 12px; line-height: 1.55; font-size: .93rem; }
+.cpguide ul { margin: 4px 0 6px; padding-left: 20px; }
+.cpguide .ex { background: #fff; border-left: 4px solid #1d63b8; border-radius: 8px; padding: 6px 10px; margin: 6px 0; color: #2a3f55; }
+.cpguide small { color: #55697f; display: block; }

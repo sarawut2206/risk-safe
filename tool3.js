@@ -130,7 +130,7 @@
       s += progressBar(pr);
       const miss1 = pr.parts.p1.missing;
       const mk = (k) => (miss1.indexOf(k) >= 0 ? ' cpmiss' : '');
-      s += PUI.card() + '<section id="q-p1">' + card('ตอนที่ 1 ข้อมูลทั่วไปและทรัพยากรที่มี', '<div class="cpgrid">' +
+      s += PUI.card() + PUI.detail() + '<section id="q-p1">' + card('ตอนที่ 1 ข้อมูลทั่วไปและทรัพยากรที่มี', '<div class="cpgrid">' +
         '<div class="' + mk('students') + '">' + fld('จำนวนนักเรียนทั้งหมด (คน)', num('answers.part1.students', p1.students, 'เช่น 532')) + '</div>' +
         '<div class="' + mk('staff') + '">' + fld('จำนวนครูและบุคลากร (คน)', num('answers.part1.staff', p1.staff, 'เช่น 32')) + '</div>' +
         '<div class="' + mk('year') + '">' + fld('ปีการศึกษาที่ตอบ (พ.ศ.)', num('answers.part1.year', p1.year, '2569')) + '</div>' +
@@ -162,7 +162,19 @@
         }).join('') + '</section>';
       });
       s += '</section>';
-      s += card('ตอนที่ 4 ข้อเสนอแนะและปัญหาที่ต้องการพัฒนา', '<p class="xwarn">' + ic('alert', 18) + ' ห้ามใส่ชื่อบุคคล ชื่อนักเรียน หรือรายละเอียดเหตุการณ์ที่ระบุตัวได้</p>' + fld('ปัญหาด้านความปลอดภัยที่โรงเรียนต้องการพัฒนามากที่สุด', '<textarea data-cset="answers.part4.need" maxlength="600" rows="4">' + esc(a.part4.need) + '</textarea>') + fld('ข้อเสนอแนะอื่น ๆ', '<textarea data-cset="answers.part4.suggest" maxlength="600" rows="4">' + esc(a.part4.suggest) + '</textarea>'), { icon: 'doc' });
+      const G1 = '<div class="cpguide"><b>แนวทางการตอบ</b> เขียน 1–3 ประโยค ให้ครอบคลุมเท่าที่ทราบ (ไม่ต้องครบทุกข้อ)<ul>' +
+        '<li><b>ด้านของภัย</b> ระบุว่าเป็นด้านใด: ความรุนแรงของมนุษย์ · อุบัติเหตุและภัยพิบัติ · การละเมิดสิทธิ · สุขภาวะกายและจิตใจ</li>' +
+        '<li><b>สภาพปัญหา</b> เป็นภาพรวม เช่น เกิดบ่อยหรือรุนแรงเพียงใด ไม่ระบุคนหรือเหตุการณ์ใดเหตุการณ์หนึ่ง</li>' +
+        '<li><b>เหตุผล</b> ทำไมต้องพัฒนาก่อนเรื่องอื่น เช่น เสี่ยงสูง ยังไม่มีแนวปฏิบัติ ขาดบุคลากร งบประมาณ หรืออุปกรณ์</li>' +
+        '<li><b>สิ่งที่ทำแล้วและสิ่งที่ยังขาด</b> (ถ้ามี)</li></ul>' +
+        '<div class="ex"><b>ตัวอย่าง (สมมติ ไม่ใช่ข้อมูลจริง)</b> ด้านอุบัติเหตุและภัยพิบัติ: ซ้อมอพยพยังไม่ครบทุกอาคาร และยังไม่มีผู้รับแจ้งเหตุที่ชัดเจนในช่วงนอกเวลาเรียน อยากพัฒนาแนวปฏิบัติเมื่อเกิดเหตุและแผนซ้อมประจำปี</div></div>';
+      const G2 = '<div class="cpguide"><b>แนวทางการตอบ</b> เขียนได้ เช่น<ul>' +
+        '<li>สิ่งที่อยากให้ระบบนี้ช่วยโรงเรียน (มาตรการ ตัวอย่างแผน แบบฟอร์ม)</li>' +
+        '<li>ข้อคำถามที่ไม่ชัดเจนหรือตอบยาก ให้ระบุรหัสข้อ เช่น V3 หรือ STG2</li>' +
+        '<li>ข้อจำกัดของโรงเรียนที่ผู้วิจัยควรทราบ เช่น ขนาด บุคลากร งบประมาณ</li>' +
+        '<li>ความเห็นเรื่องการใช้งานแบบสอบถาม เช่น ความยาว เวลาที่ใช้ การตอบบนมือถือ</li></ul>' +
+        '<div class="ex"><b>ตัวอย่าง (สมมติ ไม่ใช่ข้อมูลจริง)</b> ข้อ STG2 ตีความยาก อยากให้มีตัวอย่างเอกสารที่นับว่ามี และอยากได้ตัวอย่างแผนเผชิญเหตุสำหรับโรงเรียนขนาดใหญ่</div></div>';
+      s += card('ตอนที่ 4 ข้อเสนอแนะและปัญหาที่ต้องการพัฒนา (ไม่บังคับ)', '<p class="cpguide"><b>ตอนที่ 4 ไม่บังคับ</b> ไม่ส่งผลต่อการคำนวณกลุ่ม R1–R9 ผู้วิจัยใช้อ่านประกอบผลภาพรวมของโรงเรียน ตอบสั้น ๆ ไม่เกิน 600 ตัวอักษรต่อช่อง</p><p class="xwarn">' + ic('alert', 18) + ' ห้ามใส่ชื่อบุคคล ชื่อนักเรียน ชั้นหรือห้องที่ระบุตัวได้ วันที่หรือสถานที่เกิดเหตุ หรือรายละเอียดเหตุการณ์ที่ระบุตัวได้ ให้เขียนเป็นภาพรวมของโรงเรียน</p>' + fld('ปัญหาด้านความปลอดภัยที่โรงเรียนต้องการพัฒนามากที่สุด', G1 + '<textarea data-cset="answers.part4.need" maxlength="600" rows="5" placeholder="เขียนตามแนวทางด้านบน เช่น ด้านอุบัติเหตุและภัยพิบัติ: ...">' + esc(a.part4.need) + '</textarea>') + fld('ข้อเสนอแนะอื่น ๆ', G2 + '<textarea data-cset="answers.part4.suggest" maxlength="600" rows="4" placeholder="เช่น สิ่งที่อยากให้ระบบช่วย ข้อคำถามที่ตอบยาก (ระบุรหัสข้อ) หรือความเห็นเรื่องการใช้งาน">' + esc(a.part4.suggest) + '</textarea>'), { icon: 'doc' });
       s += '<div id="cpcheck">' + buildCheck('questionnaire', d) + '</div>';
       return shell('form1', s + actions('questionnaire', d, pr.complete, K.role));
     }
@@ -297,10 +309,10 @@
     // ====================================================================
     function rerender(keep) { const sc = window.scrollY; c.render(true); if (keep) window.scrollTo({ top: sc }); }
     // อ่านตอนที่ 1 จากแผนปฏิบัติการ (PDF) ในเบราว์เซอร์ของผู้ตอบ ไม่อัปโหลด ผู้ตอบตรวจและเลือกเองก่อนกรอก (ดู planui.js)
-    const PUI = root.RS_PLANUI.create({ id: 'portal', state: (S.planPortal = S.planPortal || {}), esc, ic, card, render: () => rerender(true), done: () => rerender(true), budgetTo: 'budget', missingKeys: ['students', 'staff'], hide: ['name', 'province'],
+    const PUI = root.RS_PLANUI.create({ id: 'portal', state: (S.planPortal = S.planPortal || {}), esc, ic, card, render: () => rerender(true), done: () => rerender(true), budgetTo: 'budget', missingKeys: ['students', 'staff'], hide: ['name', 'province'], auto: true, autoConf: ['high'], detailCollapsed: true,
       set: (to, v) => { const cd = S.ui.cdraft; if (!cd || cd.form !== 'questionnaire') return; setPath(cd.d.answers, 'part1.' + to, v); if (!cd.d.startedAt) cd.d.startedAt = new Date().toISOString(); persist(cd.form, cd.resp); },
-      title: 'กรอกตอนที่ 1 จากแผนปฏิบัติการ (ไม่บังคับ)',
-      intro: 'ถ้าโรงเรียนมีแผนปฏิบัติการประจำปีเป็นไฟล์ PDF เลือกไฟล์เพื่อให้ระบบเสนอค่าจำนวนนักเรียน ครูและบุคลากร สังกัดพื้นที่ และช่วงงบประมาณด้านความปลอดภัย ท่านตรวจ แก้ และติ๊กเลือกเองก่อนนำไปกรอกในตอนที่ 1 <b>ไฟล์ถูกอ่านในเครื่องของท่านเท่านั้น ไม่อัปโหลด และไม่ถูกส่งถึงผู้วิจัย</b> ผู้วิจัยได้รับเฉพาะคำตอบที่ท่านกดส่ง ตอนที่ 2–4 ท่านต้องตอบเอง เพราะเป็นการประเมินของท่าน',
+      title: 'อัปโหลดแผนปฏิบัติการ ให้ระบบกรอกตอนที่ 1 ให้ (ไม่บังคับ)',
+      intro: 'ถ้าโรงเรียนมีแผนปฏิบัติการประจำปีเป็นไฟล์ PDF กดปุ่มด้านล่างแล้วเลือกไฟล์ ระบบกรอกตอนที่ 1 ให้ทันทีเมื่อตัวเลขในแผนตรวจสอบกันได้ (จำนวนนักเรียนและบุคลากร ชายบวกหญิงต้องเท่ากับยอดรวม) และสังกัดพื้นที่ตรงกับรายการ ส่วนค่าที่ยังไม่แน่ใจ (ครูแนะแนว ช่วงงบ) ระบบแสดงให้ท่านตรวจก่อนกรอกเอง <b>ไฟล์ถูกอ่านในเครื่องของท่านเท่านั้น ไม่อัปโหลด และไม่ถูกส่งถึงผู้วิจัย</b> ผู้วิจัยได้รับเฉพาะคำตอบที่ท่านกดส่ง ตอนที่ 2–4 ท่านต้องตอบเอง เพราะเป็นการประเมินของท่าน',
       map: { students: { to: 'students', type: 'number', check: (v) => /^\d{1,7}$/.test(v) }, staff: { to: 'staff', type: 'number', check: (v) => /^\d{1,6}$/.test(v) },
         fiscalYear: { to: 'year', type: 'number', on: false, check: (v) => /^25\d\d$/.test(v) },
         stratum: { to: 'stratum', options: C.STRATA.map((x) => [x[0], x[1]]), check: (v) => C.STRATA.some((x) => x[0] === v) },
