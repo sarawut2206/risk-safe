@@ -12,6 +12,9 @@
     const cfg = () => root.RS_CONFIG || {};
     const mode = () => (['demo', 'tryout', 'live'].indexOf(cfg().collectMode) >= 0 ? cfg().collectMode : 'demo');
     const endpoint = () => String(cfg().collectUrl || '');
+    const win = () => C.collectWindow(cfg().collectOpen, cfg().collectClose, new Date());
+    const blocked = () => mode() === 'live' && ['before', 'closed'].indexOf(win().state) >= 0;
+    const blockWhy = () => { const w = win(); return w.state === 'before' ? 'ยังไม่ถึงวันเปิดเก็บข้อมูล (เปิด ' + C.thaiDate(w.open) + ')' : 'ปิดเก็บข้อมูลแล้วเมื่อ ' + C.thaiDate(w.close); };
     const n2 = (x, d) => (typeof x === 'number' && isFinite(x) ? x.toFixed(d == null ? 2 : d) : '–');
     const pct = (x) => (typeof x === 'number' && isFinite(x) ? Math.round(x * 100) + '%' : '–');
     const chip = (t, cls) => '<span class="xchip ' + (cls || '') + '">' + t + '</span>';
@@ -55,7 +58,7 @@
       const m = mode();
       const t = { demo: ['xwarn', 'โหมดทดลองกรอก: ข้อมูลที่กรอกใช้ดูการทำงานของแบบฟอร์มเท่านั้น ไม่ถูกส่งไปที่ใดและไม่ถูกนำไปวิจัย ระบบยังไม่เปิดเก็บข้อมูลจริง (ต้องผ่านการรับรองจริยธรรม การตรวจ IOC และการทดลองใช้กับผู้ให้ข้อมูล 30 คนก่อน)'],
         tryout: ['xwarn', 'โหมดทดลองใช้ (try-out): ใช้กับผู้ให้ข้อมูล 30 คนจากโรงเรียนนอกกลุ่มตัวอย่างเพื่อตรวจคุณภาพเครื่องมือ ข้อมูลไม่ถูกนับเป็นข้อมูลวิจัยหลัก'],
-        live: ['xok', 'ระบบเปิดเก็บข้อมูลวิจัย: ข้อมูลจะถูกส่งถึงผู้วิจัยเมื่อท่านกดปุ่มส่งเท่านั้น']}[m];
+        live: blocked() ? ['xwarn', 'ระบบยังไม่รับข้อมูลวิจัยตอนนี้: ' + blockWhy() + ' ท่านดาวน์โหลดไฟล์คำตอบเก็บไว้ได้ และติดต่อผู้วิจัยหากต้องการส่งภายหลัง'] : ['xok', 'ระบบเปิดเก็บข้อมูลวิจัย' + (win().state === 'open' ? ' ถึงวันที่ ' + C.thaiDate(win().close) + ' (' + (win().daysLeft > 0 ? 'เหลืออีก ' + win().daysLeft + ' วัน' : 'ปิดวันนี้') + ')' : '') + ': ข้อมูลจะถูกส่งถึงผู้วิจัยเมื่อท่านกดปุ่มส่งเท่านั้น']}[m];
       return '<p class="' + t[0] + ' cpmode">' + ic(m === 'live' ? 'check' : 'alert', 18) + ' ' + t[1] + '</p>';
     }
     function head(cur) {
@@ -75,11 +78,11 @@
     const fld = (label, inner, hint) => '<div class="cpf"><span>' + label + '</span>' + inner + (hint ? '<small>' + hint + '</small>' : '') + '</div>';
     const num = (path, cur, ph) => '<input type="text" inputmode="numeric" data-cset="' + path + '" value="' + esc(cur == null ? '' : cur) + '" placeholder="' + (ph || '') + '" maxlength="6">';
     function actions(form, d, complete, resp) {
-      const m = mode(), canSend = !!endpoint() && m !== 'demo';
+      const m = mode(), canSend = !!endpoint() && m !== 'demo' && !blocked();
       const r = d.submitted;
       return card('ส่งข้อมูล', (r ? '<p class="xok">' + ic('check', 18) + ' ส่งถึงผู้วิจัยแล้วเมื่อ ' + new Date(r.at).toLocaleString('th-TH') + ' รหัสรับ <b>' + esc(r.receipt) + '</b> (เก็บรหัสนี้ไว้อ้างอิง)</p>' : '') +
         '<div class="row-btns two"><button class="tbtn" data-act="cdl" data-form="' + form + '"' + (d.consent.accepted ? '' : ' disabled') + '>' + ic('download', 22) + '<span>ดาวน์โหลดไฟล์คำตอบ</span></button><button class="tbtn primary" data-act="csend" data-form="' + form + '"' + (complete && d.consent.accepted && canSend ? '' : ' disabled') + '>' + ic('upload', 22) + '<span>ส่งถึงผู้วิจัย</span></button></div>' +
-        '<p class="hint">' + (m === 'demo' ? 'โหมดทดลองไม่เปิดการส่ง ' : (!endpoint() ? 'ผู้วิจัยยังไม่ได้ตั้งที่อยู่รับข้อมูล จึงส่งตรงไม่ได้ ' : '')) + 'ถ้าส่งตรงไม่ได้ ให้ดาวน์โหลดไฟล์คำตอบแล้วส่งให้ผู้วิจัยตามช่องทางที่แจ้ง ปุ่มส่งจะใช้ได้เมื่อกรอกครบและยืนยันความยินยอมแล้ว</p><p class="warn-note" id="csend-msg" role="status">' + esc(K.msg || '') + '</p><p><button class="tbtn sm" onclick="window.print()">' + ic('print', 18) + '<span>พิมพ์แบบฟอร์ม (สำรองกรณีไม่สะดวกกรอกออนไลน์)</span></button> <button class="tbtn sm" data-act="cclear" data-form="' + form + '">' + ic('trash', 18) + '<span>ล้างร่างของแบบนี้ในเครื่องนี้</span></button></p>', { icon: 'upload' });
+        '<p class="hint">' + (m === 'demo' ? 'โหมดทดลองไม่เปิดการส่ง ' : (blocked() ? blockWhy() + ' จึงส่งตรงไม่ได้ ' : (!endpoint() ? 'ผู้วิจัยยังไม่ได้ตั้งที่อยู่รับข้อมูล จึงส่งตรงไม่ได้ ' : ''))) + 'ถ้าส่งตรงไม่ได้ ให้ดาวน์โหลดไฟล์คำตอบแล้วส่งให้ผู้วิจัยตามช่องทางที่แจ้ง ปุ่มส่งจะใช้ได้เมื่อกรอกครบและยืนยันความยินยอมแล้ว</p><p class="warn-note" id="csend-msg" role="status">' + esc(K.msg || '') + '</p><p><button class="tbtn sm" onclick="window.print()">' + ic('print', 18) + '<span>พิมพ์แบบฟอร์ม (สำรองกรณีไม่สะดวกกรอกออนไลน์)</span></button> <button class="tbtn sm" data-act="cclear" data-form="' + form + '">' + ic('trash', 18) + '<span>ล้างร่างของแบบนี้ในเครื่องนี้</span></button></p>', { icon: 'upload' });
     }
     const barInner = (p) => '<div class="cpprog"><b>ความคืบหน้า ' + p.pct + '%</b><span>' + p.done + ' จาก ' + p.total + ' ช่อง</span></div><div class="pbar"><i style="width:' + p.pct + '%"></i></div>';
     const progressBar = (p) => '<div class="tcard cpstick" id="cpbar">' + barInner(p) + '</div>';
@@ -93,7 +96,7 @@
       const cd = S.ui.cdraft; if (!cd) return; const pr = C.progressOf(cd.form, cd.d.answers, D);
       const chk = document.getElementById('cpcheck'); if (chk) chk.innerHTML = buildCheck(cd.form, cd.d);
       const bar = document.getElementById('cpbar'); if (bar && cd.form === 'questionnaire') bar.innerHTML = barInner(pr);
-      const send = document.querySelector('[data-act="csend"]'); if (send) send.disabled = !(pr.complete && cd.d.consent.accepted && endpoint() && mode() !== 'demo');
+      const send = document.querySelector('[data-act="csend"]'); if (send) send.disabled = !(pr.complete && cd.d.consent.accepted && endpoint() && mode() !== 'demo' && !blocked());
     }
 
     // ---------- หน้าแรก ----------
@@ -214,6 +217,7 @@
     async function doSend(form) {
       const p = payloadOf(form), v = C.validatePayload(p, D); if (!v.ok) { K.msg = 'ส่งไม่ได้: ' + v.why; return; }
       if (!endpoint() || mode() === 'demo') { K.msg = 'โหมดนี้ไม่เปิดการส่ง'; return; }
+      if (blocked()) { K.msg = 'ส่งไม่ได้: ' + blockWhy() + ' (ดาวน์โหลดไฟล์แล้วติดต่อผู้วิจัยได้)'; return; }
       K.msg = 'กำลังส่ง...'; c.render(true);
       try {
         const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 20000);
@@ -254,11 +258,20 @@
         '<div class="xrow wrap"><label>กรองตามโหมดของข้อมูล<select data-cset-lab="mode"><option value="all"' + (l.mode === 'all' ? ' selected' : '') + '>ทุกโหมด</option><option value="live"' + (l.mode === 'live' ? ' selected' : '') + '>เฉพาะเก็บจริง (live)</option><option value="tryout"' + (l.mode === 'tryout' ? ' selected' : '') + '>เฉพาะทดลองใช้ (tryout)</option><option value="demo"' + (l.mode === 'demo' ? ' selected' : '') + '>เฉพาะโหมดทดลองกรอก (demo)</option></select></label></div>' +
         '<div class="kpi4"><div class="tcard kc"><small>รายชื่อโรงเรียน</small><b>' + l.roster.length + '</b></div><div class="tcard kc"><small>ไฟล์คำตอบที่ใช้</small><b>' + filtered().length + '</b></div><div class="tcard kc"><small>โรงเรียนที่มีข้อมูล</small><b>' + schools.length + '</b></div></div>' + synBanner() + (l.msgs.length ? '<ul class="xl">' + l.msgs.map((m) => '<li>' + esc(m) + '</li>').join('') + '</ul>' : ''), { icon: 'upload' });
     }
+    function schedCard(rows) {
+      const w = C.collectWindow(cfg().collectOpen, cfg().collectClose, new Date());
+      if (w.invalid) return card('ช่วงเวลาเก็บข้อมูล', '<p class="xwarn">' + ic('alert', 18) + ' collectOpen หรือ collectClose ใน config.js ไม่ใช่รูปแบบ ปปปป-ดด-วว (ค.ศ.) ระบบจึงยังไม่ใช้ช่วงเวลา</p>', { icon: 'flag' });
+      if (w.state === 'none') return card('ช่วงเวลาเก็บข้อมูล', '<p class="hint">ยังไม่ได้ตั้งวันเปิดเก็บข้อมูลใน config.js (collectOpen รูปแบบ ปปปป-ดด-วว ค.ศ. เช่น 2027-01-25) ตามแผน 4 สัปดาห์ เมื่อตั้งแล้ว ระบบคำนวณวันติดตามผู้ไม่ตอบ (สัปดาห์ที่ 2 และ 3) และวันปิดให้</p>', { icon: 'flag' });
+      const nS = rows.filter((r) => !r.started).length, nP = rows.filter((r) => r.started && !r.complete).length;
+      const st = { before: ['ยังไม่ถึงวันเปิด', 'warn'], open: ['กำลังเปิดเก็บ' + (w.daysLeft > 0 ? ' เหลืออีก ' + w.daysLeft + ' วัน' : ' ปิดวันนี้'), 'ok'], closed: ['ปิดเก็บแล้ว', ''] }[w.state];
+      const rem = w.reminders.map((d, i) => '<tr><td>ติดตามครั้งที่ ' + (i + 1) + ' (สัปดาห์ที่ ' + (i + 2) + ')</td><td>' + C.thaiDate(d) + '</td></tr>').join('');
+      return card('ช่วงเวลาเก็บข้อมูล', '<p>' + chip(st[0], st[1]) + '</p><div class="xscroll"><table class="xtb xsm"><thead><tr><th>กำหนด</th><th>วันที่</th></tr></thead><tbody>' + (w.open ? '<tr><td>เปิดเก็บ (สัปดาห์ที่ 1)</td><td>' + C.thaiDate(w.open) + '</td></tr>' : '') + rem + '<tr><td>ปิดเก็บ (วันสุดท้ายที่ส่งได้)</td><td>' + C.thaiDate(w.close) + '</td></tr></tbody></table></div><p class="hint">' + (rows.length ? 'ถึงวันติดตาม ส่งข้อความเตือนโรงเรียนที่ยังไม่เริ่ม ' + nS + ' แห่ง และที่ค้าง ' + nP + ' แห่ง (ดูรายชื่อในตารางด้านล่าง หรือส่งออกที่แท็บส่งออก)' : 'นำเข้ารายชื่อโรงเรียนที่แท็บนำเข้า เพื่อดูจำนวนโรงเรียนที่ต้องติดตาม') + '</p>', { icon: 'flag' });
+    }
     function dashComplete() {
       const rows = C.completeness(filtered(), L().roster, D), done = rows.filter((r) => r.complete).length, started = rows.filter((r) => r.started).length;
       const byS = {}; rows.forEach((r) => { const k = r.stratum || 'ไม่ระบุ'; (byS[k] = byS[k] || { n: 0, done: 0 }); byS[k].n++; if (r.complete) byS[k].done++; });
       const yes = (v) => (v ? '<span class="xt ok">' + ic('check', 14) + '</span>' : '<span class="xt no">–</span>');
-      return synBanner() + card('ความครบถ้วน', '<div class="kpi4"><div class="tcard kc green"><small>ครบทุกชุด</small><b>' + done + '</b><span>จาก ' + rows.length + ' โรงเรียน (' + pct(rows.length ? done / rows.length : NaN) + ')</span></div><div class="tcard kc"><small>เริ่มส่งแล้ว</small><b>' + started + '</b></div><div class="tcard kc amber"><small>ยังไม่ส่งเลย</small><b>' + (rows.length - started) + '</b></div></div><div class="xscroll"><table class="xtb xsm"><thead><tr><th>พื้นที่</th><th>โรงเรียน</th><th>ครบ</th><th>ร้อยละ</th></tr></thead><tbody>' + Object.keys(byS).sort().map((k) => '<tr><td>' + esc((C.STRATA.find((x) => x[0] === k) || [, k])[1]) + '</td><td>' + byS[k].n + '</td><td>' + byS[k].done + '</td><td>' + pct(byS[k].done / byS[k].n) + '</td></tr>').join('') + '</tbody></table></div>' +
+      return synBanner() + schedCard(rows) + card('ความครบถ้วน', '<div class="kpi4"><div class="tcard kc green"><small>ครบทุกชุด</small><b>' + done + '</b><span>จาก ' + rows.length + ' โรงเรียน (' + pct(rows.length ? done / rows.length : NaN) + ')</span></div><div class="tcard kc"><small>เริ่มส่งแล้ว</small><b>' + started + '</b></div><div class="tcard kc amber"><small>ยังไม่ส่งเลย</small><b>' + (rows.length - started) + '</b></div></div><div class="xscroll"><table class="xtb xsm"><thead><tr><th>พื้นที่</th><th>โรงเรียน</th><th>ครบ</th><th>ร้อยละ</th></tr></thead><tbody>' + Object.keys(byS).sort().map((k) => '<tr><td>' + esc((C.STRATA.find((x) => x[0] === k) || [, k])[1]) + '</td><td>' + byS[k].n + '</td><td>' + byS[k].done + '</td><td>' + pct(byS[k].done / byS[k].n) + '</td></tr>').join('') + '</tbody></table></div>' +
         '<div class="xscroll"><table class="xtb xsm"><thead><tr><th>รหัส</th><th>พื้นที่</th><th>R1</th><th>R2</th><th>R3</th><th>เหตุการณ์</th><th>เอกสาร</th><th>สถานะ</th></tr></thead><tbody>' + rows.map((r) => '<tr><td><b>' + esc(r.code) + '</b></td><td>' + esc(r.stratum) + '</td>' + r.q.map((x) => '<td>' + yes(x.done) + '</td>').join('') + '<td>' + yes(r.incidents) + '</td><td>' + yes(r.documents) + '</td><td>' + (r.complete ? chip('ครบ', 'ok') : r.started ? chip('ค้าง', 'warn') : chip('ยังไม่เริ่ม')) + '</td></tr>').join('') + '</tbody></table></div>' + (rows.length ? '' : '<p class="muted">ยังไม่มีข้อมูล นำเข้าที่แท็บนำเข้า</p>'), { icon: 'flag' });
     }
     function dashProfiles() {

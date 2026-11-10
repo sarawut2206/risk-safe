@@ -94,4 +94,17 @@ cidx.forEach((n) => { ok(n + ' exists and is named synthetic', fs.existsSync(pat
 ok('all example payloads valid', exPay.length > 50 && exPay.every((p) => C.validatePayload(p, data).ok)); ok('all example payloads flagged synthetic', exPay.every((p) => p.synthetic === true));
 const exRoster = C.parseRoster(fs.readFileSync(path.join(root, 'examples', 'synthetic-collect-roster.csv'), 'utf8')); eq('example roster has no errors', exRoster.errors.length, 0);
 const exComp = C.completeness(exPay, exRoster.roster, data); ok('examples include complete, partial and unstarted schools', exComp.some((r) => r.complete) && exComp.some((r) => r.started && !r.complete) && exComp.some((r) => !r.started));
+// 9) ช่วงเวลาเก็บข้อมูล (แผน 4 สัปดาห์: เปิด 25 ม.ค. 2570 = 2027-01-25 เป็นค่าตัวอย่างสมมติ)
+const dayAt = (y, m, d) => new Date(y, m - 1, d, 13, 30);
+eq('thaiDate in Buddhist year', C.thaiDate(new Date(2027, 0, 25)), '25 ม.ค. 2570');
+eq('no window when blank', C.collectWindow('', '', dayAt(2027, 1, 25)).state, 'none'); ok('blank window not invalid', !C.collectWindow('', '', dayAt(2027, 1, 25)).invalid);
+eq('before open', C.collectWindow('2027-01-25', '', dayAt(2027, 1, 24)).state, 'before');
+let w4 = C.collectWindow('2027-01-25', '', dayAt(2027, 1, 25)); eq('open on the first day', w4.state, 'open'); eq('27 days left on first day', w4.daysLeft, 27); eq('default close is open + 27 days', C.thaiDate(w4.close), '21 ก.พ. 2570');
+eq('still open on the last day', C.collectWindow('2027-01-25', '', dayAt(2027, 2, 21)).state, 'open'); eq('0 days left on the last day', C.collectWindow('2027-01-25', '', dayAt(2027, 2, 21)).daysLeft, 0);
+eq('closed the day after', C.collectWindow('2027-01-25', '', dayAt(2027, 2, 22)).state, 'closed');
+eq('reminders are in weeks 2 and 3', w4.reminders.map(C.thaiDate).join(' / '), '1 ก.พ. 2570 / 8 ก.พ. 2570');
+eq('explicit close overrides the default', C.thaiDate(C.collectWindow('2027-01-25', '2027-02-28', dayAt(2027, 2, 25)).close), '28 ก.พ. 2570'); eq('explicit close keeps it open', C.collectWindow('2027-01-25', '2027-02-28', dayAt(2027, 2, 25)).state, 'open');
+eq('close only: no reminders and not before', C.collectWindow('', '2027-02-21', dayAt(2027, 1, 1)).state, 'open'); eq('close only: no reminder dates', C.collectWindow('', '2027-02-21', dayAt(2027, 1, 1)).reminders.length, 0);
+['25/01/2027', '2027-1-25', '2027-02-30', 'abc'].forEach((x) => { const r = C.collectWindow(x, '', dayAt(2027, 1, 25)); ok('invalid date flagged: ' + x, r.invalid === true && r.state === 'none'); });
+ok('invalid close flagged', C.collectWindow('2027-01-25', 'x', dayAt(2027, 1, 25)).invalid === true);
 console.log(checks + ' checks, ' + fails + ' failed'); process.exit(fails ? 1 : 0);

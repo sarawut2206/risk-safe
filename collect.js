@@ -200,6 +200,22 @@
     return rows;
   }
 
-  const api = { SCHEMA, VERSION, ROLES, STRATA, YESNO, BUDGET, RESOURCE, DOC_STATUS, DOCS, DOMAIN_KEYS, blank, part1Missing, progressQ, checkIncidents, checkDocuments, progressOf, pack, validatePayload, codeOk, groupBySchool, aggregateSchool, rwgJ, icc1, spearman, agreement, completeness, parseCsv, parseRoster, toCsv, longRows, fnv };
+  // ---------- ช่วงเวลาเก็บข้อมูล (แผน 4 สัปดาห์: ติดตามผู้ไม่ตอบสัปดาห์ที่ 2 และ 3 ปิดเมื่อครบ 4 สัปดาห์) ----------
+  const TH_MON = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+  const thaiDate = (d) => d.getDate() + ' ' + TH_MON[d.getMonth()] + ' ' + (d.getFullYear() + 543);
+  function parseDay(s) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s == null ? '' : s).trim()); if (!m) return null; const d = new Date(+m[1], +m[2] - 1, +m[3]); return d.getFullYear() === +m[1] && d.getMonth() === +m[2] - 1 && d.getDate() === +m[3] ? d : null; }
+  const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+  // openS/closeS = 'ปปปป-ดด-วว' (ค.ศ.) ว่างทั้งคู่ = ไม่จำกัด · ตั้งเฉพาะวันเปิด = ปิดเมื่อครบ 4 สัปดาห์ (วันเปิดนับเป็นวันแรก วันปิดคือวันสุดท้ายที่ส่งได้)
+  function collectWindow(openS, closeS, now) {
+    const blank = (x) => String(x == null ? '' : x).trim() === '';
+    if (blank(openS) && blank(closeS)) return { state: 'none' };
+    const open = blank(openS) ? null : parseDay(openS), closeGiven = blank(closeS) ? null : parseDay(closeS);
+    if ((!blank(openS) && !open) || (!blank(closeS) && !closeGiven)) return { state: 'none', invalid: true };
+    const close = closeGiven || addDays(open, 27), n = now || new Date(), today = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+    const state = open && today < open ? 'before' : today > close ? 'closed' : 'open';
+    return { state, open, close, daysLeft: Math.round((close - today) / 864e5), reminders: open ? [addDays(open, 7), addDays(open, 14)] : [] };
+  }
+
+  const api = { SCHEMA, VERSION, collectWindow, thaiDate, ROLES, STRATA, YESNO, BUDGET, RESOURCE, DOC_STATUS, DOCS, DOMAIN_KEYS, blank, part1Missing, progressQ, checkIncidents, checkDocuments, progressOf, pack, validatePayload, codeOk, groupBySchool, aggregateSchool, rwgJ, icc1, spearman, agreement, completeness, parseCsv, parseRoster, toCsv, longRows, fnv };
   if (isNode) module.exports = api; else root.RS_COLLECT = api;
 })(typeof window !== 'undefined' ? window : this);
