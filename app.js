@@ -259,6 +259,8 @@
   const UI2 = RS_TOOL2.create({ S, D, E, esc, fmt, getOut, cd, mKey, SHORT_DOM, SHORT_EL, render: (k) => render(k) }, UI.h);
   UI2.bind();
   UI2.restore();
+  const UIP = RS_PLANUI.create({ S, esc, fmt, render: (k) => render(k) }, UI.h);
+  UIP.bind();
   const UI3 = RS_TOOL3.create({ S, D, E, esc, fmt, LOGO, go: (id) => go(id), render: (k) => render(k) }, UI.h);
   UI3.bind();
   const RENDER = Object.assign({ home: pageHome, bank: pageBank, risk: pageRisk, rules: pageRules, about: pageAbout }, UI.pages, UI2.pages, UI3.pages);
