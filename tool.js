@@ -55,7 +55,7 @@
   const RC = { 'สูง': 'hi', 'กลาง': 'mid', 'ต่ำ': 'lo' };
   const RCR = { 'สูง': 'lo', 'กลาง': 'mid', 'ต่ำ': 'hi' }; // ความพร้อม: สูงคือดี
   const DOC_TYPES = [['SAR', 'อัปโหลด SAR', 'รายงานการประเมินตนเองของสถานศึกษา (SAR)', 'doc', 'red'], ['RAF', 'อัปโหลดแผนเผชิญเหตุ', 'แผนเผชิญเหตุของสถานศึกษา (ฉบับปัจจุบัน)', 'shield', 'blue'], ['INC', 'อัปโหลดรายงานเหตุการณ์', 'รายงานเหตุการณ์ความไม่ปลอดภัย (ย้อนหลัง/ล่าสุด)', 'alert', 'purple'], ['OTH', 'เพิ่มเอกสารอื่น', 'เช่น แผนความปลอดภัย นโยบาย คู่มือ หรือเอกสารที่เกี่ยวข้อง', 'plus', 'green']];
-  const DOC_NAME = { SAR: 'SAR', RAF: 'แผนเผชิญเหตุ', INC: 'รายงานเหตุการณ์', OTH: 'เอกสารอื่น' };
+  const DOC_NAME = { SAR: 'SAR', RAF: 'แผนเผชิญเหตุ', INC: 'รายงานเหตุการณ์', ACT: 'แผนปฏิบัติการ', OTH: 'เอกสารอื่น' };
 
   function create(c) {
     const { S, D, E, esc, fmt, getOut } = c;
@@ -96,6 +96,7 @@
       const sc = S.school, f = c.filled();
       const fld = (k, label, icon, type, ph, suf) => '<label class="sfld"><span>' + ic(icon, 20) + label + '</span><span class="in"><input type="' + type + '" data-sf="' + k + '" value="' + esc(sc[k] == null ? '' : sc[k]) + '" placeholder="' + esc(ph) + '"' + (type === 'number' ? ' min="0" inputmode="numeric"' : '') + ' maxlength="80">' + (suf ? '<em>' + suf + '</em>' : '') + '</span></label>';
       let s = banner('building', 'ข้อมูลโรงเรียนและเอกสาร', 'ข้อมูลพื้นฐานและเอกสารประกอบการประเมิน');
+      s += (root.RS_PLANUI ? root.RS_PLANUI.card('tool') : '');
       s += card('', '<div class="sname"><span class="bi2">' + ic('building', 30) + '</span><div><input class="nameinp" type="text" data-sf="name" value="' + esc(sc.name) + '" placeholder="ชื่อโรงเรียน (ชื่อสมมติ)" maxlength="80" aria-label="ชื่อโรงเรียน"><div class="sz">ขนาดโรงเรียน <span class="lv r-mid" id="size-chip">' + (sizeOf(+sc.students) || 'ระบุจำนวนนักเรียน') + '</span></div></div></div>' +
         '<div class="sfl">' + fld('students', 'นักเรียน', 'people', 'number', 'เช่น 532', 'คน') + fld('staff', 'ครูและบุคลากร', 'clipboard', 'number', 'เช่น 32', 'คน') + fld('year', 'ปีการศึกษา', 'calendar', 'number', 'เช่น 2569', '') + fld('province', 'จังหวัด', 'flag', 'text', 'เช่น ขอนแก่น', '') + '</div>' +
         '<p class="hint">ขนาดโรงเรียนจัดตามจำนวนนักเรียนด้วยเกณฑ์ทั่วไปของ สพฐ. (เล็ก ไม่เกิน 120 · กลาง 121–600 · ใหญ่ 601–1,500 · ใหญ่พิเศษ 1,501 ขึ้นไป) ใช้แสดงผลเท่านั้น ยังไม่ใช้ในการคำนวณ ไม่ควรกรอกชื่อบุคคล</p>', { cls: 'blue' });
@@ -103,9 +104,9 @@
         ['จำกัด', 'ปานกลาง', 'เพียงพอ'].map((r) => '<button type="button" role="radio" aria-checked="' + (S.resource === r) + '" data-act="res" data-v="' + r + '"><b>' + r + '</b><small>ระดับ 1' + (r === 'จำกัด' ? '' : r === 'ปานกลาง' ? '–2' : '–3') + ' · สูงสุด ' + E.RESOURCE[r].max + ' ข้อต่อด้าน</small></button>').join('') + '</div>', { icon: 'gear' });
 
       // อ่านข้อมูลจากแผนปฏิบัติการ (PDF) ในเบราว์เซอร์ของผู้ใช้ ไม่อัปโหลด (ดู planui.js)
-      s += (root.RS_PLANUI ? root.RS_PLANUI.card() : '');
+      s += (root.RS_PLANUI ? root.RS_PLANUI.detail('tool') : '');
       // เอกสาร: เก็บเฉพาะชื่อไฟล์ ขนาด และวันที่ ในเบราว์เซอร์นี้ ไม่อ่านเนื้อหา ไม่ส่งออก
-      s += card('เอกสารโรงเรียน', '<p class="hint">การ์ดนี้ <b>ไม่อ่านเนื้อหาไฟล์และไม่อัปโหลดไฟล์ไปที่ใด</b> (การอ่านข้อมูลจากแผนปฏิบัติการอยู่ในการ์ดด้านบน และอ่านในเครื่องของท่านเท่านั้น) จดเฉพาะชื่อไฟล์ ขนาด และวันที่ไว้เป็นรายการเอกสารที่ใช้ประกอบการให้คะแนน (หายเมื่อรีเฟรช) รองรับ PDF ไม่เกิน 50 MB ต่อไฟล์ ไม่ควรใส่เอกสารที่มีข้อมูลส่วนบุคคล</p>' +
+      s += card('เอกสารโรงเรียน', '<p class="hint">การ์ดนี้ <b>ไม่อ่านเนื้อหาไฟล์และไม่อัปโหลดไฟล์ไปที่ใด</b> (การอ่านข้อมูลจากแผนปฏิบัติการใช้ปุ่มอัปโหลดด้านบนของหน้านี้ และอ่านในเครื่องของท่านเท่านั้น) จดเฉพาะชื่อไฟล์ ขนาด และวันที่ไว้เป็นรายการเอกสารที่ใช้ประกอบการให้คะแนน (หายเมื่อรีเฟรช) รองรับ PDF ไม่เกิน 50 MB ต่อไฟล์ ไม่ควรใส่เอกสารที่มีข้อมูลส่วนบุคคล</p>' +
         '<div class="docgrid">' + DOC_TYPES.map((d) => '<button class="doccard ' + d[4] + '" data-act="doc-pick" data-type="' + d[0] + '"><span class="di">' + ic(d[3], 28) + '</span><span><b>' + d[1] + '</b><small>' + d[2] + '</small></span>' + ic('chev', 18) + '</button>').join('') + '</div>' +
         '<input type="file" id="doc-file" accept="application/pdf,.pdf" multiple hidden>' +
         (S.docs.length ? '<ul class="doclist">' + S.docs.map((d, i) => '<li><span class="di sm">' + ic('doc', 20) + '</span><span class="dn"><b>' + esc(d.name) + '</b><small>' + DOC_NAME[d.type] + ' · ' + kb(d.size) + ' · เพิ่มเมื่อ ' + dateTh(d.date) + '</small></span><button class="icon-btn" data-act="doc-del" data-i="' + i + '" aria-label="ลบ ' + esc(d.name) + ' ออกจากรายการ">' + ic('trash', 18) + '</button></li>').join('') + '</ul>' : '<p class="muted">ยังไม่มีเอกสารในรายการ</p>') +

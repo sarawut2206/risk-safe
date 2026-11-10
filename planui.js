@@ -46,6 +46,7 @@
         P.res = res; P.busy = false;
         res.evidence.forEach((e) => { const m = MAP[e.key]; if (!m) return; P.edit[e.key] = m.init ? m.init(e) : String(e.value); P.sel[e.key] = m.on !== false && P.edit[e.key] !== ''; });
         res.projects.forEach((p, i) => { P.psel[i] = !p.soft && p.amount != null; });
+        if (cfg.auto && !res.empty) { apply(true); if (cfg.record) cfg.record(f); }
         P.msg = res.empty ? 'ไฟล์นี้แทบไม่มีข้อความให้อ่าน (น่าจะเป็นภาพสแกน) ต้องกรอกเอง หรือแปลงเป็น PDF ที่เลือกข้อความได้ก่อน' : '';
       } catch (e) {
         P.busy = false; P.res = null;
@@ -87,38 +88,57 @@
         '<p class="hint">หัวข้อของแผนที่เป็นหลักฐานประกอบแต่ละองค์ประกอบ 7-S: ' + res.sevenEvidence.map((e) => '<span class="chip ' + (e.found ? 'ok' : 'warn') + '">' + esc(e.name) + (e.found ? ' พบ' : ' ไม่พบ') + '</span>').join(' ') + '</p>';
     }
 
-    function card() {
-      let s = '<p class="hint">' + cfg.intro + '</p>' +
-        '<div class="row-btns"><button class="tbtn primary" data-act="plan-pick" data-pi="' + id + '"' + (P.busy ? ' disabled' : '') + '>' + ic('upload', 22) + '<span>เลือกไฟล์แผนปฏิบัติการ (PDF)</span></button>' + (P.res || P.msg ? '<button class="tbtn" data-act="plan-clear" data-pi="' + id + '">ล้างผลที่อ่าน</button>' : '') + '</div>' +
+    function pickRow() {
+      return '<div class="row-btns"><button class="tbtn primary' + (cfg.auto ? ' plbig' : '') + '" data-act="plan-pick" data-pi="' + id + '"' + (P.busy ? ' disabled' : '') + '>' + ic('upload', 24) + '<span>' + (cfg.auto ? 'อัปโหลดแผนปฏิบัติการ (PDF)' : 'เลือกไฟล์แผนปฏิบัติการ (PDF)') + '</span></button>' + (P.res || P.msg ? '<button class="tbtn" data-act="plan-clear" data-pi="' + id + '">ล้างผลที่อ่าน</button>' : '') + '</div>' +
         '<input type="file" id="plan-file-' + id + '" data-pi="' + id + '" accept="application/pdf,.pdf" hidden>';
-      if (P.busy) s += '<p class="plbusy" role="status"><span class="spin"></span><span id="plan-prog-' + id + '">กำลังเตรียมอ่าน ' + esc(P.file) + '</span></p>';
-      if (P.msg) s += '<p class="warn-note" role="status">' + esc(P.msg) + '</p>';
+    }
+    function statusHtml() {
+      return (P.busy ? '<p class="plbusy" role="status"><span class="spin"></span><span id="plan-prog-' + id + '">กำลังเตรียมอ่าน ' + esc(P.file) + '</span></p>' : '') + (P.msg ? '<p class="warn-note" role="status">' + esc(P.msg) + '</p>' : '');
+    }
+    function reviewHtml(res) {
+      let s = '<p class="plfile">' + ic('doc', 18) + '<span>' + esc(P.file) + ' · ' + res.totalPages + ' หน้า' + (res.truncated ? ' (อ่านเฉพาะ ' + res.pages + ' หน้าแรก)' : '') + '</span></p>';
+      s += '<h3 class="plh">ข้อมูลที่อ่านได้ (ตรวจและแก้ได้ก่อนใช้)</h3>' + (res.evidence.length ? '<div class="pltab">' + res.evidence.filter((e) => (cfg.hide || []).indexOf(e.key) < 0).map(evRow).join('') + '</div>' : '<p class="muted">ไม่พบข้อมูลพื้นฐานที่รู้จักในไฟล์นี้</p>');
+      const names = { name: 'ชื่อโรงเรียน', students: 'จำนวนนักเรียน', staff: 'จำนวนครูและบุคลากร', province: 'จังหวัด', fiscalYear: 'ปีงบประมาณ' };
+      const miss = res.missing.filter((k) => cfg.missingKeys.indexOf(k) >= 0);
+      if (miss.length) s += '<p class="warn-note">ไม่พบ: ' + miss.map((k) => names[k]).join(', ') + ' ต้องกรอกเอง</p>';
+      s += '<div class="row-btns"><button class="tbtn primary" data-act="plan-apply" data-pi="' + id + '">' + ic('check', 22) + '<span>' + (cfg.auto ? 'นำค่าที่แก้หรือติ๊กไปกรอกใหม่' : 'นำค่าที่ติ๊กไปกรอกในแบบฟอร์ม') + '</span></button></div>';
+      if (P.applied && !cfg.auto) s += '<p class="xok" role="status">' + ic('check', 18) + ' ' + esc(P.applied) + '</p>';
+      s += '<details class="xd" open><summary>โครงการที่เกี่ยวกับความปลอดภัยและสุขภาวะในแผน (' + res.projects.length + ' รายการ)</summary>' + projectsHtml(res) + '</details>';
+      s += '<details class="xd"><summary>ข้อสังเกตจากเนื้อหาแผน (เอกสารความปลอดภัย D1–D5 และหัวข้อ 7-S)</summary>' + hintsHtml(res) + '</details>';
+      return s;
+    }
+    function summaryHtml(res) {
+      const n = (P.filled || []).length;
+      return '<p class="xok" role="status">' + ic('check', 18) + ' อ่าน "' + esc(P.file) + '" (' + res.totalPages + ' หน้า) แล้ว กรอกให้อัตโนมัติ ' + n + ' ช่อง' + (n ? '' : ' (ไม่พบค่าที่รู้จัก)') + '</p>' +
+        (n ? '<ul class="plfilled">' + P.filled.map((x) => '<li><span>' + esc(x.label) + '</span><b>' + esc(x.value) + '</b></li>').join('') + '</ul>' : '') +
+        (P.checks && P.checks.length ? '<p class="hint"><b>ข้อควรตรวจ</b></p><ul class="plchk">' + P.checks.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul>' : '') +
+        '<p class="hint">เพิ่มไฟล์นี้ในรายการเอกสารด้านล่างแล้ว ค่าที่กรอกให้แก้ได้ที่ช่องด้านล่างโดยตรง <button class="lnk" data-act="plan-scroll" data-pi="' + id + '">ดูที่มาของแต่ละค่า โครงการด้านความปลอดภัย และข้อสังเกตจากแผน</button></p>';
+    }
+    function card() {
+      let s = '<p class="hint">' + cfg.intro + '</p>' + pickRow() + statusHtml();
       const res = P.res;
-      if (res && !res.empty) {
-        s += '<p class="plfile">' + ic('doc', 18) + '<span>' + esc(P.file) + ' · ' + res.totalPages + ' หน้า' + (res.truncated ? ' (อ่านเฉพาะ ' + res.pages + ' หน้าแรก)' : '') + '</span></p>';
-        s += '<h3 class="plh">ข้อมูลที่อ่านได้ (ตรวจและแก้ได้ก่อนใช้)</h3>' + (res.evidence.length ? '<div class="pltab">' + res.evidence.filter((e) => (cfg.hide || []).indexOf(e.key) < 0).map(evRow).join('') + '</div>' : '<p class="muted">ไม่พบข้อมูลพื้นฐานที่รู้จักในไฟล์นี้</p>');
-        const names = { name: 'ชื่อโรงเรียน', students: 'จำนวนนักเรียน', staff: 'จำนวนครูและบุคลากร', province: 'จังหวัด', fiscalYear: 'ปีงบประมาณ' };
-        const miss = res.missing.filter((k) => cfg.missingKeys.indexOf(k) >= 0);
-        if (miss.length) s += '<p class="warn-note">ไม่พบ: ' + miss.map((k) => names[k]).join(', ') + ' ต้องกรอกเอง</p>';
-        s += '<div class="row-btns"><button class="tbtn primary" data-act="plan-apply" data-pi="' + id + '">' + ic('check', 22) + '<span>นำค่าที่ติ๊กไปกรอกในแบบฟอร์ม</span></button></div>';
-        if (P.applied) s += '<p class="xok" role="status">' + ic('check', 18) + ' ' + esc(P.applied) + '</p>';
-        s += '<details class="xd" open><summary>โครงการที่เกี่ยวกับความปลอดภัยและสุขภาวะในแผน (' + res.projects.length + ' รายการ)</summary>' + projectsHtml(res) + '</details>';
-        s += '<details class="xd"><summary>ข้อสังเกตจากเนื้อหาแผน (เอกสารความปลอดภัย D1–D5 และหัวข้อ 7-S)</summary>' + hintsHtml(res) + '</details>';
-      }
+      if (res && !res.empty) s += cfg.auto ? summaryHtml(res) : reviewHtml(res);
       return cfg.card(cfg.title, s, { icon: 'upload', cls: 'green' });
     }
+    function detail() {
+      const res = P.res; if (!cfg.auto || !res || res.empty) return '';
+      return cfg.card('ที่มาของค่าที่อ่านได้และโครงการด้านความปลอดภัย', '<span id="plan-detail-' + id + '"></span>' + reviewHtml(res), { icon: 'doc' });
+    }
 
-    function apply() {
-      let n = 0; const bad = [];
+    function apply(silent) {
+      let n = 0; const bad = []; P.filled = []; P.checks = [];
       Object.keys(MAP).forEach((k) => {
         if (!P.sel[k]) return; const v = String(P.edit[k] == null ? '' : P.edit[k]).trim(); if (v === '') return;
         const m = MAP[k], label = (P.res && P.res.evidence.find((e) => e.key === k) || {}).label || k;
         if (m.check && !m.check(v)) { bad.push(label); return; }
         cfg.set(m.to, v); n++;
+        const ev = P.res && P.res.evidence.find((e) => e.key === k);
+        P.filled.push({ label: label, value: /^\d+$/.test(v) && k !== 'fiscalYear' ? fmt(v) : v });
+        if (ev && ev.note) P.checks.push(label + ': ' + ev.note);
       });
       if (cfg.budgetTo && P.bud) { cfg.set(cfg.budgetTo, PR.budgetBand(total())); n++; }
-      P.applied = (n ? 'นำไปกรอกแล้ว ' + n + ' ช่อง ตรวจที่ช่องด้านบนได้ (ข้อมูลที่ไม่ได้ติ๊กไม่ถูกเปลี่ยน)' : 'ยังไม่ได้ติ๊กช่องใดให้นำไปกรอก') + (bad.length ? ' · กรอกไม่ได้เพราะค่าไม่ถูกต้อง: ' + bad.join(', ') : '');
-      cfg.done();
+      P.applied = (n ? (silent ? 'กรอกให้อัตโนมัติ ' : 'นำไปกรอกแล้ว ') + n + ' ช่อง ตรวจที่ช่องด้านบนได้ (ข้อมูลที่ไม่ได้ติ๊กไม่ถูกเปลี่ยน)' : 'ยังไม่ได้ติ๊กช่องใดให้นำไปกรอก') + (bad.length ? ' · กรอกไม่ได้เพราะค่าไม่ถูกต้อง: ' + bad.join(', ') : '');
+      if (!silent) cfg.done();
     }
 
     function bind() {
@@ -128,6 +148,7 @@
         if (t.dataset.act === 'plan-pick') { const f = document.getElementById('plan-file-' + id); if (f) f.click(); }
         else if (t.dataset.act === 'plan-clear') { clean(); cfg.render(); }
         else if (t.dataset.act === 'plan-apply') apply();
+        else if (t.dataset.act === 'plan-scroll') { const d = document.getElementById('plan-detail-' + id); if (d) d.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
       });
       document.addEventListener('change', (e) => {
         const t = e.target; if (!mine(t)) return;
@@ -140,10 +161,10 @@
       document.addEventListener('input', (e) => { const t = e.target; if (mine(t) && t.dataset.pv && t.tagName === 'INPUT') { P.edit[t.dataset.pv] = t.value; P.sel[t.dataset.pv] = true; const ck = document.querySelector('[data-psel="' + t.dataset.pv + '"][data-pi="' + id + '"]'); if (ck) ck.checked = true; } });
     }
 
-    const inst = { card, bind, apply, state: P };
+    const inst = { card, detail, bind, apply, state: P };
     insts[id] = inst;
     return inst;
   }
 
-  root.RS_PLANUI = { create, card: (id) => (insts[id || 'tool'] ? insts[id || 'tool'].card() : ''), inst: (id) => insts[id] };
+  root.RS_PLANUI = { create, card: (id) => (insts[id || 'tool'] ? insts[id || 'tool'].card() : ''), detail: (id) => (insts[id || 'tool'] ? insts[id || 'tool'].detail() : ''), inst: (id) => insts[id] };
 })(typeof window !== 'undefined' ? window : this);

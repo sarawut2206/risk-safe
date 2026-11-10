@@ -260,10 +260,11 @@
   UI2.bind();
   UI2.restore();
   // อ่านข้อมูลจากแผนปฏิบัติการ (PDF) ในหน้าข้อมูลโรงเรียนของเครื่องมือประเมิน (ปลายทางคือ S.school)
-  const UIP = RS_PLANUI.create({ id: 'tool', state: (S.plan = S.plan || {}), esc, ic: UI.h.ic, card: UI.h.card, render: () => render(true), done: () => render(true), set: (to, v) => { S.school[to] = v; }, missingKeys: ['name', 'students', 'staff', 'province', 'fiscalYear'],
-    title: 'อ่านข้อมูลจากแผนปฏิบัติการ (PDF) อัตโนมัติ',
-    intro: 'เลือกไฟล์แผนปฏิบัติการประจำปีของโรงเรียน ระบบจะอ่านชื่อโรงเรียน จำนวนนักเรียน ครูและบุคลากร จังหวัด และโครงการที่เกี่ยวกับความปลอดภัย แล้วให้ท่านตรวจก่อนนำไปกรอก <b>ไฟล์ถูกอ่านในเครื่องของท่านเท่านั้น ไม่อัปโหลดและไม่ส่งข้อความไปที่ใด</b> ใช้ได้กับ PDF ที่เลือกข้อความได้ (ไม่ใช่ภาพสแกน) ไม่เกิน 50 MB ผลที่อ่านเป็นข้อเสนอ ไม่ใช่การประเมินความเสี่ยงหรือความพร้อม',
-    map: { name: { to: 'name' }, students: { to: 'students', type: 'number' }, staff: { to: 'staff', type: 'number' }, fiscalYear: { to: 'year', type: 'number', on: false }, province: { to: 'province' } } });
+  const UIP = RS_PLANUI.create({ id: 'tool', state: (S.plan = S.plan || {}), esc, ic: UI.h.ic, card: UI.h.card, render: () => render(true), done: () => render(true), auto: true, set: (to, v) => { S.school[to] = v; },
+    record: (f) => { const nm = f.name.slice(0, 120); if (!S.docs.some((d) => d.name === nm)) S.docs.push({ type: 'ACT', name: nm, size: f.size, date: Date.now() }); }, missingKeys: ['name', 'students', 'staff', 'province', 'fiscalYear'],
+    title: 'อัปโหลดแผนปฏิบัติการ ให้ระบบกรอกข้อมูลให้',
+    intro: 'กดปุ่มด้านล่างแล้วเลือกไฟล์แผนปฏิบัติการประจำปีของโรงเรียน ระบบอ่านไฟล์และกรอกข้อมูลโรงเรียนให้ทันที (ชื่อโรงเรียน จำนวนนักเรียน ครูและบุคลากร ปี จังหวัด) พร้อมเพิ่มไฟล์ในรายการเอกสารและสรุปโครงการที่เกี่ยวกับความปลอดภัยไว้ให้ดู <b>ไฟล์ถูกอ่านในเครื่องของท่านเท่านั้น ไม่อัปโหลดและไม่ส่งข้อความไปที่ใด</b> ใช้ได้กับ PDF ที่เลือกข้อความได้ (ไม่ใช่ภาพสแกน) ไม่เกิน 50 MB ค่าที่ได้เป็นข้อเสนอจากเอกสาร ท่านควรตรวจก่อนใช้ ไม่ใช่การประเมินความเสี่ยงหรือความพร้อม',
+    map: { name: { to: 'name' }, students: { to: 'students', type: 'number' }, staff: { to: 'staff', type: 'number' }, fiscalYear: { to: 'year', type: 'number' }, province: { to: 'province' } } });
   UIP.bind();
   const UI3 = RS_TOOL3.create({ S, D, E, esc, fmt, LOGO, go: (id) => go(id), render: (k) => render(k) }, UI.h);
   UI3.bind();

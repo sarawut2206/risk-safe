@@ -31,3 +31,9 @@
 .plhint li.n { background: #fff7de; }
 .plhint small { display: block; color: #55697f; font-size: .82rem; }
 @media (max-width: 420px) { .plrow { grid-template-columns: 26px 1fr; padding: 8px 10px; } }
+.tbtn.plbig { width: 100%; min-height: 64px; font-size: 1.15rem; border-radius: 18px; }
+.plfilled { list-style: none; margin: 8px 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
+.plfilled li { background: #e9f8e6; border-radius: 12px; padding: 8px 12px; display: flex; flex-direction: column; min-width: 0; }
+.plfilled span { font-size: .8rem; color: #55697f; font-weight: 700; }
+.plfilled b { overflow-wrap: anywhere; font-size: 1.05rem; }
+.plchk { margin: 4px 0 8px; padding-left: 20px; font-size: .88rem; line-height: 1.5; color: #55697f; }
