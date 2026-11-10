@@ -130,7 +130,7 @@
       s += progressBar(pr);
       const miss1 = pr.parts.p1.missing;
       const mk = (k) => (miss1.indexOf(k) >= 0 ? ' cpmiss' : '');
-      s += '<section id="q-p1">' + card('ตอนที่ 1 ข้อมูลทั่วไปและทรัพยากรที่มี', '<div class="cpgrid">' +
+      s += PUI.card() + '<section id="q-p1">' + card('ตอนที่ 1 ข้อมูลทั่วไปและทรัพยากรที่มี', '<div class="cpgrid">' +
         '<div class="' + mk('students') + '">' + fld('จำนวนนักเรียนทั้งหมด (คน)', num('answers.part1.students', p1.students, 'เช่น 532')) + '</div>' +
         '<div class="' + mk('staff') + '">' + fld('จำนวนครูและบุคลากร (คน)', num('answers.part1.staff', p1.staff, 'เช่น 32')) + '</div>' +
         '<div class="' + mk('year') + '">' + fld('ปีการศึกษาที่ตอบ (พ.ศ.)', num('answers.part1.year', p1.year, '2569')) + '</div>' +
@@ -296,6 +296,16 @@
     // เหตุการณ์
     // ====================================================================
     function rerender(keep) { const sc = window.scrollY; c.render(true); if (keep) window.scrollTo({ top: sc }); }
+    // อ่านตอนที่ 1 จากแผนปฏิบัติการ (PDF) ในเบราว์เซอร์ของผู้ตอบ ไม่อัปโหลด ผู้ตอบตรวจและเลือกเองก่อนกรอก (ดู planui.js)
+    const PUI = root.RS_PLANUI.create({ id: 'portal', state: (S.planPortal = S.planPortal || {}), esc, ic, card, render: () => rerender(true), done: () => rerender(true), budgetTo: 'budget', missingKeys: ['students', 'staff'], hide: ['name', 'province'],
+      set: (to, v) => { const cd = S.ui.cdraft; if (!cd || cd.form !== 'questionnaire') return; setPath(cd.d.answers, 'part1.' + to, v); if (!cd.d.startedAt) cd.d.startedAt = new Date().toISOString(); persist(cd.form, cd.resp); },
+      title: 'กรอกตอนที่ 1 จากแผนปฏิบัติการ (ไม่บังคับ)',
+      intro: 'ถ้าโรงเรียนมีแผนปฏิบัติการประจำปีเป็นไฟล์ PDF เลือกไฟล์เพื่อให้ระบบเสนอค่าจำนวนนักเรียน ครูและบุคลากร สังกัดพื้นที่ และช่วงงบประมาณด้านความปลอดภัย ท่านตรวจ แก้ และติ๊กเลือกเองก่อนนำไปกรอกในตอนที่ 1 <b>ไฟล์ถูกอ่านในเครื่องของท่านเท่านั้น ไม่อัปโหลด และไม่ถูกส่งถึงผู้วิจัย</b> ผู้วิจัยได้รับเฉพาะคำตอบที่ท่านกดส่ง ตอนที่ 2–4 ท่านต้องตอบเอง เพราะเป็นการประเมินของท่าน',
+      map: { students: { to: 'students', type: 'number', check: (v) => /^\d{1,7}$/.test(v) }, staff: { to: 'staff', type: 'number', check: (v) => /^\d{1,6}$/.test(v) },
+        fiscalYear: { to: 'year', type: 'number', on: false, check: (v) => /^25\d\d$/.test(v) },
+        stratum: { to: 'stratum', options: C.STRATA.map((x) => [x[0], x[1]]), check: (v) => C.STRATA.some((x) => x[0] === v) },
+        guidance: { to: 'counselor', options: C.YESNO.map((x) => [x, x]), on: false, init: (e) => (parseInt(e.value, 10) > 0 ? 'มี' : ''), check: (v) => C.YESNO.indexOf(v) >= 0 } } });
+    PUI.bind();
     function applyQuery(q) { if (!q) return; if (q.s) { K.code = String(q.s).slice(0, 16); } if (q.r && C.ROLES.some((r) => r[0] === q.r)) K.role = q.r; }
     function bind() {
       document.addEventListener('click', (e) => {

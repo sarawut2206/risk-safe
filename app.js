@@ -259,7 +259,11 @@
   const UI2 = RS_TOOL2.create({ S, D, E, esc, fmt, getOut, cd, mKey, SHORT_DOM, SHORT_EL, render: (k) => render(k) }, UI.h);
   UI2.bind();
   UI2.restore();
-  const UIP = RS_PLANUI.create({ S, esc, fmt, render: (k) => render(k) }, UI.h);
+  // อ่านข้อมูลจากแผนปฏิบัติการ (PDF) ในหน้าข้อมูลโรงเรียนของเครื่องมือประเมิน (ปลายทางคือ S.school)
+  const UIP = RS_PLANUI.create({ id: 'tool', state: (S.plan = S.plan || {}), esc, ic: UI.h.ic, card: UI.h.card, render: () => render(true), done: () => render(true), set: (to, v) => { S.school[to] = v; }, missingKeys: ['name', 'students', 'staff', 'province', 'fiscalYear'],
+    title: 'อ่านข้อมูลจากแผนปฏิบัติการ (PDF) อัตโนมัติ',
+    intro: 'เลือกไฟล์แผนปฏิบัติการประจำปีของโรงเรียน ระบบจะอ่านชื่อโรงเรียน จำนวนนักเรียน ครูและบุคลากร จังหวัด และโครงการที่เกี่ยวกับความปลอดภัย แล้วให้ท่านตรวจก่อนนำไปกรอก <b>ไฟล์ถูกอ่านในเครื่องของท่านเท่านั้น ไม่อัปโหลดและไม่ส่งข้อความไปที่ใด</b> ใช้ได้กับ PDF ที่เลือกข้อความได้ (ไม่ใช่ภาพสแกน) ไม่เกิน 50 MB ผลที่อ่านเป็นข้อเสนอ ไม่ใช่การประเมินความเสี่ยงหรือความพร้อม',
+    map: { name: { to: 'name' }, students: { to: 'students', type: 'number' }, staff: { to: 'staff', type: 'number' }, fiscalYear: { to: 'year', type: 'number', on: false }, province: { to: 'province' } } });
   UIP.bind();
   const UI3 = RS_TOOL3.create({ S, D, E, esc, fmt, LOGO, go: (id) => go(id), render: (k) => render(k) }, UI.h);
   UI3.bind();
