@@ -1,7 +1,7 @@
 // ทดสอบเนื้อหาและการแบ่งหน้าของเล่มแผนปฏิบัติการ (planbook.js) ด้วยโรงเรียนสมมติจากข้อมูลตัวอย่าง  รัน: node tests/test_planbook.js
 const path = require('path');
 const root = path.join(__dirname, '..');
-const D = require(path.join(root, 'data.js')), E = require(path.join(root, 'engine.js')), Dc = require(path.join(root, 'decision.js')), M = require(path.join(root, 'moe.js')), PB = require(path.join(root, 'planbook.js'));
+const D = require(path.join(root, 'data.js')), E = require(path.join(root, 'engine.js')), Dc = require(path.join(root, 'decision.js')), M = require(path.join(root, 'moe.js')), EV = require(path.join(root, 'evidence.js')), PB = require(path.join(root, 'planbook.js'));
 let checks = 0, fails = 0;
 const ok = (n, c, i) => { checks++; if (!c) { fails++; console.log('FAIL', n, i === undefined ? '' : i); } };
 const eq = (n, a, b) => ok(n, JSON.stringify(a) === JSON.stringify(b), JSON.stringify(a) + ' != ' + JSON.stringify(b));
@@ -9,12 +9,12 @@ const esc = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, (c) => ({ '&':
 
 const out = E.analyze({ risk: D.example.risk, seven: D.example.seven, resource: D.example.resource }, D, E.DEFAULT_PARAMS, { guard: Dc.guard });
 const HZ = { V: 'ความรุนแรง', A: 'อุบัติเหตุ/ภัยพิบัติ', P: 'ละเมิดสิทธิ', H: 'สุขภาวะ' };
-const ctx = (over) => Object.assign({ esc, out, school: { name: 'โรงเรียนตัวอย่าง (สมมติ)', students: '532', staff: '32', year: '2569', province: '' }, status: {}, moeStatus: {}, MOE: M, mKey: (d, id) => d + ':' + id, domName: (c) => HZ[c] || c, elName: (c) => c, sizeOf: () => 'ขนาดกลาง', logo: '', today: new Date(2026, 10, 11) }, over || {});
+const ctx = (over) => Object.assign({ esc, out, school: { name: 'โรงเรียนตัวอย่าง (สมมติ)', students: '532', staff: '32', year: '2569', province: '' }, status: {}, moeStatus: {}, MOE: M, EVD: EV, mKey: (d, id) => d + ':' + id, domName: (c) => HZ[c] || c, elName: (c) => c, sizeOf: () => 'ขนาดกลาง', logo: '', today: new Date(2026, 10, 11) }, over || {});
 
 // ---------- โครงเล่ม ----------
 const m = PB.build(ctx());
 eq('sections in order', m.sections.map((s) => s.id), ['p1', 'p2', 'p3', 'p4', 'pa']);
-eq('toc covers sections and sub-headings', m.toc.map((e) => e.id), ['p1', 'p1-1', 'p1-2', 'p1-3', 'p2', 'p2-1', 'p2-2', 'p2-3', 'p3', 'p4', 'p4-1', 'p4-2', 'p4-3', 'pa', 'pa-1', 'pa-2']);
+eq('toc covers sections and sub-headings', m.toc.map((e) => e.id), ['p1', 'p1-1', 'p1-2', 'p1-3', 'p2', 'p2-1', 'p2-2', 'p2-3', 'p3', 'p4', 'p4-1', 'p4-2', 'p4-3', 'pa', 'pa-1', 'pa-2', 'pa-3']);
 ok('every toc entry has an anchor block', m.toc.every((e) => m.sections.some((s) => s.blocks.some((b) => b.id === e.id))));
 const nPlan = out.domains.reduce((a, d) => a + (d.measures || []).length, 0);
 eq('plan rows = selected measures', m.meta.rows, nPlan);
@@ -43,9 +43,18 @@ ok('ministry indicator name and 100 percent target are present', all.indexOf('�
 ok('three criteria levels (50, 75, 100) are present', ['เป้าหมายขั้นต้น (50)', 'เป้าหมายมาตรฐาน (75)', 'เป้าหมายขั้นสูง (100)'].every((x) => all.indexOf(x) >= 0));
 ok('source and year of the ministry indicator are stated', all.indexOf('ปีงบประมาณ พ.ศ. 2566') >= 0 && all.indexOf('ตรวจสอบกับตัวชี้วัดของปีปัจจุบัน') >= 0);
 ok('the 10 August 2569 announcement is cited', PB.REFS[0].indexOf('10 สิงหาคม 2569') >= 0 && all.indexOf('10 สิงหาคม 2569') >= 0);
-const g = m.meta.grade; eq('evidence grades add up to the number of plan rows', g.A + g.B + g.C + g.D, nPlan);
-const appx = m.sections[4].blocks.map((b) => b.html).join('');
-ok('appendix lists the sources used by the plan', rowsAll.filter((x) => x.evsrc).every((x) => String(x.evsrc).split(';').every((s) => appx.indexOf(esc(s.trim())) >= 0)));
+const g = m.meta.grade, uniq = new Set(rowsAll.map((x) => x.sb || x.id)).size;
+eq('evidence grades add up to the number of distinct measures', g.A + g.B + g.C + g.D, uniq); eq('meta reports the distinct measure count', m.meta.unique, uniq);
+ok('shared measures appear in several rows but are counted once', uniq < nPlan && /มาตรการไม่ซ้ำ/.test(m.sections[2].blocks.map((b) => b.html || '').join('')));
+const noDup = (html) => { const ids = String(html).match(/SB-\d+/g) || []; return new Set(ids).size === ids.length; };
+ok('no SB id is repeated inside the 2.2 project lists', moeTable.rows.every((r) => noDup((r.match(/<ul class="pbul">.*?<\/ul>/) || [''])[0])));
+ok('no SB id is repeated inside a source row', m.sections[4].blocks.filter((b) => b.cls === 'srcs').every((b) => b.rows.every((r) => noDup(r.slice(r.lastIndexOf('<small>'))))));
+const appx = m.sections[4].blocks.map((b) => (b.html || '') + (b.head || '') + (b.rows || []).join('')).join('');
+ok('appendix lists every source used by the plan', rowsAll.filter((x) => x.evsrc).every((x) => String(x.evsrc).split(';').every((s) => appx.indexOf(esc(s.trim())) >= 0)));
+ok('appendix says which sources are not in chapter 2', appx.indexOf('ยังไม่อยู่ในบทที่ 2') >= 0 && appx.indexOf('อยู่ในบทที่ 2 ข้อ 2.3.2') >= 0);
+ok('appendix prints the full chapter 2 references used', appx.indexOf('Comprehensive school safety framework 2022') >= 0 && appx.indexOf('ISO 31000:2018') >= 0 && appx.indexOf('Hrebiniak') >= 0);
+ok('appendix shows the Thai strategy prototypes from Table 2.1', EV.THAI.every((t) => appx.indexOf(esc(t.who)) >= 0));
+ok('plan rows cite the CSSF pillar and flag sources outside chapter 2', planTable.rows.every((r) => r.indexOf('CSSF เสาหลัก') >= 0 || r.indexOf('CSSF รากฐาน') >= 0) && planTable.rows.some((r) => r.indexOf('บางแหล่งยังไม่อยู่ในบทที่ 2') >= 0));
 ok('appendix warns that the bank is a draft', appx.indexOf('ฉบับร่าง') >= 0 && appx.indexOf('ยังไม่ผ่านเดลฟาย') >= 0);
 ok('cover says it is a draft needing approval', /ฉบับร่าง/.test(m.cover) && /อนุมัติ/.test(m.cover));
 

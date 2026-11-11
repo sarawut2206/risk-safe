@@ -44,6 +44,7 @@
 
 @media print {
   @page book { size: A4 landscape; margin: 0; }
+  body.pb-on { page: book; }   /* เฉพาะหน้าเล่มแผนฯ ใช้หน้า book ตั้งแต่ต้นเอกสาร ไม่ให้เกิดหน้าว่างจากการเปลี่ยนชนิดหน้า (หน้าอื่นยังเป็น A4 แนวตั้ง) */
   .pbhost { page: book; display: block; overflow: visible; padding: 0; }
   .bpage { box-shadow: none; break-after: page; page-break-after: always; margin: 0; }
   .bpage:last-child { break-after: auto; page-break-after: auto; }

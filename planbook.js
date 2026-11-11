@@ -50,7 +50,7 @@
 
   // ---------- เนื้อหาเล่ม ----------
   function build(ctx) {
-    const esc = ctx.esc, out = ctx.out, sc = ctx.school || {}, MOE = ctx.MOE, st = (k) => (ctx.status && ctx.status[k]) || 'ยังไม่เริ่ม';
+    const esc = ctx.esc, out = ctx.out, sc = ctx.school || {}, MOE = ctx.MOE, EVD = ctx.EVD, st = (k) => (ctx.status && ctx.status[k]) || 'ยังไม่เริ่ม';
     const rows = []; out.domains.forEach((d) => (d.measures || []).forEach((m) => rows.push({ d, m, key: ctx.mKey(d.code, m.id) })));
     const sbOf = (m) => m.sb || m.id, name = sc.name || 'โรงเรียนตัวอย่าง', year = sc.year || '';
     const blank = (n) => '<span class="pbdot" style="min-width:' + (n || 90) + 'px"></span>';
@@ -59,12 +59,14 @@
     const today = (ctx.today || new Date()).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
     const dom = (code) => ctx.domName(code);
 
+    const firstBySb = (arr) => { const seen = {}; return arr.filter((r) => { const k = sbOf(r.m); if (seen[k]) return false; seen[k] = true; return true; }); };
+    const nUnique = firstBySb(rows).length;
     // ความสอดคล้องกับ 7 มาตรการ: มาตรการในแผนที่ตอบสนองแต่ละข้อ
-    const moeRows = MOE.ITEMS.map((it) => ({ it, hit: rows.filter((r) => it.sb.indexOf(sbOf(r.m)) >= 0) }));
+    const moeRows = MOE.ITEMS.map((it) => ({ it, hit: firstBySb(rows.filter((r) => it.sb.indexOf(sbOf(r.m)) >= 0)) }));
     const covered = moeRows.filter((x) => x.hit.length > 0).length;
     const done = rows.filter((r) => st(r.key) === 'เสร็จแล้ว').length, complete = rows.filter((r) => r.m.owner && r.m.kpi).length;
     const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
-    const grade = { A: 0, B: 0, C: 0, D: 0 }; rows.forEach((r) => { if (grade[r.m.evg] != null) grade[r.m.evg]++; });
+    const grade = { A: 0, B: 0, C: 0, D: 0 }; firstBySb(rows).forEach((r) => { if (grade[r.m.evg] != null) grade[r.m.evg]++; });
     const srcs = {}; rows.forEach((r) => String(r.m.evsrc || '').split(';').map((x) => x.trim()).filter(Boolean).forEach((x) => { srcs[x] = (srcs[x] || 0) + 1; }));
     const srcList = Object.keys(srcs).sort();
 
@@ -116,7 +118,7 @@
     const planRow = (r, i) => {
       const d = r.d, m = r.m, mo = MOE.forSb(sbOf(m)), ev = EVG[m.evg] || 'D';
       return '<tr><td class="c">' + esc(d.pkg.start) + '<br><small>เริ่ม ' + blank(60) + '</small></td>' +
-        '<td><b>' + (i + 1) + '. ' + esc(m.name) + '</b><br><small>' + esc(sbOf(m)) + ' · ' + esc(dom(d.code)) + ' · กลุ่ม ' + esc(d.group) + '</small><br><small>ผู้รับผิดชอบ: ' + esc(m.owner) + '</small><br><small>หลักฐานระดับ ' + ev + (mo.length ? ' · ประกาศ ศธ. ข้อ ' + mo.join(', ') : '') + '</small></td>' +
+        '<td><b>' + (i + 1) + '. ' + esc(m.name) + '</b><br><small>' + esc(sbOf(m)) + ' · ' + esc(dom(d.code)) + ' · กลุ่ม ' + esc(d.group) + '</small><br><small>ผู้รับผิดชอบ: ' + esc(m.owner) + '</small><br><small>ฐานแนวคิด: CSSF ' + esc(m.pillar || '') + ' (บทที่ 2 ข้อ 2.3.2)</small><br><small>หลักฐานระดับ ' + ev + (EVD.sources(m).some((x) => !x.inCh2) ? ' (บางแหล่งยังไม่อยู่ในบทที่ 2)' : '') + (mo.length ? ' · ประกาศ ศธ. ข้อ ' + mo.join(', ') : '') + '</small></td>' +
         '<td>' + esc(m.why) + '</td>' +
         '<td><ol class="pbol"><li>เพื่อ' + esc(m.desc) + '</li><li>เพื่อให้' + esc(m.outcome) + '</li></ol></td>' +
         '<td><ol class="pbol"><li>เสนอขออนุมัติโครงการ</li><li>ตั้งผู้รับผิดชอบและตรวจเงื่อนไขก่อนดำเนินการ (' + esc(m.prereq) + ')</li><li>ดำเนินกิจกรรม: ' + esc(m.desc) + '</li><li>เก็บหลักฐาน: ' + esc(m.output) + '</li></ol></td>' +
@@ -124,8 +126,8 @@
     };
     sections.push({ id: 'p3', label: 'ส่วนที่ 3 แผนปฏิบัติการ', blocks: [
       H1('p3', '3', 'แผนปฏิบัติการด้านความปลอดภัยสถานศึกษา'),
-      P('โครงการหรือมาตรการ ' + rows.length + ' รายการ เรียงตามด้านของภัย ระยะเวลาเป็นช่วงที่ตารางตัดสินใจแนะนำ นับจากวันที่อนุมัติแผน โรงเรียนระบุวันที่เริ่มและค่าเป้าหมายเอง ตัวชี้วัดและผู้รับผิดชอบเป็นข้อเสนอเริ่มต้นจากคลังมาตรการ ผู้อำนวยการปรับได้', 'note'),
-      T('plan', '<tr><th style="width:9%">ระยะเวลา</th><th style="width:17%">ชื่อโครงการ</th><th style="width:19%">หลักการ</th><th style="width:17%">วัตถุประสงค์</th><th style="width:20%">การดำเนินการ</th><th style="width:18%">การติดตาม/ประเมินผล</th></tr>', rows.map(planRow)),
+      P('โครงการหรือมาตรการ ' + rows.length + ' รายการ (' + nUnique + ' มาตรการไม่ซ้ำ เพราะบางมาตรการใช้ร่วมกันหลายด้านของภัยจึงปรากฏหลายแถว) เรียงตามด้านของภัย ระยะเวลาเป็นช่วงที่ตารางตัดสินใจแนะนำ นับจากวันที่อนุมัติแผน โรงเรียนระบุวันที่เริ่มและค่าเป้าหมายเอง ตัวชี้วัดและผู้รับผิดชอบเป็นข้อเสนอเริ่มต้นจากคลังมาตรการ ผู้อำนวยการปรับได้', 'note'),
+      T('pbplan', '<tr><th style="width:9%">ระยะเวลา</th><th style="width:17%">ชื่อโครงการ</th><th style="width:19%">หลักการ</th><th style="width:17%">วัตถุประสงค์</th><th style="width:20%">การดำเนินการ</th><th style="width:18%">การติดตาม/ประเมินผล</th></tr>', rows.map(planRow)),
     ] });
     // ---- ส่วนที่ 4 ----
     const sig = (role) => '<td class="sig"><div class="sigline"></div>(' + blank(150) + ')<br>' + role + '<br>วันที่ ' + blank(100) + '</td>';
@@ -139,13 +141,25 @@
       { t: 'html', html: '<table class="pbt sigt"><tbody><tr>' + sig('ผู้เสนอแผน (ผู้รับผิดชอบงานความปลอดภัย)') + sig('ผู้เห็นชอบ') + sig('ผู้อนุมัติ (ผู้อำนวยการสถานศึกษา)') + '</tr></tbody></table>' },
     ] });
     // ---- ภาคผนวก ----
+    // ---- ภาคผนวก ----
+    const measures = rows.map((r) => r.m), usedKeys = EVD.refsUsed(measures), miss = EVD.notInCh2(measures), allSrc = {};
+    measures.forEach((m) => EVD.sources(m).forEach((x) => { (allSrc[x.src] = allSrc[x.src] || { x, sb: [] }).sb.push(m.sb || m.id); }));
+    const srcNames = Object.keys(allSrc).sort((p, q) => (allSrc[q].x.inCh2 - allSrc[p].x.inCh2) || (p < q ? -1 : 1));
     sections.push({ id: 'pa', label: 'ภาคผนวก เอกสารอ้างอิงและหลักฐานทางวิชาการ', blocks: [
       { t: 'html', id: 'pa', keep: true, html: '<h1 class="pbh1">ภาคผนวก เอกสารอ้างอิงและหลักฐานทางวิชาการ</h1>' },
       H2('pa-1', 'ก. เอกสารอ้างอิง'),
       { t: 'html', html: '<ol class="pbol">' + REFS.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ol>' },
-      H2('pa-2', 'ข. หลักฐานทางวิชาการของมาตรการในแผนนี้'),
-      P('ระดับหลักฐานของ ' + rows.length + ' โครงการในแผน: ระดับ A (มีงานทบทวนเชิงระบบรองรับ) ' + grade.A + ' · ระดับ B (รองรับบางส่วนหรือผลผสม) ' + grade.B + ' · ระดับ C (มีนโยบายหรือกฎหมายรองรับ ยังไม่มีงานวัดผล) ' + grade.C + ' · ระดับ D (ยังไม่พบหลักฐาน เป็นข้อเสนอของผู้วิจัย) ' + grade.D),
-      P('แหล่งที่อ้างถึงโดยโครงการในแผน (ชื่อย่อตามคลังมาตรการ): ' + (srcList.length ? srcList.map((x) => esc(x)).join(' · ') : 'ไม่มี')),
+      P('เอกสารจากบทที่ 2 ของดุษฎีนิพนธ์ที่ใช้เป็นฐานของแผนนี้ (รายการอ้างอิงตามโครงร่างดุษฎีนิพนธ์ฉบับ v14 ข้อความในวงเล็บคือข้อของบทที่ 2)', 'note', true),
+      { t: 'html', html: '<ol class="pbol">' + usedKeys.map((k) => '<li>' + esc(EVD.REFS[k].full) + ' (ข้อ ' + EVD.REFS[k].sec + ')</li>').join('') + '</ol>' },
+      H2('pa-2', 'ข. หลักฐานทางวิชาการของผลมาตรการในแผนนี้'),
+      P('ระดับหลักฐานของ ' + nUnique + ' มาตรการ (ไม่ซ้ำ) ในแผน: ระดับ A (มีงานทบทวนเชิงระบบรองรับ) ' + grade.A + ' · ระดับ B (รองรับบางส่วนหรือผลผสม) ' + grade.B + ' · ระดับ C (มีนโยบายหรือกฎหมายรองรับ ยังไม่มีงานวัดผล) ' + grade.C + ' · ระดับ D (ยังไม่พบหลักฐาน เป็นข้อเสนอของผู้วิจัย) ' + grade.D, '', true),
+      P('แหล่งหลักฐานผลของมาตรการที่อยู่ในคลังมาตรการ ' + srcNames.length + ' แหล่ง อยู่ในบทที่ 2 ' + srcNames.filter((k) => allSrc[k].x.inCh2).length + ' แหล่ง ส่วน ' + Object.keys(miss).length + ' แหล่งยังไม่อยู่ในบทที่ 2 และรายการอ้างอิง ต้องเพิ่มและตรวจที่มาก่อนอ้างอิงในเอกสารทางการ', 'note', true),
+      T('srcs', '<tr><th style="width:26%">แหล่ง (ชื่อย่อตามคลังมาตรการ)</th><th style="width:26%">สถานะในบทที่ 2</th><th>โครงการในแผนที่ใช้แหล่งนี้</th></tr>',
+        srcNames.map((k) => '<tr><td>' + esc(k) + '</td><td>' + (allSrc[k].x.inCh2 ? 'อยู่ในบทที่ 2 ข้อ ' + allSrc[k].x.sec : '<b>ยังไม่อยู่ในบทที่ 2</b>') + '</td><td><small>' + esc(Array.from(new Set(allSrc[k].sb)).join(', ')) + '</small></td></tr>')),
+      H2('pa-3', 'ค. ต้นแบบการพัฒนากลยุทธ์ความปลอดภัยในโรงเรียนไทย (ตารางที่ 2.1 ของบทที่ 2)'),
+      P('ผลหลักมาจากบทคัดย่อของแต่ละงาน ผู้วิจัยดุษฎีนิพนธ์ยังต้องยืนยันด้วยการอ่านเนื้อเต็ม และผลของงานเหล่านี้เป็นชุดกลยุทธ์หรือรูปแบบสำหรับพื้นที่ที่ศึกษา ไม่ใช่หลักฐานว่ามาตรการแต่ละข้อได้ผลในโรงเรียนอื่น', 'note', true),
+      T('thai', '<tr><th style="width:22%">ผู้วิจัย (ปี)</th><th style="width:28%">บริบทและกลุ่มตัวอย่าง</th><th style="width:22%">วิธีวิจัย</th><th>ผลหลักจากบทคัดย่อ</th></tr>',
+        EVD.THAI.map((t) => '<tr><td>' + esc(t.who) + '</td><td>' + esc(t.ctx) + '</td><td>' + esc(t.method) + '</td><td>' + esc(t.result) + '</td></tr>')),
       P('หมายเหตุ: คลังมาตรการเป็นฉบับร่างที่ยังไม่ผ่านเดลฟายและการตรวจหลักฐานรายข้อโดยผู้เชี่ยวชาญ ระดับ C และ D ควรเริ่มแบบนำร่องและติดตามตัวชี้วัด ก่อนอ้างอิงในเอกสารทางการ ควรตรวจรายการอ้างอิงฉบับเต็มของแต่ละแหล่ง', 'note'),
     ] });
 
@@ -154,7 +168,7 @@
     sections.forEach((s) => { toc.push({ id: s.id, label: s.label, level: 0 }); s.blocks.forEach((b) => { if (b.id && b.id !== s.id && /^h2/.test((b.html || '').replace('<', '').trim()) ) toc.push({ id: b.id, label: b.html.replace(/<[^>]+>/g, ''), level: 1 }); }); });
     const cover = '<div class="pbcover"><div class="pbcl">' + (ctx.logo || '') + '</div><div class="pbct">แผนปฏิบัติการด้านความปลอดภัยสถานศึกษา</div><div class="pbcs">ปีการศึกษา ' + esc(year) + '</div><div class="pbcn">' + esc(name) + '</div>' + (sc.province ? '<div class="pbcs">จังหวัด' + esc(sc.province) + '</div>' : '') +
       '<div class="pbdraft">ฉบับร่างจากระบบ Risk Safe (R²-SAFE) ต้นแบบงานวิจัย<br>ต้องได้รับการพิจารณา ปรับปรุง และอนุมัติโดยผู้อำนวยการสถานศึกษาก่อนประกาศใช้</div><div class="pbcf">จัดทำเมื่อ ' + today + '</div></div>';
-    return { meta: { name, nameEsc: esc(name), year, today, rows: rows.length, covered, grade }, sections, toc, cover, rows };
+    return { meta: { name, nameEsc: esc(name), year, today, rows: rows.length, unique: nUnique, covered, grade }, sections, toc, cover, rows };
   }
 
   // ---------- ประกอบหน้า (ต้องใช้ DOM) ----------

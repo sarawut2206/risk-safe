@@ -371,7 +371,7 @@
       const rows = []; out.domains.forEach((d) => d.measures.forEach((m) => rows.push({ d, m, key: c.mKey(d.code, m.id) }))); return rows;
     }
     function planDoc(r, i, n) {
-      const d = r.d, m = r.m, sc = S.school, st = S.status[r.key] || c.STATUS[0], ev = EVG_DOC[m.evg] || EVG_DOC.D;
+      const d = r.d, m = r.m, sc = S.school, st = S.status[r.key] || c.STATUS[0], EV = root.RS_EVIDENCE, ev = EV.EVG[m.evg] || EV.EVG.D;
       const today = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
       const mo = root.RS_MOE ? root.RS_MOE.forSb(m.sb) : [], moeTxt = mo.length ? ' มาตรการนี้เกี่ยวข้องกับประกาศกระทรวงศึกษาธิการ เรื่อง มาตรการความปลอดภัยของสถานศึกษา (10 สิงหาคม 2569) ข้อ ' + mo.join(', ') : '';
       const sec = (no, t, body) => '<section class="ps"><h3>' + no + '. ' + t + '</h3>' + body + '</section>';
@@ -382,23 +382,30 @@
         'เตรียมทรัพยากร: ' + esc(m.resources),
         'ดำเนินกิจกรรม: ' + esc(m.desc),
         'เก็บหลักฐานและสิ่งที่ส่งมอบ: ' + esc(m.output),
-        'วัดผลด้วยตัวชี้วัดข้อ 6 และทบทวนตามรอบ (' + esc(d.pkg.review) + ') แล้วปรับแผน'].map(step).join('') + '</ol><p class="pnote">ขั้นตอนนี้เป็นกรอบต้นแบบที่สร้างจากข้อมูลของมาตรการ โรงเรียนปรับรายละเอียดและกำหนดวันที่ให้เหมาะกับบริบทของตน</p>';
+        'วัดผลด้วยตัวชี้วัดข้อ 6 และทบทวนตามรอบ (' + esc(d.pkg.review) + ') แล้วปรับแผน'].map(step).join('') + '</ol>';
+      // ส่วนที่ 2: ต้นแบบและงานวิจัยที่รองรับ แยกชั้นตามหลักฐานจริง (ฐานจากบทที่ 2 · ต้นแบบในโรงเรียนไทย · หลักฐานของผลมาตรการ)
+      const bs = EV.basis(m), srcs = EV.sources(m), miss = srcs.some((x) => !x.inCh2);
+      const basisHtml = '<ol class="pbs">' + bs.map((b) => '<li>' + esc(b.text) + ' <span class="pcite">(' + esc(EV.cite(b)) + ' · ข้อ ' + b.sec + ')</span></li>').join('') + '</ol>';
+      const secEv = '<section class="ps pev2 g' + ev[0] + '"><h3>2. ต้นแบบและงานวิจัยที่รองรับ (อ้างอิงบทที่ 2) <span class="pgr">ระดับ ' + ev[0] + '</span></h3>' +
+        '<p><b>ก) ฐานแนวคิดและนโยบายจากบทที่ 2</b></p>' + basisHtml +
+        '<p><b>ข) ต้นแบบในโรงเรียนไทย</b> งานวิจัยและพัฒนากลยุทธ์หรือรูปแบบความปลอดภัยสถานศึกษา (' + esc(EV.THAI.map((t) => EV.lite(t.key)).join('; ')) + ' · ข้อ 2.9.1 ตารางที่ 2.1) ได้ชุดกลยุทธ์หรือรูปแบบสำหรับพื้นที่ที่ศึกษา ผลหลักมาจากบทคัดย่อ ยังไม่ใช่หลักฐานว่ามาตรการข้อนี้ได้ผลในโรงเรียนอื่น</p>' +
+        '<p><b>ค) หลักฐานของผลมาตรการนี้ (คลังมาตรการ)</b> ระดับ ' + ev[0] + ' ' + esc(ev[1]) + (srcs.length ? ' · แหล่ง: ' + srcs.map((x) => esc(x.src) + (x.inCh2 ? ' (อยู่ในบทที่ 2 ข้อ ' + x.sec + ')' : ' (ยังไม่อยู่ในบทที่ 2)')).join(', ') : '') + '</p>' +
+        '<p>' + esc(m.evnote) + '</p><p class="pnote">' + esc(ev[2]) + (miss ? ' แหล่งที่ยังไม่อยู่ในบทที่ 2 ต้องเพิ่มและตรวจก่อนอ้างอิงในเอกสารทางการ' : '') + ' (คลังฉบับร่าง ยังไม่ผ่านเดลฟาย) อ้างอิงเต็ม: ภาคผนวกของเล่มแผนปฏิบัติการ</p></section>';
       return '<article class="pdoc" aria-label="แผนต้นแบบ ' + esc(c.cd(m)) + '">' +
         '<header class="pdh"><div class="pdl">' + LOGO + '<div><b>แผนปฏิบัติการด้านความปลอดภัยสถานศึกษา</b><span>' + esc(sc.name || 'โรงเรียนตัวอย่าง') + ' · ปีการศึกษา ' + esc(sc.year || '–') + '</span></div></div><span class="pdcode">' + esc(c.cd(m)) + '</span></header>' +
         '<h1>' + esc(m.name) + '</h1>' +
         '<table class="pdmeta"><tbody><tr><th>ด้านของภัย</th><td>' + esc(HZ[d.code][0]) + ' (ความเสี่ยง' + esc(d.risk) + ')</td><th>กลุ่มแนวทาง</th><td>' + esc(d.group) + ' ' + esc(d.pkg.name) + '</td></tr>' +
         '<tr><th>องค์ประกอบ 7-S</th><td>' + esc(c.SHORT_EL[m.elem]) + '</td><th>ประเภท (3 ป.) / ช่วง</th><td>' + esc(m.type3) + ' / ' + esc(m.phase) + '</td></tr>' +
         '<tr><th>ผู้รับผิดชอบ</th><td>' + esc(m.owner) + '</td><th>กลุ่มเป้าหมาย</th><td>' + esc(m.target) + '</td></tr>' +
-        '<tr><th>เริ่มดำเนินการ</th><td>' + esc(d.pkg.start) + '</td><th>ทรัพยากรที่ใช้</th><td>' + RES_DOC[m.res] + '</td></tr></tbody></table>' +
+        '</tbody></table>' +
         sec(1, 'หลักการและเหตุผล', '<p>จากผลการประเมินของ' + esc(sc.name || 'โรงเรียน') + ' พบความเสี่ยงด้าน' + esc(HZ[d.code][0]) + 'ในระดับ' + esc(d.risk) + ' และความพร้อมขององค์กรในระดับ' + esc(d.ready) + ' จัดอยู่ในกลุ่มแนวทาง ' + esc(d.group) + ' (' + esc(d.pkg.summary) + ') มาตรการนี้ถูกเสนอเพราะ' + esc(m.why) + esc(moeTxt) + '</p>') +
-        sec(2, 'วัตถุประสงค์', '<ol class="pl"><li>' + esc(m.desc) + '</li><li>เพื่อให้' + esc(m.target) + 'ได้รับการดำเนินการตามมาตรการนี้อย่างทั่วถึง</li></ol>') +
-        sec(3, 'ขั้นตอนดำเนินงาน', stepsHtml) +
-        sec(4, 'ผลผลิตและผลที่คาดว่าจะได้รับ', '<p>ผลผลิต: ' + esc(m.output) + '</p><p>ผลลัพธ์ที่คาดหวัง: ' + esc(m.outcome) + '</p>') +
-        sec(5, 'ทรัพยากร งบประมาณ และเงื่อนไขก่อนดำเนินการ', '<p>ทรัพยากรที่ใช้: ' + esc(m.resources) + ' · เงื่อนไขก่อนดำเนินการ: ' + esc(m.prereq) + '</p><p>งบประมาณที่ขอ ' + dots(110) + ' บาท แหล่งงบ ' + dots(150) + '</p>') +
-        sec(6, 'ตัวชี้วัดและการติดตาม', '<p>ตัวชี้วัด: ' + esc(m.kpi) + '</p><p>ค่าเป้าหมาย ' + dots(110) + ' ภายใน ' + dots(110) + '</p><p>ติดตามโดย ' + esc(m.owner) + ' ทบทวนตามรอบ: ' + esc(d.pkg.review) + '</p><p class="pst">สถานะ: ' + ['ยังไม่เริ่ม', 'กำลังดำเนินการ', 'เสร็จแล้ว'].map(cbx).join('') + '</p>') +
-        '<section class="ps pev2 g' + ev[0] + '"><h3>7. หลักฐานทางวิชาการรองรับ <span class="pgr">ระดับ ' + ev[0] + '</span></h3><p><b>' + esc(ev[1]) + '</b>' + (m.evsrc ? ' · แหล่ง: ' + esc(m.evsrc) : '') + '</p><p>' + esc(m.evnote) + '</p><p class="pnote">' + esc(ev[2]) + ' (คลังมาตรการเป็นฉบับร่าง ยังไม่ผ่านเดลฟายและการตรวจหลักฐานรายข้อ)</p></section>' +
+        secEv +
+        sec(3, 'วัตถุประสงค์และผลที่คาดว่าจะได้รับ', '<ol class="pl"><li>' + esc(m.desc) + '</li><li>เพื่อให้' + esc(m.target) + 'ได้รับการดำเนินการตามมาตรการนี้อย่างทั่วถึง</li><li>ผลผลิต: ' + esc(m.output) + ' · ผลลัพธ์ที่คาดหวัง: ' + esc(m.outcome) + '</li></ol>') +
+        sec(4, 'ขั้นตอนดำเนินงาน (กรอบต้นแบบ ปรับให้เหมาะกับบริบทของโรงเรียน)', stepsHtml) +
+        sec(5, 'ทรัพยากร งบประมาณ และเงื่อนไขก่อนดำเนินการ', '<p>ทรัพยากรที่ใช้ (' + RES_DOC[m.res] + '): ' + esc(m.resources) + ' · เงื่อนไขก่อนดำเนินการ: ' + esc(m.prereq) + '</p><p>งบประมาณที่ขอ ' + dots(110) + ' บาท แหล่งงบ ' + dots(150) + '</p>') +
+        sec(6, 'ตัวชี้วัดและการติดตาม', '<p>ตัวชี้วัด: ' + esc(m.kpi) + '</p><p>ค่าเป้าหมาย ' + dots(110) + ' ภายใน ' + dots(110) + '</p><p>เริ่มดำเนินการ ' + esc(d.pkg.start) + ' · ติดตามโดย ' + esc(m.owner) + ' · ทบทวนตามรอบ: ' + esc(d.pkg.review) + '</p><p class="pst">สถานะ: ' + ['ยังไม่เริ่ม', 'กำลังดำเนินการ', 'เสร็จแล้ว'].map(cbx).join('') + '</p>') +
         '<div class="psign"><div><span></span><small>ผู้รับผิดชอบ</small></div><div><span></span><small>หัวหน้างาน</small></div><div><span></span><small>ผู้อำนวยการสถานศึกษา (ผู้อนุมัติ)</small></div></div>' +
-        '<footer class="pdf">จัดทำจากระบบ Risk Safe (R²-SAFE) ต้นแบบงานวิจัย เมื่อ ' + today + ' · แผนที่ ' + (i + 1) + ' จาก ' + n + ' · ผลเป็นข้อเสนอสนับสนุนการวางแผน ผู้อำนวยการเป็นผู้ตัดสินใจขั้นสุดท้าย ไม่แทนการตอบสนองเหตุฉุกเฉิน (191 · 1669 · 199)</footer></article>';
+        '<footer class="pdf">จัดทำจากระบบ Risk Safe (R²-SAFE) ต้นแบบงานวิจัย เมื่อ ' + today + ' · แผนที่ ' + (i + 1) + ' จาก ' + n + ' · ข้อเสนอสนับสนุนการวางแผน ผู้อำนวยการตัดสินใจขั้นสุดท้าย · เหตุฉุกเฉิน 191 · 1669 · 199</footer></article>';
     }
     function pagePlandoc() {
       const out = getOut();
@@ -446,7 +453,7 @@
       const out = getOut(), M = root.RS_MOE, PB = root.RS_PLANBOOK;
       if (!hasData(out)) return empty();
       if (!M || !PB) return banner('doc', 'เล่มแผนปฏิบัติการ', 'โหลดโมดูลไม่สำเร็จ');
-      const model = PB.build({ esc, out, school: S.school, status: S.status, moeStatus: S.moe, MOE: M, mKey: c.mKey, domName: (code) => HZ[code][0], elName: (code) => c.SHORT_EL[code], sizeOf, logo: LOGO, today: new Date() });
+      const model = PB.build({ EVD: root.RS_EVIDENCE, esc, out, school: S.school, status: S.status, moeStatus: S.moe, MOE: M, mKey: c.mKey, domName: (code) => HZ[code][0], elName: (code) => c.SHORT_EL[code], sizeOf, logo: LOGO, today: new Date() });
       setTimeout(() => { const h = document.getElementById('pbhost'); if (!h) return; PB.mount(h, model).then(() => { const w = document.getElementById('pbfont'); if (w && !PB.hasFont(document, 'TH Sarabun New') && !PB.hasFont(document, 'THSarabunNew')) w.classList.add('on'); }); }, 0);
       return '<div class="pdbar"><div><h1>เล่มแผนปฏิบัติการด้านความปลอดภัยสถานศึกษา</h1><p>กระดาษ A4 แนวนอน ตัวอักษร TH Sarabun New มีสารบัญ ตารางโครงการรูปแบบเดียวกับแผนปฏิบัติการของกระทรวงศึกษาธิการ ตัวชี้วัดของกระทรวง ความสอดคล้องกับ 7 มาตรการตามประกาศ ศธ. และเอกสารอ้างอิง รวม ' + model.meta.rows + ' โครงการ</p></div>' +
         '<div class="pdbtn"><button class="tbtn primary" onclick="window.print()">' + ic('print', 22) + '<span>พิมพ์ หรือบันทึกเป็น PDF</span></button><button class="tbtn" data-go="plan">' + ic('chev', 18) + '<span>กลับไปแผนปฏิบัติการ</span></button></div>' +
