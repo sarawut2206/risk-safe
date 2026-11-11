@@ -30,15 +30,16 @@
     const c = ctx || {}, T = TOTAL[m.res] || TOTAL[2], phase = LEAD[m.phase] ? m.phase : 'ป้องกัน', owner = m.owner || 'ผู้รับผิดชอบ', target = m.target || 'ผู้เกี่ยวข้อง';
     const a2 = Math.max(1, Math.ceil(T * 0.25)), a3 = Math.max(a2, Math.ceil(T * 0.5)), a4 = Math.max(a3, Math.ceil(T * 0.75)), ids = String(m.prereq || '').match(/SB-\d+/g) || [];
     const t = TRY[phase], pre = noPre(m.prereq);
+    const AS = isNode ? require('./actsteps.js') : root.RS_ACTSTEPS, cu = AS && m.sb ? AS.get(m.sb) : null;   // ขั้นตอนเฉพาะรายมาตรการ (ถ้ามี)
     return [
       { when: wk(1, 1), what: 'ประชุมชี้แจงและมอบหมายงาน: แต่งตั้ง' + owner + 'เป็นผู้รับผิดชอบ ชี้แจงเป้าหมายและตัวชี้วัดแก่' + target + (pre ? ' (เริ่มได้ทันที ไม่มีเงื่อนไขก่อนดำเนินการ)' : ' และตรวจเงื่อนไขก่อนดำเนินการ: ' + m.prereq),
         brief: 'ประชุมมอบหมายงาน' + (pre ? '' : ' ตรวจเงื่อนไข ' + ids.join(', ')), who: 'ผู้อำนวยการ · ' + owner, out: 'บันทึกการมอบหมายงาน' + (pre ? '' : ' และผลตรวจเงื่อนไข') },
       { when: wk(1, a2), what: 'เตรียมทรัพยากร: ' + m.resources + ' (' + RESNOTE[m.res || 2] + ')',
         brief: 'เตรียมทรัพยากร', who: owner, out: 'ทรัพยากรที่พร้อมใช้' + ((m.res || 2) > 1 ? ' และงบที่อนุมัติ' : '') },
-      { when: wk(a2 === 1 ? 2 : a2, a3 < 2 ? 2 : a3), what: LEAD[phase] + ': ' + m.desc,
-        brief: LEAD[phase] + 'ตามวัตถุประสงค์', who: owner, out: 'ร่างของ' + m.output },
-      { when: wk(Math.max(a3, 2), Math.max(a4, a3, 2)), what: t[0], brief: t[2], who: owner + ' · ' + target, out: t[1] },
-      { when: wk(a4 < T ? a4 : T, T), what: 'ประกาศใช้และสื่อสารให้' + target + ' ผู้ปกครอง และบุคลากรที่เกี่ยวข้องรับทราบ แล้วเก็บหลักฐานและสิ่งที่ส่งมอบ: ' + m.output, brief: 'ประกาศใช้ เก็บหลักฐาน: ' + m.output, who: 'ผู้อำนวยการ · ' + owner, out: m.output },
+      { when: wk(a2 === 1 ? 2 : a2, a3 < 2 ? 2 : a3), what: cu ? cu[0] : LEAD[phase] + ': ' + m.desc,
+        brief: cu ? AS.head(cu[0]) : LEAD[phase] + 'ตามวัตถุประสงค์', who: owner, out: 'ร่างของ' + m.output },
+      { when: wk(Math.max(a3, 2), Math.max(a4, a3, 2)), what: cu ? cu[1] : t[0], brief: cu ? AS.head(cu[1]) : t[2], who: owner + ' · ' + target, out: t[1] },
+      { when: wk(a4 < T ? a4 : T, T), what: cu ? cu[2] : 'ประกาศใช้และสื่อสารให้' + target + ' ผู้ปกครอง และบุคลากรที่เกี่ยวข้องรับทราบ แล้วเก็บหลักฐานและสิ่งที่ส่งมอบ: ' + m.output, brief: cu ? AS.head(cu[2]) + ' เก็บหลักฐาน: ' + m.output : 'ประกาศใช้ เก็บหลักฐาน: ' + m.output, who: 'ผู้อำนวยการ · ' + owner, out: m.output },
       { when: 'หลังสิ้นสุด และ' + (c.review ? c.review : 'ตามรอบทบทวน'), what: 'วัดผลด้วยตัวชี้วัด "' + m.kpi + '" เสนอผลต่อผู้อำนวยการ และทบทวนตามรอบ' + (c.review ? ' (' + c.review + ')' : '') + ' แล้วปรับแผน', brief: 'วัดผลและทบทวน' + (c.review ? ' (' + c.review + ')' : ''), who: owner + ' · ผู้อำนวยการ', out: 'รายงานผลและข้อเสนอปรับแผน' },
     ];
   }
