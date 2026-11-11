@@ -35,3 +35,40 @@
 .guide .gnext { flex: 0 0 auto; min-height: 44px; }
 .guide .gdone { color: #0f7b6c; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; font-size: .92rem; }
 @media (max-width: 560px) { .guide .gnext { flex: 1 1 100%; justify-content: center; } }
+
+/* สรุปสำหรับผู้บริหาร */
+.brief { background: #fff; border: 1px solid #dbe8f5; border-radius: 18px; padding: 22px 24px; box-shadow: 0 6px 18px rgba(30, 80, 140, .10); color: #12355f; }
+.brief h1 { margin: 2px 0 2px; font-size: 1.7rem; line-height: 1.25; }
+.brief h2 { margin: 16px 0 8px; font-size: 1.05rem; color: #1d63b8; }
+.bhead { display: flex; gap: 12px; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1d63b8; padding-bottom: 10px; }
+.bhead p { margin: 0; color: #55697f; font-size: .93rem; }
+.beyebrow { font-size: .8rem; font-weight: 700; color: #1d63b8; }
+.bbadge { flex: none; background: #fff4d6; color: #6a4f00; font-size: .78rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; border: 1px solid #ffe39b; }
+.bans { background: #eef6fd; border-left: 5px solid #1d63b8; border-radius: 10px; padding: 12px 16px; margin: 14px 0; }
+.bans small { font-weight: 700; color: #1d63b8; }
+.bans p { margin: 4px 0 0; font-size: 1.08rem; line-height: 1.55; }
+.bans .bsub { font-size: .92rem; color: #41566f; }
+.bkpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+.bkpi > div { border: 1px solid #dbe8f5; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 2px; }
+.bkpi small { color: #55697f; font-size: .82rem; } .bkpi b { font-size: 1.25rem; } .bkpi span { color: #55697f; font-size: .82rem; }
+.btab { width: 100%; border-collapse: collapse; font-size: .93rem; }
+.btab th, .btab td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3eef9; vertical-align: middle; }
+.btab th { color: #55697f; font-size: .82rem; }
+.bcols { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 22px; }
+.bnow { margin: 0; padding-left: 1.3em; } .bnow li { margin-bottom: 8px; } .bnow small { display: block; color: #55697f; }
+.bdec { list-style: none; margin: 0; padding: 0; } .bdec li { display: flex; gap: 9px; margin-bottom: 7px; line-height: 1.45; font-size: .93rem; }
+.bdec i { flex: none; width: 15px; height: 15px; margin-top: 4px; border: 2px solid #1d63b8; border-radius: 3px; }
+.bfoot { margin-top: 14px; padding-top: 8px; border-top: 1px solid #dbe8f5; color: #55697f; font-size: .8rem; line-height: 1.5; }
+.bhint { margin: 8px 4px; }
+@media (max-width: 640px) { .bcols { grid-template-columns: 1fr; } .brief { padding: 16px; } .btab { font-size: .85rem; } }
+@media print {
+  @page { size: A4; margin: 12mm; }
+  .guide, .bhint { display: none !important; }
+  .brief { border: 0; box-shadow: none; padding: 0; border-radius: 0; font-size: 11pt; }
+  .brief h1 { font-size: 18pt; } .brief h2 { font-size: 12pt; margin: 10px 0 5px; }
+  .bans p { font-size: 11.5pt; } .bkpi b { font-size: 13pt; }
+  .btab { font-size: 10pt; } .btab th, .btab td { padding: 4px 6px; }
+  .bdec li, .bnow li { font-size: 10pt; margin-bottom: 4px; }
+  .bcols { grid-template-columns: 1fr 1fr; }
+  .brief, .brief * { break-inside: avoid; }
+}
