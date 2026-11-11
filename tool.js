@@ -78,7 +78,7 @@
 
     // ---------- เปลือกแอป ----------
     const NAVB = [['dash', 'หน้าแรก', 'home'], ['rassess', 'ความเสี่ยง', 'alert'], ['ready', 'ความพร้อม', 'shieldcheck'], ['strategy', 'กลยุทธ์', 'target'], ['plan', 'แผนงาน', 'calendar']];
-    const ACTIVE = { plandoc: 'plan', brief: 'dash', school: 'dash', matrix: 'dash', rules: 'dash', pni: 'strategy', explain: 'strategy', track: 'plan', evaluate: 'dash', lab: 'dash' };
+    const ACTIVE = { moe: 'dash', plandoc: 'plan', brief: 'dash', school: 'dash', matrix: 'dash', rules: 'dash', pni: 'strategy', explain: 'strategy', track: 'plan', evaluate: 'dash', lab: 'dash' };
     // แถบขั้นตอน: บอกว่าอยู่ขั้นไหน ทำอะไรครบแล้ว และปุ่มทำต่อ (แสดงเฉพาะหน้าหลักของเครื่องมือ)
     const GUIDE_AT = { school: 0, rassess: 1, ready: 2, dash: 3, brief: 3, matrix: 3, strategy: 3, pni: 3, plan: 4, plandoc: 4 };
     function guide(cur) {
@@ -98,7 +98,7 @@
         '<div class="thead"><div class="tbrand">' + LOGO + '<div><b>R<sup>2</sup>-SAFE</b><span>ภาพรวมความปลอดภัยของโรงเรียน</span></div></div><div class="till">' + SCHOOL + '</div></div>' +
         '<div class="tctx"><span class="aud">' + ic('people', 18) + 'สำหรับผู้บริหารสถานศึกษา (ผู้อำนวยการโรงเรียน)</span>' +
         '<div class="ctxrow"><span>' + ic('building', 18) + '<small>โรงเรียน</small><b>' + esc(S.school.name || 'ยังไม่ระบุ') + '</b></span><span>' + ic('calendar', 18) + '<small>ปีการศึกษา</small><b>' + esc(S.school.year || '–') + '</b></span><button class="lnk" data-go="school">แก้ไข</button></div>' +
-        '<div class="ttools"><span class="chip" id="fill-chip"></span><button class="lnk" data-act="example">ใส่ข้อมูลตัวอย่าง</button><button class="lnk" data-act="clear">ล้างข้อมูล</button><button class="lnk" data-go="rules">กฎและเกณฑ์</button><button class="lnk" data-go="explain">กฎตัดสินใจ</button><button class="lnk" data-go="track">ติดตามผล</button><button class="lnk" data-go="evaluate">ประเมินนวัตกรรม</button><button class="lnk" data-go="lab">ห้องวิเคราะห์</button></div></div>' +
+        '<div class="ttools"><span class="chip" id="fill-chip"></span><button class="lnk" data-act="example">ใส่ข้อมูลตัวอย่าง</button><button class="lnk" data-act="clear">ล้างข้อมูล</button><button class="lnk" data-go="moe">ประกาศ ศธ. 7 ข้อ</button><button class="lnk" data-go="rules">กฎและเกณฑ์</button><button class="lnk" data-go="explain">กฎตัดสินใจ</button><button class="lnk" data-go="track">ติดตามผล</button><button class="lnk" data-go="evaluate">ประเมินนวัตกรรม</button><button class="lnk" data-go="lab">ห้องวิเคราะห์</button></div></div>' +
         guide(cur) + '<div class="tbody">' + inner + '</div>' +
         '<p class="tnote">ต้นแบบเพื่อการวิจัย ใช้ข้อมูลจำลอง ข้อมูลที่กรอกอยู่ในเบราว์เซอร์นี้เท่านั้นและหายเมื่อรีเฟรช (ดาวน์โหลดแฟ้มงานเก็บไว้ได้ที่หน้า &quot;ติดตามผล&quot;) ไม่ใช้แทนการตอบสนองเหตุฉุกเฉิน (191 ตำรวจ · 1669 การแพทย์ฉุกเฉิน · 199 ดับเพลิง)</p>' +
         '<nav class="bnav" aria-label="เมนูเครื่องมือ">' + NAVB.map((n) => '<button data-go="' + n[0] + '"' + (n[0] === act ? ' aria-current="page"' : '') + '>' + ic(n[2], 26) + '<span>' + n[1] + '</span></button>').join('') + '</nav></div>';
@@ -202,7 +202,7 @@
       if (!hasData(out)) return empty();
       const w = worstDomain(out), t1 = out.top3[0], nMeas = c.uniq([].concat.apply([], out.domains.map((d) => d.measures.map((m) => m.id)))).length;
       let s = '<div class="tbanner home"><div class="ib">' + SCHOOL + '</div><div class="hb"><h1>ภาพรวมโรงเรียน</h1><p>' + esc(S.school.name || 'โรงเรียนตัวอย่าง') + '</p><div class="duo"><div><small>ความเสี่ยงสูงสุดใน 4 ด้าน</small>' + lv(w.risk) + '</div><div><small>ความพร้อมขององค์กร (7-S)</small>' + lvr(out.readyFinal) + '</div></div></div></div>';
-      s += '<div class="row-btns"><button class="tbtn primary wide" data-go="brief">' + ic('doc', 22) + '<span>สรุปสำหรับผู้บริหาร (พิมพ์ 1 หน้า)</span>' + ic('chev', 18) + '</button></div>';
+      s += '<div class="row-btns two"><button class="tbtn primary" data-go="brief">' + ic('doc', 22) + '<span>สรุปสำหรับผู้บริหาร (พิมพ์ 1 หน้า)</span>' + ic('chev', 18) + '</button><button class="tbtn" data-go="moe">' + ic('flag', 22) + '<span>ความสอดคล้องกับประกาศ ศธ. 7 มาตรการ</span>' + ic('chev', 18) + '</button></div>';
       s += '<div class="kpi4">' +
         '<div class="tcard kc">' + ic('alert', 26) + '<small>ด้านที่เสี่ยงสูงสุด</small><b>' + esc(HZ[w.code][0]) + '</b><span>ดัชนี R ' + fmt(w.rd, 2) + ' / 25 ' + (w.override ? '(ยกระดับ)' : '') + '</span></div>' +
         '<div class="tcard kc">' + ic('shieldcheck', 26) + '<small>ระดับความพร้อม</small><b>' + esc(out.readyFinal) + '</b><span>ค่าเฉลี่ย D ' + fmt(out.readyMean, 2) + ' / 5' + (out.floorHit ? ' (ใช้กฎเพดาน)' : '') + '</span></div>' +
@@ -373,6 +373,7 @@
     function planDoc(r, i, n) {
       const d = r.d, m = r.m, sc = S.school, st = S.status[r.key] || c.STATUS[0], ev = EVG_DOC[m.evg] || EVG_DOC.D;
       const today = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
+      const mo = root.RS_MOE ? root.RS_MOE.forSb(m.sb) : [], moeTxt = mo.length ? ' มาตรการนี้เกี่ยวข้องกับประกาศกระทรวงศึกษาธิการ เรื่อง มาตรการความปลอดภัยของสถานศึกษา (10 สิงหาคม 2569) ข้อ ' + mo.join(', ') : '';
       const sec = (no, t, body) => '<section class="ps"><h3>' + no + '. ' + t + '</h3>' + body + '</section>';
       const step = (t) => '<li>' + t + '</li>';
       const cbx = (label) => '<span class="pcb"><i class="cbx' + (label === st ? ' on' : '') + '" aria-hidden="true"></i>' + label + '</span>';
@@ -389,7 +390,7 @@
         '<tr><th>องค์ประกอบ 7-S</th><td>' + esc(c.SHORT_EL[m.elem]) + '</td><th>ประเภท (3 ป.) / ช่วง</th><td>' + esc(m.type3) + ' / ' + esc(m.phase) + '</td></tr>' +
         '<tr><th>ผู้รับผิดชอบ</th><td>' + esc(m.owner) + '</td><th>กลุ่มเป้าหมาย</th><td>' + esc(m.target) + '</td></tr>' +
         '<tr><th>เริ่มดำเนินการ</th><td>' + esc(d.pkg.start) + '</td><th>ทรัพยากรที่ใช้</th><td>' + RES_DOC[m.res] + '</td></tr></tbody></table>' +
-        sec(1, 'หลักการและเหตุผล', '<p>จากผลการประเมินของ' + esc(sc.name || 'โรงเรียน') + ' พบความเสี่ยงด้าน' + esc(HZ[d.code][0]) + 'ในระดับ' + esc(d.risk) + ' และความพร้อมขององค์กรในระดับ' + esc(d.ready) + ' จัดอยู่ในกลุ่มแนวทาง ' + esc(d.group) + ' (' + esc(d.pkg.summary) + ') มาตรการนี้ถูกเสนอเพราะ' + esc(m.why) + '</p>') +
+        sec(1, 'หลักการและเหตุผล', '<p>จากผลการประเมินของ' + esc(sc.name || 'โรงเรียน') + ' พบความเสี่ยงด้าน' + esc(HZ[d.code][0]) + 'ในระดับ' + esc(d.risk) + ' และความพร้อมขององค์กรในระดับ' + esc(d.ready) + ' จัดอยู่ในกลุ่มแนวทาง ' + esc(d.group) + ' (' + esc(d.pkg.summary) + ') มาตรการนี้ถูกเสนอเพราะ' + esc(m.why) + esc(moeTxt) + '</p>') +
         sec(2, 'วัตถุประสงค์', '<ol class="pl"><li>' + esc(m.desc) + '</li><li>เพื่อให้' + esc(m.target) + 'ได้รับการดำเนินการตามมาตรการนี้อย่างทั่วถึง</li></ol>') +
         sec(3, 'ขั้นตอนดำเนินงาน', stepsHtml) +
         sec(4, 'ผลผลิตและผลที่คาดว่าจะได้รับ', '<p>ผลผลิต: ' + esc(m.output) + '</p><p>ผลลัพธ์ที่คาดหวัง: ' + esc(m.outcome) + '</p>') +
@@ -408,6 +409,35 @@
         (one.length ? '<button class="tbtn" data-act="plandoc" data-k="all">' + ic('doc', 20) + '<span>แสดงทุกแผน (' + rows.length + ')</span></button>' : '') + '<button class="tbtn" data-go="plan">' + ic('chev', 18) + '<span>กลับไปแผนปฏิบัติการ</span></button></div>' +
         '<p class="hint">กดพิมพ์แล้วเลือกเครื่องพิมพ์ "บันทึกเป็น PDF" ใช้กระดาษ A4 แนวตั้ง แต่ละแผนขึ้นหน้าใหม่</p></div>';
       s += '<div class="pdocs">' + list.map((r, i) => planDoc(r, i, list.length)).join('') + '</div>';
+      return s;
+    }
+
+    // ---------- ประกาศ ศธ. 7 มาตรการความปลอดภัยของสถานศึกษา: ความสอดคล้องกับคลังมาตรการ ----------
+    function pageMoe() {
+      const M = root.RS_MOE;
+      if (!M) return banner('flag', 'ประกาศ ศธ. 7 มาตรการ', 'โหลดข้อมูลไม่สำเร็จ');
+      const byId = {}; D.bank.forEach((x) => { byId[x.sb] = x; });
+      const st = (n) => (S.moe && S.moe[n]) || M.STATUS[0], sum = M.summary();
+      const done = M.ITEMS.filter((i) => st(i.n) === 'ดำเนินการแล้ว').length, part = M.ITEMS.filter((i) => st(i.n) === 'มีบางส่วน').length, none = M.ITEMS.filter((i) => st(i.n) === 'ยังไม่มี').length;
+      let s = banner('flag', 'ประกาศ ศธ. 7 มาตรการความปลอดภัยของสถานศึกษา', 'ตรวจว่าคลังมาตรการของระบบและโรงเรียนของท่านสอดคล้องกับประกาศอย่างไร');
+      s += card('', '<p class="hint">' + esc(M.SOURCE.title) + ' ลงวันที่ ' + esc(M.SOURCE.date) + ' ตามนี้ <b>' + esc(M.SOURCE.note) + '</b> การจับคู่กับมาตรการในคลังและระดับความครอบคลุมเป็นการประเมินของผู้วิจัยจากชื่อและคำอธิบายมาตรการ ยังไม่ผ่านการตรวจโดยผู้เชี่ยวชาญ และคลังมาตรการยังเป็นฉบับร่างที่ยังไม่ผ่านเดลฟาย</p>', { cls: 'amber', icon: 'info' });
+      s += '<div class="kpi4"><div class="tcard kc green">' + ic('check', 26) + '<small>คลังมาตรการครอบคลุมดี</small><b>' + sum.good + ' จาก ' + sum.total + ' ข้อ</b></div><div class="tcard kc amber">' + ic('info', 26) + '<small>ครอบคลุมบางส่วน</small><b>' + sum.partial + ' ข้อ</b></div><div class="tcard kc red">' + ic('alert', 26) + '<small>ยังไม่มีมาตรการเฉพาะ</small><b>' + sum.none + ' ข้อ</b></div><div class="tcard kc blue">' + ic('building', 26) + '<small>โรงเรียนของท่านดำเนินการแล้ว</small><b>' + done + ' ข้อ</b><span>บางส่วน ' + part + ' · ยังไม่มี ' + none + '</span></div></div>';
+      s += M.ITEMS.map((i) => card('ข้อ ' + i.n + ' ' + esc(i.title),
+        '<p class="moelv"><span class="lv ' + (i.level === 'good' ? 'r-lo' : i.level === 'partial' ? 'r-mid' : 'r-hi') + '">' + esc(M.LEVELS[i.level]) + '</span> คลังมาตรการของระบบ</p>' +
+        '<h3 class="moeh">สิ่งที่ประกาศกำหนด (สรุป)</h3><ul class="moeul">' + i.req.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul>' +
+        '<h3 class="moeh">มาตรการในคลังที่เกี่ยวข้อง</h3><p class="moechips">' + i.sb.map((id) => '<span class="moechip" title="' + esc(byId[id] ? byId[id].desc : '') + '"><b>' + esc(id) + '</b> ' + esc(byId[id] ? byId[id].name : '') + '</span>').join('') + '</p>' +
+        '<h3 class="moeh">ที่ระบบยังไม่ครอบคลุม</h3><ul class="moeul gap">' + i.gaps.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul>' +
+        (i.caution ? '<p class="warn-note">' + esc(i.caution) + '</p>' : '') +
+        '<label class="moest">สถานะของโรงเรียนท่านในข้อนี้ <select class="st" data-moe="' + i.n + '" aria-label="สถานะข้อ ' + i.n + '">' + M.STATUS.map((x) => '<option' + (st(i.n) === x ? ' selected' : '') + '>' + x + '</option>').join('') + '</select></label>', { icon: 'flag', cls: i.level === 'none' ? 'amber' : '' })).join('');
+      s += card('ข้อเสนอเพิ่มในคลังมาตรการ (รอผู้เชี่ยวชาญและที่ปรึกษา)', '<ol class="moeul">' + [
+        'ศูนย์พิทักษ์สิทธิ เสรีภาพ และความปลอดภัยระดับสถานศึกษา (จุดรวมรับแจ้ง ให้คำปรึกษา ประสานช่วยเหลือ เชื่อมศูนย์ของกระทรวง) (ข้อ 1)',
+        'การสื่อสารหลังเกิดเหตุเพื่อลดพฤติกรรมเลียนแบบ (ข้อ 1 และ 6)',
+        'การกำกับวัสดุ อุปกรณ์มีคมหรืออันตรายในการเรียนการสอน (ข้อ 2.2)',
+        'ปฏิบัติการปฐมพยาบาลทางใจสำหรับครูแนะแนวและครูที่ปรึกษา (ข้อ 3.2)',
+        'ทำเนียบเครือข่ายหน่วยงาน (ตำรวจ พนักงานอัยการ คุ้มครองสิทธิ สาธารณสุข นักจิตวิทยา นักสังคมสงเคราะห์ อาสาสมัคร องค์กรปกครองส่วนท้องถิ่น) (ข้อ 4)',
+        'การเปิดพื้นที่ให้ผู้ปกครองเข้าสังเกตการณ์ตามแผนความปลอดภัย (ข้อ 5)',
+        'เขตพื้นที่ปลอดภัย: ควบคุมการเข้า–ออก ลงทะเบียน คัดกรองสิ่งของต้องห้าม ขั้นตอนเมื่อไม่ให้ความร่วมมือ และแนวทางสั่งปิดสถานศึกษา (ข้อ 7)'].map((x) => '<li>' + esc(x) + '</li>').join('') + '</ol><p class="hint">รายการเหล่านี้ยังไม่ได้เพิ่มเข้าคลัง (คลังยังมี ' + D.bank.length + ' รายการ) เพราะการเพิ่มมาตรการกระทบการเลือกมาตรการของระบบ จำนวนรายการในดุษฎีนิพนธ์ และต้องผ่านการตรวจโดยผู้เชี่ยวชาญก่อน</p>', { icon: 'clipboard' });
+      s += '<div class="row-btns two"><button class="tbtn" data-go="strategy">' + ic('target', 22) + '<span>ดูมาตรการที่ระบบเสนอ</span>' + ic('chev', 18) + '</button><button class="tbtn" data-go="plan">' + ic('calendar', 22) + '<span>ไปแผนปฏิบัติการ</span>' + ic('chev', 18) + '</button></div>';
       return s;
     }
 
@@ -441,7 +471,7 @@
     }
 
     const h = { ic, banner, card, btn, lv, lvr, empty, hasData, dateTh, sizeOf, HZ, EL_IC, RC, RCR, SCHOOL };
-    return { h, shell, bind, pages: { dash: pageDash, school: pageSchool, rassess: pageRassess, ready: pageReady, pni: pagePni, matrix: pageMatrix, strategy: pageStrategy, plan: pagePlan, brief: pageBrief, plandoc: pagePlandoc }, ids: ['dash', 'school', 'rassess', 'ready', 'pni', 'matrix', 'strategy', 'plan', 'brief', 'plandoc', 'rules'] };
+    return { h, shell, bind, pages: { dash: pageDash, school: pageSchool, rassess: pageRassess, ready: pageReady, pni: pagePni, matrix: pageMatrix, strategy: pageStrategy, plan: pagePlan, brief: pageBrief, plandoc: pagePlandoc, moe: pageMoe }, ids: ['dash', 'school', 'rassess', 'ready', 'pni', 'matrix', 'strategy', 'plan', 'brief', 'plandoc', 'moe', 'rules'] };
   }
   root.RS_TOOL = { create };
 })(window);

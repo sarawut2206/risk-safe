@@ -4,7 +4,7 @@
   const D = RS_DATA, E = RS_ENGINE;
   const S = {
     risk: {}, seven: {}, resource: 'ปานกลาง', params: Object.assign({}, E.DEFAULT_PARAMS),
-    status: {}, aar: '', docs: [], school: { name: '', students: '', staff: '', year: '2569', province: '' },
+    status: {}, moe: {}, aar: '', docs: [], school: { name: '', students: '', staff: '', year: '2569', province: '' },
     // ติดตามผลและบทเรียน / แบบประเมินนวัตกรรม / ห้องวิเคราะห์ของผู้วิจัย (ทั้งหมดอยู่ในเบราว์เซอร์นี้ ส่งออกเป็นไฟล์เมื่อผู้ใช้สั่งเท่านั้น)
     track: { logs: {}, snaps: [], custom: [], code: '', arm: '', consent: false, saveLocal: false, includeText: false, includeProvince: false, snapLabel: '' },
     eval: { admin: { code: '', items: {}, sus: {}, comment: '' }, expert: { code: '', field: '', cases: {}, items: {}, comment: '' } },
@@ -44,7 +44,7 @@
     { id: 'about', label: 'เกี่ยวกับโครงการ' },
   ];
   const PORTAL = ['portal', 'form1', 'form2', 'form3', 'collectlab'];
-  const TOOL = ['school', 'dash', 'rassess', 'ready', 'pni', 'matrix', 'strategy', 'brief', 'plandoc', 'plan', 'explain', 'track', 'evaluate', 'lab', 'rules'];
+  const TOOL = ['school', 'dash', 'rassess', 'ready', 'pni', 'matrix', 'strategy', 'brief', 'plandoc', 'moe', 'plan', 'explain', 'track', 'evaluate', 'lab', 'rules'];
   const PAGES = [
     { id: 'home', nav: '', title: 'Risk Safe ระบบบริหารความปลอดภัยบนฐานความเสี่ยง', sub: '' },
     { id: 'bank', nav: 'bank', eyebrow: 'คลังกลยุทธ์', title: 'คลังมาตรการ (Strategy Bank) ฉบับร่าง 68 รายการ', sub: 'ร่างที่ผู้วิจัยจัดทำ ยังไม่ได้ตรวจหลักฐานและแหล่งอ้างอิงรายข้อ และยังไม่ผ่านเดลฟาย ใช้สาธิตการทำงานของระบบ' },
@@ -58,6 +58,7 @@
     { id: 'strategy', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'กลยุทธ์และมาตรการที่ระบบเสนอ', sub: 'พร้อมเหตุผลของการเลือกที่ตรวจย้อนกลับได้ ผู้อำนวยการเป็นผู้ตัดสินใจขั้นสุดท้าย' },
     { id: 'brief', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'สรุปสำหรับผู้บริหาร', sub: '' },
     { id: 'plandoc', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'แผนต้นแบบรายมาตรการ', sub: '' },
+    { id: 'moe', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'ประกาศ ศธ. 7 มาตรการความปลอดภัย', sub: '' },
     { id: 'plan', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'แผนปฏิบัติการและติดตามผล', sub: 'ผู้รับผิดชอบ ตัวชี้วัด ระยะเวลา และสถานะการดำเนินงาน (ต้นแบบ: สถานะไม่ถูกบันทึกถาวร)' },
     { id: 'rules', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'กฎการตัดสินใจและเกณฑ์เบื้องต้น', sub: 'ค่าเริ่มต้นเป็นร่างตามบทที่ 3 ยังไม่ผ่านเดลฟาย แก้ได้เพื่อทดสอบความไวของผล' },
     { id: 'explain', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'กฎตัดสินใจและเหตุผลของผลลัพธ์', sub: '' },
@@ -345,7 +346,7 @@
     else if (a === 'clear') {
       const has = S.track.snaps.length || Object.keys(S.track.logs).length || S.track.custom.length;
       if (has && !window.confirm('ล้างข้อมูลทั้งหมดรวมถึงบันทึกติดตามผลและรอบประเมินที่บันทึกไว้ใช่หรือไม่ (ดาวน์โหลดแฟ้มงานไว้ก่อนได้ที่หน้า "ติดตามผล")')) return;
-      S.risk = {}; S.seven = {}; S.status = {}; S.aar = ''; S.docs = []; S.track.logs = {}; S.track.snaps = []; S.track.custom = []; render(true);
+      S.risk = {}; S.seven = {}; S.status = {}; S.moe = {}; S.aar = ''; S.docs = []; S.track.logs = {}; S.track.snaps = []; S.track.custom = []; render(true);
     }
     else if (a === 'rtab') { S.ui.rtab = t.dataset.tab; render(true); }
     else if (a === 'csv') csv();
@@ -356,6 +357,7 @@
     const t = e.target;
     if (t.id === 'res-level') S.resource = t.value;
     else if (t.dataset.st) S.status[t.dataset.st] = t.value, render(true);
+    else if (t.dataset.moe) { S.moe[t.dataset.moe] = t.value; render(true); }
     else if (t.dataset.param) { const v = parseFloat(t.value); if (isFinite(v)) { S.params[t.dataset.param] = v; render(true); } }
     else if (t.id === 'f-dom') { S.ui.bank.dom = t.value; $('#bank-wrap').innerHTML = bankTable(); }
     else if (t.id === 'f-el') { S.ui.bank.el = t.value; $('#bank-wrap').innerHTML = bankTable(); }
