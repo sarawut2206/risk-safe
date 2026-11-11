@@ -79,6 +79,19 @@
     // ---------- เปลือกแอป ----------
     const NAVB = [['dash', 'หน้าแรก', 'home'], ['rassess', 'ความเสี่ยง', 'alert'], ['ready', 'ความพร้อม', 'shieldcheck'], ['strategy', 'กลยุทธ์', 'target'], ['plan', 'แผนงาน', 'calendar']];
     const ACTIVE = { school: 'dash', matrix: 'dash', rules: 'dash', pni: 'strategy', explain: 'strategy', track: 'plan', evaluate: 'dash', lab: 'dash' };
+    // แถบขั้นตอน: บอกว่าอยู่ขั้นไหน ทำอะไรครบแล้ว และปุ่มทำต่อ (แสดงเฉพาะหน้าหลักของเครื่องมือ)
+    const GUIDE_AT = { school: 0, rassess: 1, ready: 2, dash: 3, matrix: 3, strategy: 3, pni: 3, plan: 4 };
+    function guide(cur) {
+      const at = GUIDE_AT[cur]; if (at == null) return '';
+      const f = c.filled(), sc = S.school, hasD = hasData(getOut());
+      const steps = [['school', 'ข้อมูลโรงเรียน', !!(sc.name && sc.students)], ['rassess', 'ความเสี่ยง', f.r === f.rt], ['ready', 'ความพร้อม', f.s === f.st], ['strategy', 'ผลและมาตรการ', false], ['plan', 'แผนปฏิบัติการ', false]];
+      let next = null;
+      for (let i = 0; i < 3 && !next; i++) if (!steps[i][2] && i !== at) next = [steps[i][0], (i === 0 ? 'ใส่ข้อมูลโรงเรียน' : i === 1 ? 'ให้คะแนนความเสี่ยง' : 'ให้คะแนนความพร้อม')];
+      if (!next) next = at < 3 ? (hasD ? ['strategy', 'ดูผลและมาตรการ'] : null) : (at === 3 ? ['plan', 'ไปแผนปฏิบัติการ'] : null);
+      const done = (i) => (i < 3 ? steps[i][2] : i === 3 ? hasD && at > 3 : false);
+      return '<nav class="guide" aria-label="ขั้นตอนการใช้งาน"><ol>' + steps.map((st, i) => '<li class="' + (i === at ? 'cur' : done(i) ? 'done' : '') + '"><button data-go="' + st[0] + '"' + (i === at ? ' aria-current="step"' : '') + '><b>' + (done(i) && i !== at ? ic('check', 14) : i + 1) + '</b><span>' + st[1] + '</span></button></li>').join('') + '</ol>' +
+        (next ? '<button class="tbtn primary gnext" data-go="' + next[0] + '"><span>ทำต่อ: ' + next[1] + '</span>' + ic('chev', 18) + '</button>' : '<span class="gdone">' + ic('check', 18) + ' ครบทุกขั้นตอนแล้ว ปรับคะแนนหรือแผนได้ทุกเมื่อ</span>') + '</nav>';
+    }
     function shell(cur, inner) {
       const act = ACTIVE[cur] || cur;
       return '<div class="tapp">' +
@@ -86,7 +99,7 @@
         '<div class="tctx"><span class="aud">' + ic('people', 18) + 'สำหรับผู้บริหารสถานศึกษา (ผู้อำนวยการโรงเรียน)</span>' +
         '<div class="ctxrow"><span>' + ic('building', 18) + '<small>โรงเรียน</small><b>' + esc(S.school.name || 'ยังไม่ระบุ') + '</b></span><span>' + ic('calendar', 18) + '<small>ปีการศึกษา</small><b>' + esc(S.school.year || '–') + '</b></span><button class="lnk" data-go="school">แก้ไข</button></div>' +
         '<div class="ttools"><span class="chip" id="fill-chip"></span><button class="lnk" data-act="example">ใส่ข้อมูลตัวอย่าง</button><button class="lnk" data-act="clear">ล้างข้อมูล</button><button class="lnk" data-go="rules">กฎและเกณฑ์</button><button class="lnk" data-go="explain">กฎตัดสินใจ</button><button class="lnk" data-go="track">ติดตามผล</button><button class="lnk" data-go="evaluate">ประเมินนวัตกรรม</button><button class="lnk" data-go="lab">ห้องวิเคราะห์</button></div></div>' +
-        '<div class="tbody">' + inner + '</div>' +
+        guide(cur) + '<div class="tbody">' + inner + '</div>' +
         '<p class="tnote">ต้นแบบเพื่อการวิจัย ใช้ข้อมูลจำลอง ข้อมูลที่กรอกอยู่ในเบราว์เซอร์นี้เท่านั้นและหายเมื่อรีเฟรช (ดาวน์โหลดแฟ้มงานเก็บไว้ได้ที่หน้า &quot;ติดตามผล&quot;) ไม่ใช้แทนการตอบสนองเหตุฉุกเฉิน (191 ตำรวจ · 1669 การแพทย์ฉุกเฉิน · 199 ดับเพลิง)</p>' +
         '<nav class="bnav" aria-label="เมนูเครื่องมือ">' + NAVB.map((n) => '<button data-go="' + n[0] + '"' + (n[0] === act ? ' aria-current="page"' : '') + '>' + ic(n[2], 26) + '<span>' + n[1] + '</span></button>').join('') + '</nav></div>';
     }
