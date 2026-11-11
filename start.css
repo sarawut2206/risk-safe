@@ -72,3 +72,13 @@
   .bcols { grid-template-columns: 1fr 1fr; }
   .brief, .brief * { break-inside: avoid; }
 }
+
+/* หลักฐานจากแผนปฏิบัติการใต้ข้อประเมิน 7-S */
+.pevbox { display: flex; gap: 10px; align-items: flex-start; background: #eef6fd; border: 1px solid #cfe2f6; border-radius: 12px; padding: 10px 14px; margin: 0 0 12px; font-size: .92rem; line-height: 1.5; color: #12355f; }
+.pevbox svg { flex: none; margin-top: 2px; color: #1d63b8; }
+.pevbox.none { background: #fff8e6; border-color: #ffe39b; }
+.pevbox .lnk { font: inherit; }
+.pev { display: block; margin-top: 6px; padding: 5px 9px; border-radius: 8px; font-size: .84rem; line-height: 1.45; }
+.pev svg { vertical-align: -2px; }
+.pev.f { background: #e6f5ee; color: #0b5c4f; }
+.pev.n { background: #f1f4f8; color: #55697f; }

@@ -74,6 +74,18 @@ ok('D1 not found when no plan words', !hint('D1').found);
 ok('D5 found from reporting section', hint('D5').found);
 ok('7-S evidence has 7 items', out.sevenEvidence.length === 7 && out.sevenEvidence.find((e) => e.code === 'VAL').found);
 
+// หลักฐานรายข้อของ 7-S (พบ/ไม่พบคำในแผน ไม่ใช่คะแนน)
+const ie = out.itemEvidence;
+eq('item evidence covers 11 items', Object.keys(ie).sort(), ['SKL3', 'SKL6', 'STF2', 'STF4', 'STG1', 'STG4', 'STR1', 'STR5', 'STY4', 'SYS1', 'SYS5']);
+ok('SYS5 found with page and snippet', ie.SYS5.found && ie.SYS5.page === 7 && /ซ้อมแผนอพยพ/.test(ie.SYS5.snippet), JSON.stringify(ie.SYS5));
+ok('STG1 not found when the plan has no safety-plan words', ie.STG1.found === false && !('page' in ie.STG1));
+ok('STG4 sums safety project budgets without soft items', ie.STG4.found && /3 รายการ/.test(ie.STG4.snippet) && /263,000/.test(ie.STG4.snippet), ie.STG4.snippet);
+ok('STY4 found from the monitoring heading', ie.STY4.found && ie.STY4.page === 8, JSON.stringify(ie.STY4));
+ok('every found item has page and snippet', Object.keys(ie).every((k) => !ie[k].found || (ie[k].page > 0 && ie[k].snippet)));
+ok('item evidence never carries a score', Object.keys(ie).every((k) => !('score' in ie[k]) && !('d' in ie[k]) && !('i' in ie[k])));
+const cleanDoc = R.parse([pg(1, ['แผนปฏิบัติการโรงเรียนทดสอบ ประจำปีงบประมาณ พ.ศ. 2570', 'โครงการซักซ้อมแผนอพยพ', 'การกำกับ ตรวจสอบ และรายงาน'])]);
+ok('clean text (no artefact) also finds item evidence', cleanDoc.itemEvidence.SYS5.found && cleanDoc.itemEvidence.STY4.found);
+
 // ผลรวมเลือกช่วงงบ
 eq('band none', R.budgetBand(0), 'ไม่มีงบเฉพาะด้านความปลอดภัย');
 eq('band edge 10000', R.budgetBand(10000), 'ไม่เกิน 10,000 บาทต่อปี');
