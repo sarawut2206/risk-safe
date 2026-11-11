@@ -300,6 +300,7 @@
     else if (TOOL.indexOf(cur) >= 0 && cur !== 'rules') $('#view').innerHTML = UI.shell(cur, RENDER[cur]());
     else $('#view').innerHTML = '<section class="phero hexbg"><div class="wrap"><span class="eyebrow">' + esc(p.eyebrow) + '</span><h1>' + esc(p.title) + '</h1><p>' + esc(p.sub) + '</p></div></section><div class="wrap body">' + RENDER[cur]() + '</div>';
     document.body.classList.toggle('pb-on', cur === 'planbook');
+    document.body.classList.toggle('pd-on', cur === 'plandoc');
     document.body.classList.toggle('tool-on', (TOOL.indexOf(cur) >= 0 && cur !== 'rules') || PORTAL.indexOf(cur) >= 0);
     buildNav(); buildFoot(); chip(); UI2.persist();
     if (!keepScroll) window.scrollTo({ top: 0 });

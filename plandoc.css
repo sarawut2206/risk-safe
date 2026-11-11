@@ -1,0 +1,58 @@
+/* แผนต้นแบบรายมาตรการ: จัดหน้ารูปแบบทางการ (ตามแบบหนังสือราชการ: ขอบซ้าย 3 ซม. ขวา 2 ซม. บน 1.5 ซม. ล่าง 2 ซม. ตัวอักษร TH Sarabun New 16 pt
+   ย่อหน้า 2.5 ซม. ระยะห่างระหว่างบรรทัดเท่ากันทั้งเอกสาร ย่อหน้าละ Before 6 pt เลขไทย เลขหน้าตรงกลางท้ายกระดาษ) ใช้เฉพาะหน้า #plandoc ผ่าน body.pd-on */
+.pdoc { font-family: "TH Sarabun New", "THSarabunNew", "TH SarabunPSK", "THSarabunPSK", "Sarabun", "Noto Sans Thai", "Leelawadee UI", sans-serif; }
+.pdfontwarn { display: none; margin: 8px 0 0; padding: 8px 12px; border-radius: 10px; background: #fff4d6; border: 1px solid #ffe39b; color: #6a4f00; font-size: .92rem; }
+.pdfontwarn.on { display: block; }
+
+@media print {
+  @page pdoc {
+    size: A4;
+    margin: 15mm 20mm 20mm 30mm;
+    @bottom-center { content: counter(page, thai); font-family: "TH Sarabun New", "THSarabunNew", sans-serif; font-size: 14pt; color: #000; }
+  }
+  body.pd-on { page: pdoc; background: #fff; }
+  body.pd-on .tapp, body.pd-on .tapp .tbody { padding: 0 !important; margin: 0 !important; max-width: none !important; background: #fff !important; box-shadow: none !important; border: 0 !important; }
+  body.pd-on .pdbar, body.pd-on .pdfontwarn { display: none !important; }
+
+  body.pd-on .pdoc { font-size: 16pt; line-height: 1.2; color: #000; text-align: left; }
+  body.pd-on .pdoc * { color: #000; }
+  /* หัวกระดาษ */
+  body.pd-on .pdoc .pdh { border-bottom: 1.2pt solid #000; padding-bottom: 4pt; }
+  body.pd-on .pdoc .pdl svg { width: 11mm; height: 13mm; }
+  body.pd-on .pdoc .pdl b { font-size: 16pt; } body.pd-on .pdoc .pdl span { font-size: 14pt; }
+  body.pd-on .pdoc .pdcode { background: none; border: 1pt solid #000; border-radius: 0; font-size: 14pt; padding: 1pt 8pt; }
+  body.pd-on .pdoc h1 { font-size: 18pt; line-height: 1.2; text-align: center; margin: 8pt 0 0; }
+  /* ตารางข้อมูลมาตรการ */
+  body.pd-on .pdoc .pdmeta { font-size: 14pt; line-height: 1.2; margin: 6pt 0 0; }
+  body.pd-on .pdoc .pdmeta th, body.pd-on .pdoc .pdmeta td { border: .75pt solid #000; padding: 1pt 5pt; }
+  body.pd-on .pdoc .pdmeta th { background: #e9edf2; width: 19%; }
+  /* หัวข้อและย่อหน้า: Before 6 pt ทุกย่อหน้า (หัวข้อ Before 12 pt) */
+  body.pd-on .pdoc .ps { margin-top: 12pt; break-inside: auto; }
+  body.pd-on .pdoc .ps h3 { font-size: 16pt; line-height: 1.2; margin: 0; break-after: avoid; page-break-after: avoid; }
+  body.pd-on .pdoc .ps p { margin: 6pt 0 0; text-indent: 25mm; }
+  body.pd-on .pdoc .ps h3 + p { margin-top: 3pt; }
+  body.pd-on .pdoc .prat b { font-weight: 700; }
+  body.pd-on .pdoc .pnote { font-size: 14pt; text-indent: 25mm; }
+  body.pd-on .pdoc .ps.pev2, body.pd-on .pdoc .psign, body.pd-on .pdoc .pend { break-inside: avoid; page-break-inside: avoid; }
+  body.pd-on .pdoc .pev2 { border: .75pt solid #000; border-radius: 0; background: none; padding: 3pt 6pt 5pt; }
+  body.pd-on .pdoc .pgr { float: right; background: none; border: .75pt solid #000; border-radius: 0; font-size: 14pt; padding: 0 8pt; }
+  /* ตารางแผนดำเนินการ */
+  body.pd-on .pdoc .pact { font-size: 14pt; line-height: 1.2; margin-top: 4pt; }
+  body.pd-on .pdoc .pact th, body.pd-on .pdoc .pact td { border: .75pt solid #000; padding: 1pt 5pt; }
+  body.pd-on .pdoc .pact th { background: #e9edf2; }
+  body.pd-on .pdoc .pact tr { break-inside: avoid; page-break-inside: avoid; }
+  body.pd-on .pdoc .pact thead { display: table-header-group; }
+  body.pd-on .pdoc .pact td:first-child { width: 15%; } body.pd-on .pdoc .pact td:nth-child(3) { width: 17%; } body.pd-on .pdoc .pact td:nth-child(4) { width: 21%; }
+  body.pd-on .pdoc .pl, body.pd-on .pdoc .pstep { margin: 6pt 0 0; }
+  body.pd-on .pdoc .ps p.pst { text-indent: 0; padding-left: 25mm; display: flex; flex-wrap: nowrap; gap: 14pt; align-items: center; }
+  body.pd-on .pdoc .pcb { text-indent: 0; display: inline-flex; align-items: center; gap: 5pt; white-space: nowrap; }
+  body.pd-on .pdoc .cbx { width: 10pt; height: 10pt; border: 1pt solid #000; border-radius: 0; }
+  body.pd-on .pdoc .cbx.on { background: #000; box-shadow: inset 0 0 0 1.5pt #fff; }
+  body.pd-on .pdoc .pev2 p { text-indent: 0; }
+  /* ลงนามและท้ายแผน */
+  body.pd-on .pdoc .psign { margin-top: 24pt; gap: 14pt; font-size: 14pt; }
+  body.pd-on .pdoc .psign span { height: 30pt; border-bottom: .75pt dotted #000; }
+  body.pd-on .pdoc .psign small { font-size: 14pt; color: #000; }
+  body.pd-on .pdoc .pdf { font-size: 12pt; line-height: 1.2; margin-top: 12pt; padding-top: 4pt; border-top: .75pt solid #000; color: #000; }
+  body.pd-on .pdoc .pcb, body.pd-on .pdoc .cbx { font-size: 14pt; }
+}

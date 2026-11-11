@@ -400,9 +400,9 @@
         sec(3, 'วัตถุประสงค์และผลที่คาดว่าจะได้รับ', '<p>เพื่อ' + esc(m.desc) + ' ให้' + esc(m.target) + 'ได้รับการดำเนินการอย่างทั่วถึง · ผลลัพธ์ที่คาดหวัง: ' + esc(m.outcome) + '</p>') +
         sec(4, 'แผนดำเนินการ (นับจากวันเริ่มดำเนินการ ' + esc(d.pkg.start) + ' ปรับให้ตรงปฏิทินของโรงเรียน)', stepsHtml) +
         sec(5, 'ทรัพยากร งบประมาณ และเงื่อนไขก่อนดำเนินการ', '<p>ทรัพยากรระดับ ' + m.res + ' (' + RES_DOC[m.res].replace(/^ระดับ \d \(|\)$/g, '') + ') ตามข้อ 4 · เงื่อนไขก่อนดำเนินการ: ' + esc(m.prereq) + ' · งบประมาณที่ขอ ' + dots(90) + ' บาท แหล่งงบ ' + dots(110) + '</p>') +
-        sec(6, 'ตัวชี้วัดและการติดตาม', '<p>ตัวชี้วัด: ' + esc(m.kpi) + '</p><p>ค่าเป้าหมาย ' + dots(110) + ' ภายใน ' + dots(110) + '</p><p>เริ่มดำเนินการ ' + esc(d.pkg.start) + ' · ติดตามโดย ' + esc(m.owner) + ' · ทบทวนตามรอบ: ' + esc(d.pkg.review) + '</p><p class="pst">สถานะ: ' + ['ยังไม่เริ่ม', 'กำลังดำเนินการ', 'เสร็จแล้ว'].map(cbx).join('') + '</p>') +
+        '<div class="pend">' + sec(6, 'ตัวชี้วัดและการติดตาม', '<p>ตัวชี้วัด: ' + esc(m.kpi) + '</p><p>ค่าเป้าหมาย ' + dots(110) + ' ภายใน ' + dots(110) + '</p><p>เริ่มดำเนินการ ' + esc(d.pkg.start) + ' · ติดตามโดย ' + esc(m.owner) + ' · ทบทวนตามรอบ: ' + esc(d.pkg.review) + '</p><p class="pst">สถานะ: ' + ['ยังไม่เริ่ม', 'กำลังดำเนินการ', 'เสร็จแล้ว'].map(cbx).join('') + '</p>') +
         '<div class="psign"><div><span></span><small>ผู้รับผิดชอบ</small></div><div><span></span><small>หัวหน้างาน</small></div><div><span></span><small>ผู้อำนวยการสถานศึกษา (ผู้อนุมัติ)</small></div></div>' +
-        '<footer class="pdf">จัดทำจากระบบ Risk Safe (R²-SAFE) ต้นแบบงานวิจัย เมื่อ ' + today + ' · แผนที่ ' + (i + 1) + ' จาก ' + n + ' · ข้อเสนอสนับสนุนการวางแผน ผู้อำนวยการตัดสินใจขั้นสุดท้าย · เหตุฉุกเฉิน 191 · 1669 · 199</footer></article>';
+        '<footer class="pdf">จัดทำจากระบบ Risk Safe (R²-SAFE) ต้นแบบงานวิจัย เมื่อ ' + today + ' · แผนที่ ' + (i + 1) + ' จาก ' + n + ' · ข้อเสนอสนับสนุนการวางแผน ผู้อำนวยการตัดสินใจขั้นสุดท้าย · เหตุฉุกเฉิน 191 · 1669 · 199</footer></div></article>';
     }
     function pagePlandoc() {
       const out = getOut();
@@ -411,8 +411,11 @@
       let s = '<div class="pdbar"><div><h1>แผนต้นแบบรายมาตรการ</h1><p>แสดง ' + list.length + ' แผน' + (one.length ? ' (เลือกเฉพาะ ' + esc(c.cd(one[0].m)) + ')' : ' (ทุกมาตรการในแผนปฏิบัติการ)') + ' · ทุกแผนมีหัวข้อมาตรฐาน หลักฐานทางวิชาการตามระดับที่ระบุไว้ และช่องลงนาม พร้อมพิมพ์</p></div>' +
         '<div class="pdbtn"><button class="tbtn primary" onclick="window.print()">' + ic('print', 22) + '<span>พิมพ์ ' + (list.length > 1 ? 'ทั้ง ' + list.length + ' แผน' : 'แผนนี้') + ' หรือบันทึกเป็น PDF</span></button>' +
         (one.length ? '<button class="tbtn" data-act="plandoc" data-k="all">' + ic('doc', 20) + '<span>แสดงทุกแผน (' + rows.length + ')</span></button>' : '') + '<button class="tbtn" data-go="plan">' + ic('chev', 18) + '<span>กลับไปแผนปฏิบัติการ</span></button></div>' +
-        '<p class="hint">กดพิมพ์แล้วเลือกเครื่องพิมพ์ "บันทึกเป็น PDF" ใช้กระดาษ A4 แนวตั้ง แต่ละแผนขึ้นหน้าใหม่</p></div>';
-      s += '<div class="pdocs">' + list.map((r, i) => planDoc(r, i, list.length)).join('') + '</div>';
+        '<p class="hint">รูปแบบทางการ: ตัวอักษร TH Sarabun New 16 pt ขอบกระดาษซ้าย 3 ซม. ขวา 2 ซม. บน 1.5 ซม. ล่าง 2 ซม. ระยะห่างระหว่างบรรทัดเท่ากัน ตัวเลขไทย กดพิมพ์แล้วเลือกเครื่องพิมพ์ "บันทึกเป็น PDF" กระดาษ A4 แนวตั้ง ขอบ "ค่าเริ่มต้น" และปิด "ส่วนหัวและส่วนท้าย" แต่ละแผนขึ้นหน้าใหม่ (ปกติ 2–3 หน้าต่อแผน)</p>' +
+        '<p class="pdfontwarn" id="pdfont">เครื่องนี้ยังไม่พบฟอนต์ TH Sarabun New เอกสารจึงใช้ฟอนต์สำรอง ถ้าต้องการรูปแบบทางราชการ ให้ติดตั้งฟอนต์ TH Sarabun New ก่อนแล้วโหลดหน้านี้ใหม่</p></div>';
+      const PB = root.RS_PLANBOOK, arts = list.map((r, i) => planDoc(r, i, list.length)).join('');
+      s += '<div class="pdocs">' + (PB && PB.thaiText ? PB.thaiText(arts) : arts) + '</div>';   // เลขไทยตามแบบทางการ (คงรหัส SB R1 7-S URL และ DOI)
+      setTimeout(() => { const w = document.getElementById('pdfont'); if (w && PB && PB.hasFont && !PB.hasFont(document, 'TH Sarabun New') && !PB.hasFont(document, 'THSarabunNew')) w.classList.add('on'); }, 0);
       return s;
     }
 
