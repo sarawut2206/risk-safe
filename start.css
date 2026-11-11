@@ -139,3 +139,5 @@
 @media print { .pdoc { font-size: 9.6pt; line-height: 1.32; } .pdoc .ps { margin-top: 3px; } .pdoc h1 { font-size: 14.5pt; margin: 5px 0 4px; } .pev2 { padding: 3px 7px 4px; } }
 
 @media print { .pdoc { font-size: 9.5pt; line-height: 1.3; } .pdoc .psign { margin-top: 8px; } .pdoc .psign span { height: 16px; } .pdoc .pdf { font-size: 7pt; margin-top: 6px; padding-top: 3px; } .pdoc .pnote { font-size: 8.5pt; } }
+
+.prat { margin: 0 0 4px; } .prat b { color: #12304f; }

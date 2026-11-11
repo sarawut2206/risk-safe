@@ -373,7 +373,7 @@
     function planDoc(r, i, n) {
       const d = r.d, m = r.m, sc = S.school, st = S.status[r.key] || c.STATUS[0], EV = root.RS_EVIDENCE, ev = EV.EVG[m.evg] || EV.EVG.D;
       const today = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
-      const mo = root.RS_MOE ? root.RS_MOE.forSb(m.sb) : [], moeTxt = mo.length ? ' มาตรการนี้เกี่ยวข้องกับประกาศกระทรวงศึกษาธิการ เรื่อง มาตรการความปลอดภัยของสถานศึกษา (10 สิงหาคม 2569) ข้อ ' + mo.join(', ') : '';
+      const mo = root.RS_MOE ? root.RS_MOE.forSb(m.sb) : [];
       const sec = (no, t, body) => '<section class="ps"><h3>' + no + '. ' + t + '</h3>' + body + '</section>';
       const step = (t) => '<li>' + t + '</li>';
       const cbx = (label) => '<span class="pcb"><i class="cbx' + (label === st ? ' on' : '') + '" aria-hidden="true"></i>' + label + '</span>';
@@ -383,14 +383,13 @@
         'ดำเนินกิจกรรม: ' + esc(m.desc),
         'เก็บหลักฐานและสิ่งที่ส่งมอบ: ' + esc(m.output),
         'วัดผลด้วยตัวชี้วัดข้อ 6 และทบทวนตามรอบ (' + esc(d.pkg.review) + ') แล้วปรับแผน'].map(step).join('') + '</ol>';
-      // ส่วนที่ 2: ต้นแบบและงานวิจัยที่รองรับ แยกชั้นตามหลักฐานจริง (ฐานจากบทที่ 2 · ต้นแบบในโรงเรียนไทย · หลักฐานของผลมาตรการ)
-      const bs = EV.basis(m), srcs = EV.sources(m), miss = srcs.some((x) => !x.inCh2);
-      const basisHtml = '<ol class="pbs">' + bs.map((b) => '<li>' + esc(b.text) + ' <span class="pcite">(' + esc(EV.cite(b)) + ' · ข้อ ' + b.sec + ')</span></li>').join('') + '</ol>';
-      const secEv = '<section class="ps pev2 g' + ev[0] + '"><h3>2. ต้นแบบและงานวิจัยที่รองรับ (อ้างอิงบทที่ 2) <span class="pgr">ระดับ ' + ev[0] + '</span></h3>' +
-        '<p><b>ก) ฐานแนวคิดและนโยบายจากบทที่ 2</b></p>' + basisHtml +
-        '<p><b>ข) ต้นแบบในโรงเรียนไทย</b> งานวิจัยและพัฒนากลยุทธ์หรือรูปแบบความปลอดภัยสถานศึกษา (' + esc(EV.THAI.map((t) => EV.lite(t.key)).join('; ')) + ' · ข้อ 2.9.1 ตารางที่ 2.1) ได้ชุดกลยุทธ์หรือรูปแบบสำหรับพื้นที่ที่ศึกษา ผลหลักมาจากบทคัดย่อ ยังไม่ใช่หลักฐานว่ามาตรการข้อนี้ได้ผลในโรงเรียนอื่น</p>' +
-        '<p><b>ค) หลักฐานของผลมาตรการนี้ (คลังมาตรการ)</b> ระดับ ' + ev[0] + ' ' + esc(ev[1]) + (srcs.length ? ' · แหล่ง: ' + srcs.map((x) => esc(x.src) + (x.inCh2 ? ' (อยู่ในบทที่ 2 ข้อ ' + x.sec + ')' : ' (ยังไม่อยู่ในบทที่ 2)')).join(', ') : '') + '</p>' +
-        '<p>' + esc(m.evnote) + '</p><p class="pnote">' + esc(ev[2]) + (miss ? ' แหล่งที่ยังไม่อยู่ในบทที่ 2 ต้องเพิ่มและตรวจก่อนอ้างอิงในเอกสารทางการ' : '') + ' (คลังฉบับร่าง ยังไม่ผ่านเดลฟาย) อ้างอิงเต็ม: ภาคผนวกของเล่มแผนปฏิบัติการ</p></section>';
+      // ข้อ 1 หลักการและเหตุผล: ประกอบจากผลวิเคราะห์ของระบบ พร้อมอ้างอิงสั้น (ผู้แต่ง ปี · ข้อของบทที่ 2) · ข้อ 2 หลักฐานของผลมาตรการและข้อควรระวัง
+      const oe = getOut(), el = (oe.elements || []).find((e) => e.code === m.elem), isTop = !!(el && el.rank && el.rank <= 3);
+      const rat = EV.rationale(m, { school: sc.name || 'โรงเรียน', hz: HZ[d.code][0], risk: d.risk, rd: isFinite(d.rd) ? fmt(d.rd, 2) : '', ready: d.ready, group: d.group, pkgName: d.pkg.name, pkgSummary: d.pkg.summary, top: isTop, rank: el ? el.rank : 0, pni: el && isFinite(el.pni) ? fmt(el.pni, 3) : '', moe: mo });
+      const ratHtml = rat.map((x) => '<p class="prat"><b>' + esc(x.lead) + '</b> ' + esc(x.text) + '</p>').join('');
+      const srcs = EV.sources(m), miss = srcs.some((x) => !x.inCh2);
+      const secEv = '<section class="ps pev2 g' + ev[0] + '"><h3>2. หลักฐานของผลมาตรการและข้อควรระวัง <span class="pgr">ระดับ ' + ev[0] + '</span></h3>' +
+        '<p>' + esc(m.evnote) + '</p><p class="pnote">' + esc(ev[2]) + (miss ? ' แหล่งที่ยังไม่อยู่ในบทที่ 2 ต้องเพิ่มและตรวจก่อนอ้างอิงในเอกสารทางการ' : '') + ' (คลังฉบับร่าง ยังไม่ผ่านเดลฟาย ผลของแหล่งในบทที่ 2 ข้อ 2.9.4 ได้จากบทคัดย่อ ยังไม่ได้อ่านเนื้อเต็ม) รายการอ้างอิงเต็ม: ภาคผนวกของเล่มแผนปฏิบัติการและรายการอ้างอิงของโครงร่างดุษฎีนิพนธ์</p></section>';
       return '<article class="pdoc" aria-label="แผนต้นแบบ ' + esc(c.cd(m)) + '">' +
         '<header class="pdh"><div class="pdl">' + LOGO + '<div><b>แผนปฏิบัติการด้านความปลอดภัยสถานศึกษา</b><span>' + esc(sc.name || 'โรงเรียนตัวอย่าง') + ' · ปีการศึกษา ' + esc(sc.year || '–') + '</span></div></div><span class="pdcode">' + esc(c.cd(m)) + '</span></header>' +
         '<h1>' + esc(m.name) + '</h1>' +
@@ -398,7 +397,7 @@
         '<tr><th>องค์ประกอบ 7-S</th><td>' + esc(c.SHORT_EL[m.elem]) + '</td><th>ประเภท (3 ป.) / ช่วง</th><td>' + esc(m.type3) + ' / ' + esc(m.phase) + '</td></tr>' +
         '<tr><th>ผู้รับผิดชอบ</th><td>' + esc(m.owner) + '</td><th>กลุ่มเป้าหมาย</th><td>' + esc(m.target) + '</td></tr>' +
         '</tbody></table>' +
-        sec(1, 'หลักการและเหตุผล', '<p>จากผลการประเมินของ' + esc(sc.name || 'โรงเรียน') + ' พบความเสี่ยงด้าน' + esc(HZ[d.code][0]) + 'ในระดับ' + esc(d.risk) + ' และความพร้อมขององค์กรในระดับ' + esc(d.ready) + ' จัดอยู่ในกลุ่มแนวทาง ' + esc(d.group) + ' (' + esc(d.pkg.summary) + ') มาตรการนี้ถูกเสนอเพราะ' + esc(m.why) + esc(moeTxt) + '</p>') +
+        sec(1, 'หลักการและเหตุผล (ที่มาของแผน)', ratHtml) +
         secEv +
         sec(3, 'วัตถุประสงค์และผลที่คาดว่าจะได้รับ', '<ol class="pl"><li>' + esc(m.desc) + '</li><li>เพื่อให้' + esc(m.target) + 'ได้รับการดำเนินการตามมาตรการนี้อย่างทั่วถึง</li><li>ผลผลิต: ' + esc(m.output) + ' · ผลลัพธ์ที่คาดหวัง: ' + esc(m.outcome) + '</li></ol>') +
         sec(4, 'ขั้นตอนดำเนินงาน (กรอบต้นแบบ ปรับให้เหมาะกับบริบทของโรงเรียน)', stepsHtml) +

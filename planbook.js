@@ -7,9 +7,9 @@
   'use strict';
   const isNode = typeof module !== 'undefined' && module.exports;
 
-  // ---------- ตัวเลขไทย (คงรหัส SB-xxx, R1–R9, 7-S, ISO 31000 และเบอร์ฉุกเฉินไว้) ----------
+  // ---------- ตัวเลขไทย (คงรหัส SB-xxx, R1–R9, 7-S, ISO 31000 เบอร์ฉุกเฉิน และ URL กับ DOI ในรายการอ้างอิงไว้) ----------
   const TH = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'];
-  const KEEP = /(&#\d+;|SB-\d+|\bR\d\b|\b[VAPH]\d\b|7-S|ISO 31000|\b(?:191|1669|199)\b)|\d/g;
+  const KEEP = /(&#\d+;|https?:\/\/[^\s<]+|10\.\d{4,9}\/[^\s<]+|SB-\d+|\bR\d\b|\b[VAPH]\d\b|7-S|ISO 31000|\b(?:191|1669|199)\b)|\d/g;
   const thaiDigits = (s) => String(s).replace(KEEP, (m, k) => k || TH[+m]);
   const thaiText = (html) => String(html).split(/(<[^>]+>)/).map((p) => (p.charAt(0) === '<' ? p : thaiDigits(p))).join('');
 
@@ -119,7 +119,7 @@
       const d = r.d, m = r.m, mo = MOE.forSb(sbOf(m)), ev = EVG[m.evg] || 'D';
       return '<tr><td class="c">' + esc(d.pkg.start) + '<br><small>เริ่ม ' + blank(60) + '</small></td>' +
         '<td><b>' + (i + 1) + '. ' + esc(m.name) + '</b><br><small>' + esc(sbOf(m)) + ' · ' + esc(dom(d.code)) + ' · กลุ่ม ' + esc(d.group) + '</small><br><small>ผู้รับผิดชอบ: ' + esc(m.owner) + '</small><br><small>ฐานแนวคิด: CSSF ' + esc(m.pillar || '') + ' (บทที่ 2 ข้อ 2.3.2)</small><br><small>หลักฐานระดับ ' + ev + (EVD.sources(m).some((x) => !x.inCh2) ? ' (บางแหล่งยังไม่อยู่ในบทที่ 2)' : '') + (mo.length ? ' · ประกาศ ศธ. ข้อ ' + mo.join(', ') : '') + '</small></td>' +
-        '<td>' + esc(m.why) + '</td>' +
+        '<td>' + esc(m.why) + '<br><small>อ้างอิง: ' + esc(EVD.srcLine(m)) + '</small></td>' +
         '<td><ol class="pbol"><li>เพื่อ' + esc(m.desc) + '</li><li>เพื่อให้' + esc(m.outcome) + '</li></ol></td>' +
         '<td><ol class="pbol"><li>เสนอขออนุมัติโครงการ</li><li>ตั้งผู้รับผิดชอบและตรวจเงื่อนไขก่อนดำเนินการ (' + esc(m.prereq) + ')</li><li>ดำเนินกิจกรรม: ' + esc(m.desc) + '</li><li>เก็บหลักฐาน: ' + esc(m.output) + '</li></ol></td>' +
         '<td>ตัวชี้วัด: ' + esc(m.kpi) + '<br>ค่าเป้าหมาย ' + blank(50) + '<br>ทบทวน: ' + esc(d.pkg.review) + '<br>สถานะ: ' + esc(st(r.key)) + '</td></tr>';
@@ -149,11 +149,11 @@
       { t: 'html', id: 'pa', keep: true, html: '<h1 class="pbh1">ภาคผนวก เอกสารอ้างอิงและหลักฐานทางวิชาการ</h1>' },
       H2('pa-1', 'ก. เอกสารอ้างอิง'),
       { t: 'html', html: '<ol class="pbol">' + REFS.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ol>' },
-      P('เอกสารจากบทที่ 2 ของดุษฎีนิพนธ์ที่ใช้เป็นฐานของแผนนี้ (รายการอ้างอิงตามโครงร่างดุษฎีนิพนธ์ฉบับ v14 ข้อความในวงเล็บคือข้อของบทที่ 2)', 'note', true),
+      P('เอกสารจากบทที่ 2 ของดุษฎีนิพนธ์ที่ใช้เป็นฐานของแผนนี้ (รายการอ้างอิงตามโครงร่างดุษฎีนิพนธ์ฉบับ v16 ข้อความในวงเล็บคือข้อของบทที่ 2 รายการที่ยังขาดเลขหน้าหรือ DOI มีวงเล็บเหลี่ยมกำกับ ต้องตรวจก่อนอ้างอิงในเอกสารทางการ)', 'note', true),
       { t: 'html', html: '<ol class="pbol">' + usedKeys.map((k) => '<li>' + esc(EVD.REFS[k].full) + ' (ข้อ ' + EVD.REFS[k].sec + ')</li>').join('') + '</ol>' },
       H2('pa-2', 'ข. หลักฐานทางวิชาการของผลมาตรการในแผนนี้'),
       P('ระดับหลักฐานของ ' + nUnique + ' มาตรการ (ไม่ซ้ำ) ในแผน: ระดับ A (มีงานทบทวนเชิงระบบรองรับ) ' + grade.A + ' · ระดับ B (รองรับบางส่วนหรือผลผสม) ' + grade.B + ' · ระดับ C (มีนโยบายหรือกฎหมายรองรับ ยังไม่มีงานวัดผล) ' + grade.C + ' · ระดับ D (ยังไม่พบหลักฐาน เป็นข้อเสนอของผู้วิจัย) ' + grade.D, '', true),
-      P('แหล่งหลักฐานผลของมาตรการที่อยู่ในคลังมาตรการ ' + srcNames.length + ' แหล่ง อยู่ในบทที่ 2 ' + srcNames.filter((k) => allSrc[k].x.inCh2).length + ' แหล่ง ส่วน ' + Object.keys(miss).length + ' แหล่งยังไม่อยู่ในบทที่ 2 และรายการอ้างอิง ต้องเพิ่มและตรวจที่มาก่อนอ้างอิงในเอกสารทางการ', 'note', true),
+      P('แหล่งหลักฐานผลของมาตรการที่อยู่ในคลังมาตรการ ' + srcNames.length + ' แหล่ง อยู่ในบทที่ 2 ' + srcNames.filter((k) => allSrc[k].x.inCh2).length + ' แหล่ง' + (Object.keys(miss).length ? ' ส่วน ' + Object.keys(miss).length + ' แหล่งยังไม่อยู่ในบทที่ 2 และรายการอ้างอิง ต้องเพิ่มและตรวจที่มาก่อนอ้างอิงในเอกสารทางการ' : ' (ข้อ 2.9.4 ตารางที่ 2.5) ผลหลักได้จากบทคัดย่อและการค้นเว็บ ผู้วิจัยยังไม่ได้อ่านเนื้อเต็ม') , 'note', true),
       T('srcs', '<tr><th style="width:26%">แหล่ง (ชื่อย่อตามคลังมาตรการ)</th><th style="width:26%">สถานะในบทที่ 2</th><th>โครงการในแผนที่ใช้แหล่งนี้</th></tr>',
         srcNames.map((k) => '<tr><td>' + esc(k) + '</td><td>' + (allSrc[k].x.inCh2 ? 'อยู่ในบทที่ 2 ข้อ ' + allSrc[k].x.sec : '<b>ยังไม่อยู่ในบทที่ 2</b>') + '</td><td><small>' + esc(Array.from(new Set(allSrc[k].sb)).join(', ')) + '</small></td></tr>')),
       H2('pa-3', 'ค. ต้นแบบการพัฒนากลยุทธ์ความปลอดภัยในโรงเรียนไทย (ตารางที่ 2.1 ของบทที่ 2)'),

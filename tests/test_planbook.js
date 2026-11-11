@@ -51,10 +51,10 @@ ok('no SB id is repeated inside the 2.2 project lists', moeTable.rows.every((r) 
 ok('no SB id is repeated inside a source row', m.sections[4].blocks.filter((b) => b.cls === 'srcs').every((b) => b.rows.every((r) => noDup(r.slice(r.lastIndexOf('<small>'))))));
 const appx = m.sections[4].blocks.map((b) => (b.html || '') + (b.head || '') + (b.rows || []).join('')).join('');
 ok('appendix lists every source used by the plan', rowsAll.filter((x) => x.evsrc).every((x) => String(x.evsrc).split(';').every((s) => appx.indexOf(esc(s.trim())) >= 0)));
-ok('appendix says which sources are not in chapter 2', appx.indexOf('ยังไม่อยู่ในบทที่ 2') >= 0 && appx.indexOf('อยู่ในบทที่ 2 ข้อ 2.3.2') >= 0);
+ok('appendix says every source is in chapter 2 (section 2.9.4 for the 26 added in v15) and that none was read in full', appx.indexOf('ยังไม่อยู่ในบทที่ 2') < 0 && appx.indexOf('อยู่ในบทที่ 2 ข้อ 2.3.2') >= 0 && appx.indexOf('อยู่ในบทที่ 2 ข้อ 2.9.4') >= 0 && appx.indexOf('ยังไม่ได้อ่านเนื้อเต็ม') >= 0);
 ok('appendix prints the full chapter 2 references used', appx.indexOf('Comprehensive school safety framework 2022') >= 0 && appx.indexOf('ISO 31000:2018') >= 0 && appx.indexOf('Hrebiniak') >= 0);
 ok('appendix shows the Thai strategy prototypes from Table 2.1', EV.THAI.every((t) => appx.indexOf(esc(t.who)) >= 0));
-ok('plan rows cite the CSSF pillar and flag sources outside chapter 2', planTable.rows.every((r) => r.indexOf('CSSF เสาหลัก') >= 0 || r.indexOf('CSSF รากฐาน') >= 0) && planTable.rows.some((r) => r.indexOf('บางแหล่งยังไม่อยู่ในบทที่ 2') >= 0));
+ok('plan rows cite the CSSF pillar and a short reference line, with no source outside chapter 2', planTable.rows.every((r) => (r.indexOf('CSSF เสาหลัก') >= 0 || r.indexOf('CSSF รากฐาน') >= 0) && r.indexOf('อ้างอิง: ') >= 0 && r.indexOf('GADRRRES, 2022 (2.3.2)') >= 0) && planTable.rows.every((r) => r.indexOf('บางแหล่งยังไม่อยู่ในบทที่ 2') < 0));
 ok('appendix warns that the bank is a draft', appx.indexOf('ฉบับร่าง') >= 0 && appx.indexOf('ยังไม่ผ่านเดลฟาย') >= 0);
 ok('cover says it is a draft needing approval', /ฉบับร่าง/.test(m.cover) && /อนุมัติ/.test(m.cover));
 
@@ -68,6 +68,7 @@ eq('SB codes and R groups keep Latin digits', PB.thaiDigits('SB-064 กลุ่
 eq('risk item codes keep Latin digits', PB.thaiDigits('ข้อประเมิน V7 และ A3 จาก 12 ข้อ'), 'ข้อประเมิน V7 และ A3 จาก ๑๒ ข้อ');
 eq('emergency numbers keep Latin digits', PB.thaiDigits('191 · 1669 · 199'), '191 · 1669 · 199');
 eq('html entities are not corrupted', PB.thaiDigits('&#39;12&#39;'), '&#39;๑๒&#39;');
+eq('DOI and URL in references keep Latin digits', PB.thaiDigits('ปี 2022 Available from: https://doi.org/10.3390/ijerph191710706 และ 10.1186/s12889-015-1360-y'), 'ปี ๒๐๒๒ Available from: https://doi.org/10.3390/ijerph191710706 และ 10.1186/s12889-015-1360-y');
 eq('tags and attributes are untouched', PB.thaiText('<span style="min-width:90px">12</span>'), '<span style="min-width:90px">๑๒</span>');
 
 // ---------- การแบ่งหน้า ----------
