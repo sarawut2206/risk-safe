@@ -380,19 +380,14 @@
       const today = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
       const mo = root.RS_MOE ? root.RS_MOE.forSb(m.sb) : [];
       const sec = (no, t, body) => '<section class="ps"><h3>' + no + '. ' + t + '</h3>' + body + '</section>';
-      const step = (t) => '<li>' + t + '</li>';
       const cbx = (label) => '<span class="pcb"><i class="cbx' + (label === st ? ' on' : '') + '" aria-hidden="true"></i>' + label + '</span>';
-      const stepsHtml = '<ol class="pstep">' + [
-        'ตั้งผู้รับผิดชอบ (' + esc(m.owner) + ') และตรวจเงื่อนไขก่อนดำเนินการตามข้อ 5',
-        'เตรียมทรัพยากร: ' + esc(m.resources),
-        'ดำเนินกิจกรรม: ' + esc(m.desc),
-        'เก็บหลักฐานและสิ่งที่ส่งมอบ: ' + esc(m.output),
-        'วัดผลด้วยตัวชี้วัดข้อ 6 และทบทวนตามรอบ (' + esc(d.pkg.review) + ') แล้วปรับแผน'].map(step).join('') + '</ol>';
+      const acts = root.RS_ACTPLAN.steps(m, { review: d.pkg.review, start: d.pkg.start });
+      const stepsHtml = '<table class="pact"><thead><tr><th>ช่วงเวลา</th><th>กิจกรรม</th><th>ผู้รับผิดชอบ</th><th>ผลที่ได้</th></tr></thead><tbody>' + acts.map((x) => '<tr><td>' + esc(x.when) + '</td><td>' + esc(x.what) + '</td><td>' + esc(x.who) + '</td><td>' + esc(x.out) + '</td></tr>').join('') + '</tbody></table>';
       // ข้อ 1 หลักการและเหตุผล: ประกอบจากผลวิเคราะห์ของระบบ พร้อมอ้างอิงสั้น (ผู้แต่ง ปี · ข้อของบทที่ 2) · ข้อ 2 หลักฐานของผลมาตรการและข้อควรระวัง
       const ratHtml1 = ratHtml(d, m, mo);
       const srcs = EV.sources(m), miss = srcs.some((x) => !x.inCh2);
       const secEv = '<section class="ps pev2 g' + ev[0] + '"><h3>2. หลักฐานของผลมาตรการและข้อควรระวัง <span class="pgr">ระดับ ' + ev[0] + '</span></h3>' +
-        '<p>' + esc(m.evnote) + '</p><p class="pnote">' + esc(ev[2]) + (miss ? ' แหล่งที่ยังไม่อยู่ในบทที่ 2 ต้องเพิ่มและตรวจก่อนอ้างอิงในเอกสารทางการ' : '') + ' (คลังฉบับร่าง ยังไม่ผ่านเดลฟาย ผลของแหล่งในบทที่ 2 ข้อ 2.9.4 ได้จากบทคัดย่อ ยังไม่ได้อ่านเนื้อเต็ม) รายการอ้างอิงเต็ม: ภาคผนวกของเล่มแผนปฏิบัติการและรายการอ้างอิงของโครงร่างดุษฎีนิพนธ์</p></section>';
+        '<p>' + esc(m.evnote) + '</p><p class="pnote">' + esc(ev[2]) + (miss ? ' แหล่งที่ยังไม่อยู่ในบทที่ 2 ต้องเพิ่มและตรวจก่อนอ้างอิงในเอกสารทางการ' : '') + ' (คลังฉบับร่าง ยังไม่ผ่านเดลฟาย) อ้างอิงเต็ม: ภาคผนวกของเล่มแผนปฏิบัติการ</p></section>';
       return '<article class="pdoc" aria-label="แผนต้นแบบ ' + esc(c.cd(m)) + '">' +
         '<header class="pdh"><div class="pdl">' + LOGO + '<div><b>แผนปฏิบัติการด้านความปลอดภัยสถานศึกษา</b><span>' + esc(sc.name || 'โรงเรียนตัวอย่าง') + ' · ปีการศึกษา ' + esc(sc.year || '–') + '</span></div></div><span class="pdcode">' + esc(c.cd(m)) + '</span></header>' +
         '<h1>' + esc(m.name) + '</h1>' +
@@ -402,9 +397,9 @@
         '</tbody></table>' +
         sec(1, 'หลักการและเหตุผล (ที่มาของแผน)', ratHtml1) +
         secEv +
-        sec(3, 'วัตถุประสงค์และผลที่คาดว่าจะได้รับ', '<ol class="pl"><li>' + esc(m.desc) + '</li><li>เพื่อให้' + esc(m.target) + 'ได้รับการดำเนินการตามมาตรการนี้อย่างทั่วถึง</li><li>ผลผลิต: ' + esc(m.output) + ' · ผลลัพธ์ที่คาดหวัง: ' + esc(m.outcome) + '</li></ol>') +
-        sec(4, 'ขั้นตอนดำเนินงาน (กรอบต้นแบบ ปรับให้เหมาะกับบริบทของโรงเรียน)', stepsHtml) +
-        sec(5, 'ทรัพยากร งบประมาณ และเงื่อนไขก่อนดำเนินการ', '<p>ทรัพยากรที่ใช้ (' + RES_DOC[m.res] + '): ' + esc(m.resources) + ' · เงื่อนไขก่อนดำเนินการ: ' + esc(m.prereq) + '</p><p>งบประมาณที่ขอ ' + dots(110) + ' บาท แหล่งงบ ' + dots(150) + '</p>') +
+        sec(3, 'วัตถุประสงค์และผลที่คาดว่าจะได้รับ', '<p>เพื่อ' + esc(m.desc) + ' ให้' + esc(m.target) + 'ได้รับการดำเนินการอย่างทั่วถึง · ผลลัพธ์ที่คาดหวัง: ' + esc(m.outcome) + '</p>') +
+        sec(4, 'แผนดำเนินการ (นับจากวันเริ่มดำเนินการ ' + esc(d.pkg.start) + ' ปรับให้ตรงปฏิทินของโรงเรียน)', stepsHtml) +
+        sec(5, 'ทรัพยากร งบประมาณ และเงื่อนไขก่อนดำเนินการ', '<p>ทรัพยากรระดับ ' + m.res + ' (' + RES_DOC[m.res].replace(/^ระดับ \d \(|\)$/g, '') + ') ตามข้อ 4 · เงื่อนไขก่อนดำเนินการ: ' + esc(m.prereq) + ' · งบประมาณที่ขอ ' + dots(90) + ' บาท แหล่งงบ ' + dots(110) + '</p>') +
         sec(6, 'ตัวชี้วัดและการติดตาม', '<p>ตัวชี้วัด: ' + esc(m.kpi) + '</p><p>ค่าเป้าหมาย ' + dots(110) + ' ภายใน ' + dots(110) + '</p><p>เริ่มดำเนินการ ' + esc(d.pkg.start) + ' · ติดตามโดย ' + esc(m.owner) + ' · ทบทวนตามรอบ: ' + esc(d.pkg.review) + '</p><p class="pst">สถานะ: ' + ['ยังไม่เริ่ม', 'กำลังดำเนินการ', 'เสร็จแล้ว'].map(cbx).join('') + '</p>') +
         '<div class="psign"><div><span></span><small>ผู้รับผิดชอบ</small></div><div><span></span><small>หัวหน้างาน</small></div><div><span></span><small>ผู้อำนวยการสถานศึกษา (ผู้อนุมัติ)</small></div></div>' +
         '<footer class="pdf">จัดทำจากระบบ Risk Safe (R²-SAFE) ต้นแบบงานวิจัย เมื่อ ' + today + ' · แผนที่ ' + (i + 1) + ' จาก ' + n + ' · ข้อเสนอสนับสนุนการวางแผน ผู้อำนวยการตัดสินใจขั้นสุดท้าย · เหตุฉุกเฉิน 191 · 1669 · 199</footer></article>';

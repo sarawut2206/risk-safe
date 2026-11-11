@@ -50,7 +50,7 @@
 
   // ---------- เนื้อหาเล่ม ----------
   function build(ctx) {
-    const esc = ctx.esc, out = ctx.out, sc = ctx.school || {}, MOE = ctx.MOE, EVD = ctx.EVD, st = (k) => (ctx.status && ctx.status[k]) || 'ยังไม่เริ่ม';
+    const esc = ctx.esc, out = ctx.out, sc = ctx.school || {}, MOE = ctx.MOE, EVD = ctx.EVD, ACT = ctx.ACT || (isNode ? require('./actplan.js') : root.RS_ACTPLAN), st = (k) => (ctx.status && ctx.status[k]) || 'ยังไม่เริ่ม';
     const rows = []; out.domains.forEach((d) => (d.measures || []).forEach((m) => rows.push({ d, m, key: ctx.mKey(d.code, m.id) })));
     const sbOf = (m) => m.sb || m.id, name = sc.name || 'โรงเรียนตัวอย่าง', year = sc.year || '';
     const blank = (n) => '<span class="pbdot" style="min-width:' + (n || 90) + 'px"></span>';
@@ -121,7 +121,7 @@
         '<td><b>' + (i + 1) + '. ' + esc(m.name) + '</b><br><small>' + esc(sbOf(m)) + ' · ' + esc(dom(d.code)) + ' · กลุ่ม ' + esc(d.group) + '</small><br><small>ผู้รับผิดชอบ: ' + esc(m.owner) + '</small><br><small>ฐานแนวคิด: CSSF ' + esc(m.pillar || '') + ' (บทที่ 2 ข้อ 2.3.2)</small><br><small>หลักฐานระดับ ' + ev + (EVD.sources(m).some((x) => !x.inCh2) ? ' (บางแหล่งยังไม่อยู่ในบทที่ 2)' : '') + (mo.length ? ' · ประกาศ ศธ. ข้อ ' + mo.join(', ') : '') + '</small></td>' +
         '<td>' + esc(m.why) + '<br><small>อ้างอิง: ' + esc(EVD.srcLine(m)) + '</small></td>' +
         '<td><ol class="pbol"><li>เพื่อ' + esc(m.desc) + '</li><li>เพื่อให้' + esc(m.outcome) + '</li></ol></td>' +
-        '<td><ol class="pbol"><li>เสนอขออนุมัติโครงการ</li><li>ตั้งผู้รับผิดชอบและตรวจเงื่อนไขก่อนดำเนินการ (' + esc(m.prereq) + ')</li><li>ดำเนินกิจกรรม: ' + esc(m.desc) + '</li><li>เก็บหลักฐาน: ' + esc(m.output) + '</li></ol></td>' +
+        '<td><ol class="pbol">' + ACT.steps(m, { review: d.pkg.review, start: d.pkg.start }).map((x) => '<li><b>' + esc(x.when) + '</b> ' + esc(x.brief) + '</li>').join('') + '</ol></td>' +
         '<td>ตัวชี้วัด: ' + esc(m.kpi) + '<br>ค่าเป้าหมาย ' + blank(50) + '<br>ทบทวน: ' + esc(d.pkg.review) + '<br>สถานะ: ' + esc(st(r.key)) + '</td></tr>';
     };
     sections.push({ id: 'p3', label: 'ส่วนที่ 3 แผนปฏิบัติการ', blocks: [

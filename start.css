@@ -143,3 +143,9 @@
 .prat { margin: 0 0 4px; } .prat b { color: #12304f; }
 
 .prwhy { margin: 4px 0 6px; font-size: .9rem; } .prwhy summary { cursor: pointer; color: #1f5a99; font-weight: 600; } .prwhy .prat { margin: 6px 0 0; line-height: 1.5; } @media print { .prwhy { display: none; } }
+
+.pact { width: 100%; border-collapse: collapse; font-size: .92em; margin: 2px 0 0; } .pact th, .pact td { border: 1px solid #b9c7d6; padding: 2px 5px; vertical-align: top; text-align: left; } .pact th { background: #e9edf2; font-weight: 700; } .pact td:first-child { white-space: nowrap; width: 11%; } .pact td:nth-child(3) { width: 16%; } .pact td:nth-child(4) { width: 22%; }
+@media print { .pact { font-size: 8.4pt; line-height: 1.22; } }
+
+@media print { .pdoc { line-height: 1.27; } .pdoc .ps { margin-top: 2px; } }
+@media print { .pact { font-size: 8pt; line-height: 1.18; } .pact th, .pact td { padding: 1px 4px; } .pdoc .psign { margin-top: 10px; } }
