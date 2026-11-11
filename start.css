@@ -82,3 +82,41 @@
 .pev svg { vertical-align: -2px; }
 .pev.f { background: #e6f5ee; color: #0b5c4f; }
 .pev.n { background: #f1f4f8; color: #55697f; }
+
+/* แผนต้นแบบรายมาตรการ */
+.pdopen { margin-top: 6px; min-height: 36px; padding: 5px 12px; font-size: .85rem; }
+.pdbar { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; justify-content: space-between; margin: 0 0 14px; }
+.pdbar h1 { font-size: 1.35rem; color: #12355f; } .pdbar p { margin: 4px 0 0; color: #55697f; font-size: .92rem; max-width: 62ch; }
+.pdbtn { display: flex; flex-wrap: wrap; gap: 8px; }
+.pdocs { display: grid; gap: 22px; justify-items: center; }
+.pdoc { width: 100%; max-width: 794px; background: #fff; border: 1px solid #dbe8f5; border-radius: 6px; box-shadow: 0 6px 18px rgba(30, 80, 140, .12); padding: 30px 36px; color: #1b2a3a; font-size: .96rem; line-height: 1.5; }
+.pdh { display: flex; justify-content: space-between; align-items: center; gap: 12px; border-bottom: 2px solid #1d63b8; padding-bottom: 8px; }
+.pdl { display: flex; align-items: center; gap: 10px; } .pdl svg { width: 30px; height: 35px; flex: none; }
+.pdl b { display: block; color: #12355f; font-size: 1.02rem; } .pdl span { color: #55697f; font-size: .85rem; }
+.pdcode { background: #12355f; color: #fff; font-weight: 700; padding: 3px 12px; border-radius: 6px; white-space: nowrap; }
+.pdoc h1 { margin: 12px 0 8px; font-size: 1.45rem; line-height: 1.3; color: #12355f; }
+.pdmeta { width: 100%; border-collapse: collapse; font-size: .9rem; margin-bottom: 4px; }
+.pdmeta th, .pdmeta td { border: 1px solid #c9d8e8; padding: 4px 8px; text-align: left; vertical-align: top; }
+.pdmeta th { background: #eef6fd; width: 17%; color: #12355f; font-weight: 700; }
+.ps { margin-top: 9px; } .ps h3 { margin: 0 0 3px; font-size: 1rem; color: #1d63b8; } .ps p { margin: 2px 0; }
+.pl, .pstep { margin: 2px 0; padding-left: 1.4em; } .pl li, .pstep li { margin-bottom: 2px; }
+.pnote { color: #55697f; font-size: .82rem; }
+.pblank { display: inline-block; border-bottom: 1px dotted #3b4d61; height: 1em; vertical-align: baseline; }
+.pst { display: flex; gap: 16px; flex-wrap: wrap; } .pcb { display: inline-flex; align-items: center; gap: 6px; }
+.cbx { width: 14px; height: 14px; border: 1.5px solid #12355f; border-radius: 3px; display: inline-block; } .cbx.on { background: #12355f; box-shadow: inset 0 0 0 2px #fff; }
+.pev2 { border: 1px solid #c9d8e8; border-radius: 8px; padding: 6px 10px 8px; background: #f6fafe; }
+.pev2.gA, .pev2.gB { border-color: #9fd3bc; background: #f0faf5; } .pev2.gD { border-color: #f0c987; background: #fff9ec; }
+.pgr { float: right; font-size: .82rem; background: #12355f; color: #fff; padding: 1px 10px; border-radius: 999px; }
+.psign { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 16px; text-align: center; }
+.psign span { display: block; border-bottom: 1px dotted #3b4d61; height: 30px; } .psign small { display: block; margin-top: 3px; color: #41566f; }
+.pdf { margin-top: 12px; padding-top: 6px; border-top: 1px solid #dbe8f5; color: #55697f; font-size: .74rem; line-height: 1.45; }
+@media (max-width: 640px) { .pdoc { padding: 18px 16px; } .pdmeta th { width: 28%; } .psign { grid-template-columns: 1fr; gap: 10px; } }
+@media print {
+  .pdbar { display: none !important; }
+  .tapp .tbody, .tbody { padding: 0 !important; }
+  .pdocs { display: block; }
+  .pdoc { max-width: none; width: 100%; border: 0; border-radius: 0; box-shadow: none; padding: 0; font-size: 10pt; line-height: 1.36; break-after: page; page-break-after: always; }
+  .pdoc:last-child { break-after: auto; page-break-after: auto; }
+  .pdoc h1 { font-size: 15pt; margin: 6px 0 5px; } .ps { margin-top: 4px; break-inside: avoid; } .ps h3 { font-size: 10.5pt; } .pdmeta { font-size: 9pt; } .pdmeta th, .pdmeta td { padding: 2px 6px; } .pdf { font-size: 7.5pt; margin-top: 8px; } .psign { margin-top: 10px; } .psign span { height: 22px; } .pev2 { padding: 4px 8px 5px; }
+  .pdopen { display: none !important; }
+}
