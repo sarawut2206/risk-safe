@@ -44,7 +44,7 @@
     { id: 'about', label: 'เกี่ยวกับโครงการ' },
   ];
   const PORTAL = ['portal', 'form1', 'form2', 'form3', 'collectlab'];
-  const TOOL = ['school', 'dash', 'rassess', 'ready', 'pni', 'matrix', 'strategy', 'brief', 'plandoc', 'moe', 'plan', 'explain', 'track', 'evaluate', 'lab', 'rules'];
+  const TOOL = ['school', 'dash', 'rassess', 'ready', 'pni', 'matrix', 'strategy', 'brief', 'plandoc', 'moe', 'planbook', 'plan', 'explain', 'track', 'evaluate', 'lab', 'rules'];
   const PAGES = [
     { id: 'home', nav: '', title: 'Risk Safe ระบบบริหารความปลอดภัยบนฐานความเสี่ยง', sub: '' },
     { id: 'bank', nav: 'bank', eyebrow: 'คลังกลยุทธ์', title: 'คลังมาตรการ (Strategy Bank) ฉบับร่าง 68 รายการ', sub: 'ร่างที่ผู้วิจัยจัดทำ ยังไม่ได้ตรวจหลักฐานและแหล่งอ้างอิงรายข้อ และยังไม่ผ่านเดลฟาย ใช้สาธิตการทำงานของระบบ' },
@@ -59,6 +59,7 @@
     { id: 'brief', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'สรุปสำหรับผู้บริหาร', sub: '' },
     { id: 'plandoc', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'แผนต้นแบบรายมาตรการ', sub: '' },
     { id: 'moe', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'ประกาศ ศธ. 7 มาตรการความปลอดภัย', sub: '' },
+    { id: 'planbook', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'เล่มแผนปฏิบัติการ', sub: '' },
     { id: 'plan', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'แผนปฏิบัติการและติดตามผล', sub: 'ผู้รับผิดชอบ ตัวชี้วัด ระยะเวลา และสถานะการดำเนินงาน (ต้นแบบ: สถานะไม่ถูกบันทึกถาวร)' },
     { id: 'rules', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'กฎการตัดสินใจและเกณฑ์เบื้องต้น', sub: 'ค่าเริ่มต้นเป็นร่างตามบทที่ 3 ยังไม่ผ่านเดลฟาย แก้ได้เพื่อทดสอบความไวของผล' },
     { id: 'explain', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'กฎตัดสินใจและเหตุผลของผลลัพธ์', sub: '' },
@@ -298,6 +299,7 @@
     else if (PORTAL.indexOf(cur) >= 0) $('#view').innerHTML = RENDER[cur]();
     else if (TOOL.indexOf(cur) >= 0 && cur !== 'rules') $('#view').innerHTML = UI.shell(cur, RENDER[cur]());
     else $('#view').innerHTML = '<section class="phero hexbg"><div class="wrap"><span class="eyebrow">' + esc(p.eyebrow) + '</span><h1>' + esc(p.title) + '</h1><p>' + esc(p.sub) + '</p></div></section><div class="wrap body">' + RENDER[cur]() + '</div>';
+    document.body.classList.toggle('pb-on', cur === 'planbook');
     document.body.classList.toggle('tool-on', (TOOL.indexOf(cur) >= 0 && cur !== 'rules') || PORTAL.indexOf(cur) >= 0);
     buildNav(); buildFoot(); chip(); UI2.persist();
     if (!keepScroll) window.scrollTo({ top: 0 });
@@ -375,6 +377,7 @@
   window.addEventListener('hashchange', () => { const ph = parseHash(); UI3.applyQuery(ph.q); if (ph.id && (ph.id !== cur || Object.keys(ph.q).length)) go(ph.id); });
 
   const ph0 = parseHash(); UI3.applyQuery(ph0.q);
+  if (ph0.q.example === '1') loadExample();   // ลิงก์ตัวอย่างสำหรับแสดงให้ผู้อื่นดู เช่น #planbook?example=1
   const h0 = ph0.id;
   cur = RENDER[h0] ? h0 : (h0 === 'input' ? 'dash' : 'home'); render();
   if (Object.keys(ph0.q).length) { try { history.replaceState(null, '', '#' + cur); } catch (e) { /* ไม่เป็นไร */ } }

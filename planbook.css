@@ -1,0 +1,53 @@
+/* เล่มแผนปฏิบัติการด้านความปลอดภัยสถานศึกษา: A4 แนวนอน TH Sarabun New 16 pt (ตามรูปแบบแผนปฏิบัติการของกระทรวงศึกษาธิการ) */
+.pbbook { font-family: "TH Sarabun New", "THSarabunNew", "TH SarabunPSK", "THSarabunPSK", "Sarabun", "Noto Sans Thai", "Leelawadee UI", sans-serif; font-size: 16pt; line-height: 1.1; color: #000; }
+.pbhost { display: grid; gap: 20px; justify-items: start; overflow-x: auto; padding: 4px 2px 22px; }
+.bpage { position: relative; flex: none; width: 297mm; height: 210mm; padding: 12mm 14mm 11mm; box-sizing: border-box; background: #fff; box-shadow: 0 6px 18px rgba(0, 0, 0, .2); overflow: hidden; color: #000; }
+.pbtop { position: absolute; top: 5mm; left: 0; right: 0; text-align: center; font-size: 14pt; }
+.pbfoot { position: absolute; left: 14mm; right: 14mm; bottom: 3.5mm; font-size: 11pt; color: #444; border-top: .5pt solid #999; padding-top: 1mm; }
+.pbbody { height: 177mm; overflow: hidden; }
+.pbprobe { position: absolute; left: -99999px; top: 0; visibility: hidden; }
+.pbmeasure { position: absolute; left: -99999px; top: 0; visibility: hidden; }
+.pbmeasure .bpage { box-shadow: none; }
+.pbmeasure .pbbody.pbauto { height: auto; overflow: visible; }
+.pbblk { display: flow-root; }
+.pbh1 { font-size: 20pt; font-weight: 700; margin: 0 0 6px; }
+.pbh1.c { text-align: center; margin-bottom: 10px; }
+.pbh2 { font-size: 16pt; font-weight: 700; margin: 10px 0 4px; }
+.pbp { margin: 0 0 6px; text-indent: 12mm; text-align: justify; }
+.pbp.note { font-size: 13pt; color: #333; text-indent: 0; }
+.pbt { width: 100%; border-collapse: collapse; font-size: 14pt; margin: 0 0 8px; }
+.pbt th, .pbt td { border: 1px solid #000; padding: 2px 6px; vertical-align: top; text-align: left; }
+.pbt th { background: #e9edf2; font-weight: 700; text-align: center; }
+.pbt.kv th { width: 28%; text-align: left; }
+.pbt .c { text-align: center; }
+.pbt small { font-size: 12.5pt; }
+.pbol { margin: 0; padding-left: 1.3em; } .pbul { margin: 0; padding-left: 1.1em; }
+.pbdot { display: inline-block; border-bottom: 1px dotted #000; height: .9em; }
+.pbcb { display: inline-block; width: 11px; height: 11px; border: 1.5px solid #000; margin-right: 6px; vertical-align: -1px; }
+.pbtoc { width: 100%; border-collapse: collapse; font-size: 16pt; }
+.pbtoc td { padding: 3px 4px; border-bottom: 1px dotted #888; }
+.pbtoc .pg { width: 16mm; text-align: right; }
+.pbtoc .l0 td { font-weight: 700; padding-top: 10px; }
+.pbtoc .l1 td:first-child { padding-left: 12mm; }
+.pbt.sigt td.sig { text-align: center; border: 0; padding: 14px 8px 0; }
+.sigline { height: 26px; }
+.pbcoverpage .pbbody { display: flex; align-items: center; justify-content: center; }
+.pbcover { text-align: center; }
+.pbcl svg { width: 70px; height: 80px; }
+.pbct { font-size: 30pt; font-weight: 700; margin: 10px 0 4px; }
+.pbcs { font-size: 20pt; }
+.pbcn { font-size: 26pt; font-weight: 700; margin: 8px 0 14px; }
+.pbdraft { margin: 22px auto 8px; border: 1px solid #000; padding: 6px 14px; font-size: 15pt; display: inline-block; line-height: 1.15; }
+.pbcf { font-size: 14pt; margin-top: 12px; }
+.pbfontwarn { display: none; margin: 6px 0 0; padding: 8px 12px; border-radius: 10px; background: #fff4d6; border: 1px solid #ffe39b; color: #6a4f00; font-size: .92rem; }
+.pbfontwarn.on { display: block; }
+
+@media print {
+  @page book { size: A4 landscape; margin: 0; }
+  .pbhost { page: book; display: block; overflow: visible; padding: 0; }
+  .bpage { box-shadow: none; break-after: page; page-break-after: always; margin: 0; }
+  .bpage:last-child { break-after: auto; page-break-after: auto; }
+  body.pb-on { background: #fff; }
+  body.pb-on .tapp, body.pb-on .tapp .tbody { padding: 0 !important; margin: 0 !important; max-width: none !important; background: #fff !important; box-shadow: none !important; border: 0 !important; }
+  body.pb-on .pdbar, body.pb-on .pbfontwarn { display: none !important; }
+}

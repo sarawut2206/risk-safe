@@ -78,9 +78,9 @@
 
     // ---------- เปลือกแอป ----------
     const NAVB = [['dash', 'หน้าแรก', 'home'], ['rassess', 'ความเสี่ยง', 'alert'], ['ready', 'ความพร้อม', 'shieldcheck'], ['strategy', 'กลยุทธ์', 'target'], ['plan', 'แผนงาน', 'calendar']];
-    const ACTIVE = { moe: 'dash', plandoc: 'plan', brief: 'dash', school: 'dash', matrix: 'dash', rules: 'dash', pni: 'strategy', explain: 'strategy', track: 'plan', evaluate: 'dash', lab: 'dash' };
+    const ACTIVE = { planbook: 'plan', moe: 'dash', plandoc: 'plan', brief: 'dash', school: 'dash', matrix: 'dash', rules: 'dash', pni: 'strategy', explain: 'strategy', track: 'plan', evaluate: 'dash', lab: 'dash' };
     // แถบขั้นตอน: บอกว่าอยู่ขั้นไหน ทำอะไรครบแล้ว และปุ่มทำต่อ (แสดงเฉพาะหน้าหลักของเครื่องมือ)
-    const GUIDE_AT = { school: 0, rassess: 1, ready: 2, dash: 3, brief: 3, matrix: 3, strategy: 3, pni: 3, plan: 4, plandoc: 4 };
+    const GUIDE_AT = { school: 0, rassess: 1, ready: 2, dash: 3, brief: 3, matrix: 3, strategy: 3, pni: 3, plan: 4, plandoc: 4, planbook: 4 };
     function guide(cur) {
       const at = GUIDE_AT[cur]; if (at == null) return '';
       const f = c.filled(), sc = S.school, hasD = hasData(getOut());
@@ -333,7 +333,7 @@
       s += card('แผนปฏิบัติการ', '<p class="hint">ปรับสถานะได้ในหน้านี้ (ไม่ถูกบันทึกถาวร) ตัวชี้วัดและผู้รับผิดชอบเป็นข้อเสนอเริ่มต้นจากคลัง ผู้อำนวยการปรับได้ ระยะเวลาเป็นช่วงที่ตารางตัดสินใจแนะนำ ยังไม่ใช่วันที่กำหนดจริง</p><div class="plan">' +
         rows.map((r, i) => '<div class="pr ' + ({ 'เสร็จแล้ว': 'done', 'กำลังดำเนินการ': 'doing' }[st(r.key)] || 'todo') + '"><span class="no">' + (i + 1) + '</span><div class="pb"><b>' + esc(c.cd(r.m) + ' ' + r.m.name) + '</b><small>' + esc(HZ[r.d.code][0]) + ' · ' + r.d.group + ' · ผู้รับผิดชอบ: ' + esc(r.m.owner) + '</small><small>ตัวชี้วัด: ' + esc(r.m.kpi) + '</small><small>เริ่ม: ' + esc(r.d.pkg.start) + ' · ทบทวน: ' + esc(r.d.pkg.review) + '</small><button class="tbtn sm pdopen" data-act="plandoc" data-k="' + r.key + '">' + ic('print', 18) + '<span>แผนต้นแบบ (พิมพ์ PDF)</span></button></div><select class="st" data-st="' + r.key + '" aria-label="สถานะ ' + esc(r.m.id) + '">' + c.STATUS.map((x) => '<option' + (st(r.key) === x ? ' selected' : '') + '>' + x + '</option>').join('') + '</select></div>').join('') + '</div>', { icon: 'clipboard' });
       s += card('บันทึกการทบทวนหลังดำเนินการ (AAR)', '<p class="hint">สิ่งที่ตั้งใจ สิ่งที่เกิดขึ้นจริง ข้อเรียนรู้ และข้อมูลที่ต้องย้อนกลับไปปรับในขั้นที่ 1–4 (อย่าใส่ชื่อบุคคลหรือรายละเอียดที่ระบุตัวได้)</p><textarea id="aar" aria-label="บันทึกการทบทวนหลังดำเนินการ">' + esc(S.aar) + '</textarea>', { icon: 'doc' });
-      s += '<div class="row-btns"><button class="tbtn primary wide" data-act="plandoc" data-k="all">' + ic('print', 22) + '<span>แผนต้นแบบทุกมาตรการ (' + rows.length + ' แผน) พิมพ์หรือบันทึกเป็น PDF</span>' + ic('chev', 18) + '</button></div>';
+      s += '<div class="row-btns two"><button class="tbtn primary" data-go="planbook">' + ic('doc', 22) + '<span>เล่มแผนปฏิบัติการ (A4 แนวนอน มีสารบัญ) พิมพ์เป็น PDF</span>' + ic('chev', 18) + '</button><button class="tbtn" data-act="plandoc" data-k="all">' + ic('print', 22) + '<span>แผนต้นแบบรายมาตรการ ทั้ง ' + rows.length + ' แผน</span>' + ic('chev', 18) + '</button></div>';
       s += '<div class="row-btns two"><button class="tbtn primary" data-act="csv">' + ic('download', 22) + '<span>ดาวน์โหลด CSV</span></button><button class="tbtn green" onclick="window.print()">' + ic('print', 22) + '<span>พิมพ์แผน</span></button><button class="tbtn" data-go="track">' + ic('flag', 22) + '<span>บันทึกผลและบทเรียน</span>' + ic('chev', 18) + '</button></div>';
       return s;
     }
@@ -441,6 +441,20 @@
       return s;
     }
 
+    // ---------- เล่มแผนปฏิบัติการ (A4 แนวนอน TH Sarabun New สารบัญ) ----------
+    function pageBook() {
+      const out = getOut(), M = root.RS_MOE, PB = root.RS_PLANBOOK;
+      if (!hasData(out)) return empty();
+      if (!M || !PB) return banner('doc', 'เล่มแผนปฏิบัติการ', 'โหลดโมดูลไม่สำเร็จ');
+      const model = PB.build({ esc, out, school: S.school, status: S.status, moeStatus: S.moe, MOE: M, mKey: c.mKey, domName: (code) => HZ[code][0], elName: (code) => c.SHORT_EL[code], sizeOf, logo: LOGO, today: new Date() });
+      setTimeout(() => { const h = document.getElementById('pbhost'); if (!h) return; PB.mount(h, model).then(() => { const w = document.getElementById('pbfont'); if (w && !PB.hasFont(document, 'TH Sarabun New') && !PB.hasFont(document, 'THSarabunNew')) w.classList.add('on'); }); }, 0);
+      return '<div class="pdbar"><div><h1>เล่มแผนปฏิบัติการด้านความปลอดภัยสถานศึกษา</h1><p>กระดาษ A4 แนวนอน ตัวอักษร TH Sarabun New มีสารบัญ ตารางโครงการรูปแบบเดียวกับแผนปฏิบัติการของกระทรวงศึกษาธิการ ตัวชี้วัดของกระทรวง ความสอดคล้องกับ 7 มาตรการตามประกาศ ศธ. และเอกสารอ้างอิง รวม ' + model.meta.rows + ' โครงการ</p></div>' +
+        '<div class="pdbtn"><button class="tbtn primary" onclick="window.print()">' + ic('print', 22) + '<span>พิมพ์ หรือบันทึกเป็น PDF</span></button><button class="tbtn" data-go="plan">' + ic('chev', 18) + '<span>กลับไปแผนปฏิบัติการ</span></button></div>' +
+        '<p class="hint">กดพิมพ์ ตั้งเครื่องพิมพ์เป็น "บันทึกเป็น PDF" ขนาด A4 แนวนอน และปิด "ส่วนหัวและส่วนท้าย" ถ้ามี ฉบับร่างนี้ต้องให้ผู้อำนวยการตรวจและปรับก่อนประกาศใช้</p>' +
+        '<p class="pbfontwarn" id="pbfont">เครื่องนี้ยังไม่พบฟอนต์ TH Sarabun New เอกสารจึงใช้ฟอนต์สำรอง ถ้าต้องการรูปแบบทางราชการ ให้ติดตั้งฟอนต์ TH Sarabun New ก่อนแล้วโหลดหน้านี้ใหม่ (จำนวนหน้าและเลขหน้าในสารบัญอาจต่างจากที่เห็นหากใช้ฟอนต์อื่น แต่คำนวณใหม่ให้ตรงกับฟอนต์ที่ใช้อยู่)</p></div>' +
+        '<div class="pbhost pbbook" id="pbhost"><p class="hint">กำลังจัดหน้า...</p></div>';
+    }
+
     // ---------- เหตุการณ์เฉพาะส่วนนี้ ----------
     function bind() {
       document.addEventListener('click', (e) => {
@@ -471,7 +485,7 @@
     }
 
     const h = { ic, banner, card, btn, lv, lvr, empty, hasData, dateTh, sizeOf, HZ, EL_IC, RC, RCR, SCHOOL };
-    return { h, shell, bind, pages: { dash: pageDash, school: pageSchool, rassess: pageRassess, ready: pageReady, pni: pagePni, matrix: pageMatrix, strategy: pageStrategy, plan: pagePlan, brief: pageBrief, plandoc: pagePlandoc, moe: pageMoe }, ids: ['dash', 'school', 'rassess', 'ready', 'pni', 'matrix', 'strategy', 'plan', 'brief', 'plandoc', 'moe', 'rules'] };
+    return { h, shell, bind, pages: { dash: pageDash, school: pageSchool, rassess: pageRassess, ready: pageReady, pni: pagePni, matrix: pageMatrix, strategy: pageStrategy, plan: pagePlan, brief: pageBrief, plandoc: pagePlandoc, moe: pageMoe, planbook: pageBook }, ids: ['dash', 'school', 'rassess', 'ready', 'pni', 'matrix', 'strategy', 'plan', 'brief', 'plandoc', 'moe', 'planbook', 'rules'] };
   }
   root.RS_TOOL = { create };
 })(window);
