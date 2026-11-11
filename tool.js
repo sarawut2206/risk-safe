@@ -331,7 +331,7 @@
       s += '<div class="kpi4"><div class="tcard kc blue">' + ic('doc', 26) + '<small>มาตรการทั้งหมด</small><b>' + rows.length + ' รายการ</b></div><div class="tcard kc green">' + ic('check', 26) + '<small>เสร็จแล้ว</small><b>' + done + ' รายการ</b></div><div class="tcard kc amber">' + ic('gear', 26) + '<small>กำลังดำเนินการ</small><b>' + doing + ' รายการ</b></div><div class="tcard kc red">' + ic('calendar', 26) + '<small>ยังไม่เริ่ม</small><b>' + todo + ' รายการ</b></div></div>';
       s += card('ความก้าวหน้ารายด้าน', out.domains.map((d) => { const r = rows.filter((x) => x.d.code === d.code), dn = r.filter((x) => st(x.key) === 'เสร็จแล้ว').length; return '<div class="dp"><div><span>' + ic(HZ[d.code][1], 18) + esc(HZ[d.code][0]) + ' · ' + (d.group || '') + '</span><b>' + dn + '/' + r.length + '</b></div><div class="pbar sm"><i style="width:' + pct(dn, r.length) + '%"></i></div></div>'; }).join(''), { icon: 'bars' });
       s += card('แผนปฏิบัติการ', '<p class="hint">ปรับสถานะได้ในหน้านี้ (ไม่ถูกบันทึกถาวร) ตัวชี้วัดและผู้รับผิดชอบเป็นข้อเสนอเริ่มต้นจากคลัง ผู้อำนวยการปรับได้ ระยะเวลาเป็นช่วงที่ตารางตัดสินใจแนะนำ ยังไม่ใช่วันที่กำหนดจริง</p><div class="plan">' +
-        rows.map((r, i) => '<div class="pr ' + ({ 'เสร็จแล้ว': 'done', 'กำลังดำเนินการ': 'doing' }[st(r.key)] || 'todo') + '"><span class="no">' + (i + 1) + '</span><div class="pb"><b>' + esc(c.cd(r.m) + ' ' + r.m.name) + '</b><small>' + esc(HZ[r.d.code][0]) + ' · ' + r.d.group + ' · ผู้รับผิดชอบ: ' + esc(r.m.owner) + '</small><small>ตัวชี้วัด: ' + esc(r.m.kpi) + '</small><small>เริ่ม: ' + esc(r.d.pkg.start) + ' · ทบทวน: ' + esc(r.d.pkg.review) + '</small><button class="tbtn sm pdopen" data-act="plandoc" data-k="' + r.key + '">' + ic('print', 18) + '<span>แผนต้นแบบ (พิมพ์ PDF)</span></button></div><select class="st" data-st="' + r.key + '" aria-label="สถานะ ' + esc(r.m.id) + '">' + c.STATUS.map((x) => '<option' + (st(r.key) === x ? ' selected' : '') + '>' + x + '</option>').join('') + '</select></div>').join('') + '</div>', { icon: 'clipboard' });
+        rows.map((r, i) => '<div class="pr ' + ({ 'เสร็จแล้ว': 'done', 'กำลังดำเนินการ': 'doing' }[st(r.key)] || 'todo') + '"><span class="no">' + (i + 1) + '</span><div class="pb"><b>' + esc(c.cd(r.m) + ' ' + r.m.name) + '</b><small>' + esc(HZ[r.d.code][0]) + ' · ' + r.d.group + ' · ผู้รับผิดชอบ: ' + esc(r.m.owner) + '</small><small>ตัวชี้วัด: ' + esc(r.m.kpi) + '</small><small>เริ่ม: ' + esc(r.d.pkg.start) + ' · ทบทวน: ' + esc(r.d.pkg.review) + '</small><details class="prwhy"><summary>หลักการและเหตุผล (ที่มาของแผน)</summary>' + ratHtml(r.d, r.m, root.RS_MOE ? root.RS_MOE.forSb(r.m.sb) : []) + '</details><button class="tbtn sm pdopen" data-act="plandoc" data-k="' + r.key + '">' + ic('print', 18) + '<span>แผนต้นแบบ (พิมพ์ PDF)</span></button></div><select class="st" data-st="' + r.key + '" aria-label="สถานะ ' + esc(r.m.id) + '">' + c.STATUS.map((x) => '<option' + (st(r.key) === x ? ' selected' : '') + '>' + x + '</option>').join('') + '</select></div>').join('') + '</div>', { icon: 'clipboard' });
       s += card('บันทึกการทบทวนหลังดำเนินการ (AAR)', '<p class="hint">สิ่งที่ตั้งใจ สิ่งที่เกิดขึ้นจริง ข้อเรียนรู้ และข้อมูลที่ต้องย้อนกลับไปปรับในขั้นที่ 1–4 (อย่าใส่ชื่อบุคคลหรือรายละเอียดที่ระบุตัวได้)</p><textarea id="aar" aria-label="บันทึกการทบทวนหลังดำเนินการ">' + esc(S.aar) + '</textarea>', { icon: 'doc' });
       s += '<div class="row-btns two"><button class="tbtn primary" data-go="planbook">' + ic('doc', 22) + '<span>เล่มแผนปฏิบัติการ (A4 แนวนอน มีสารบัญ) พิมพ์เป็น PDF</span>' + ic('chev', 18) + '</button><button class="tbtn" data-act="plandoc" data-k="all">' + ic('print', 22) + '<span>แผนต้นแบบรายมาตรการ ทั้ง ' + rows.length + ' แผน</span>' + ic('chev', 18) + '</button></div>';
       s += '<div class="row-btns two"><button class="tbtn primary" data-act="csv">' + ic('download', 22) + '<span>ดาวน์โหลด CSV</span></button><button class="tbtn green" onclick="window.print()">' + ic('print', 22) + '<span>พิมพ์แผน</span></button><button class="tbtn" data-go="track">' + ic('flag', 22) + '<span>บันทึกผลและบทเรียน</span>' + ic('chev', 18) + '</button></div>';
@@ -370,6 +370,11 @@
     function planRows(out) {
       const rows = []; out.domains.forEach((d) => d.measures.forEach((m) => rows.push({ d, m, key: c.mKey(d.code, m.id) }))); return rows;
     }
+    function ratHtml(d, m, mo) {
+      const oe = getOut(), el = (oe.elements || []).find((e) => e.code === m.elem), isTop = !!(el && el.rank && el.rank <= 3);
+      return root.RS_EVIDENCE.rationale(m, { school: S.school.name || 'โรงเรียน', hz: HZ[d.code][0], risk: d.risk, rd: isFinite(d.rd) ? fmt(d.rd, 2) : '', ready: d.ready, group: d.group, pkgName: d.pkg.name, pkgSummary: d.pkg.summary, top: isTop, rank: el ? el.rank : 0, pni: el && isFinite(el.pni) ? fmt(el.pni, 3) : '', moe: mo || [] })
+        .map((x) => '<p class="prat"><b>' + esc(x.lead) + '</b> ' + esc(x.text) + '</p>').join('');
+    }
     function planDoc(r, i, n) {
       const d = r.d, m = r.m, sc = S.school, st = S.status[r.key] || c.STATUS[0], EV = root.RS_EVIDENCE, ev = EV.EVG[m.evg] || EV.EVG.D;
       const today = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -384,9 +389,7 @@
         'เก็บหลักฐานและสิ่งที่ส่งมอบ: ' + esc(m.output),
         'วัดผลด้วยตัวชี้วัดข้อ 6 และทบทวนตามรอบ (' + esc(d.pkg.review) + ') แล้วปรับแผน'].map(step).join('') + '</ol>';
       // ข้อ 1 หลักการและเหตุผล: ประกอบจากผลวิเคราะห์ของระบบ พร้อมอ้างอิงสั้น (ผู้แต่ง ปี · ข้อของบทที่ 2) · ข้อ 2 หลักฐานของผลมาตรการและข้อควรระวัง
-      const oe = getOut(), el = (oe.elements || []).find((e) => e.code === m.elem), isTop = !!(el && el.rank && el.rank <= 3);
-      const rat = EV.rationale(m, { school: sc.name || 'โรงเรียน', hz: HZ[d.code][0], risk: d.risk, rd: isFinite(d.rd) ? fmt(d.rd, 2) : '', ready: d.ready, group: d.group, pkgName: d.pkg.name, pkgSummary: d.pkg.summary, top: isTop, rank: el ? el.rank : 0, pni: el && isFinite(el.pni) ? fmt(el.pni, 3) : '', moe: mo });
-      const ratHtml = rat.map((x) => '<p class="prat"><b>' + esc(x.lead) + '</b> ' + esc(x.text) + '</p>').join('');
+      const ratHtml1 = ratHtml(d, m, mo);
       const srcs = EV.sources(m), miss = srcs.some((x) => !x.inCh2);
       const secEv = '<section class="ps pev2 g' + ev[0] + '"><h3>2. หลักฐานของผลมาตรการและข้อควรระวัง <span class="pgr">ระดับ ' + ev[0] + '</span></h3>' +
         '<p>' + esc(m.evnote) + '</p><p class="pnote">' + esc(ev[2]) + (miss ? ' แหล่งที่ยังไม่อยู่ในบทที่ 2 ต้องเพิ่มและตรวจก่อนอ้างอิงในเอกสารทางการ' : '') + ' (คลังฉบับร่าง ยังไม่ผ่านเดลฟาย ผลของแหล่งในบทที่ 2 ข้อ 2.9.4 ได้จากบทคัดย่อ ยังไม่ได้อ่านเนื้อเต็ม) รายการอ้างอิงเต็ม: ภาคผนวกของเล่มแผนปฏิบัติการและรายการอ้างอิงของโครงร่างดุษฎีนิพนธ์</p></section>';
@@ -397,7 +400,7 @@
         '<tr><th>องค์ประกอบ 7-S</th><td>' + esc(c.SHORT_EL[m.elem]) + '</td><th>ประเภท (3 ป.) / ช่วง</th><td>' + esc(m.type3) + ' / ' + esc(m.phase) + '</td></tr>' +
         '<tr><th>ผู้รับผิดชอบ</th><td>' + esc(m.owner) + '</td><th>กลุ่มเป้าหมาย</th><td>' + esc(m.target) + '</td></tr>' +
         '</tbody></table>' +
-        sec(1, 'หลักการและเหตุผล (ที่มาของแผน)', ratHtml) +
+        sec(1, 'หลักการและเหตุผล (ที่มาของแผน)', ratHtml1) +
         secEv +
         sec(3, 'วัตถุประสงค์และผลที่คาดว่าจะได้รับ', '<ol class="pl"><li>' + esc(m.desc) + '</li><li>เพื่อให้' + esc(m.target) + 'ได้รับการดำเนินการตามมาตรการนี้อย่างทั่วถึง</li><li>ผลผลิต: ' + esc(m.output) + ' · ผลลัพธ์ที่คาดหวัง: ' + esc(m.outcome) + '</li></ol>') +
         sec(4, 'ขั้นตอนดำเนินงาน (กรอบต้นแบบ ปรับให้เหมาะกับบริบทของโรงเรียน)', stepsHtml) +
