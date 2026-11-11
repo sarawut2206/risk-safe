@@ -6,6 +6,7 @@
   'use strict';
   const isNode = typeof module !== 'undefined' && module.exports;
   const ST = isNode ? require('./stats.js') : root.RS_STATS;
+  const PR = isNode ? require('./planrec.js') : root.RS_PLANREC;   // แบบบันทึกผลการนำแผนรายมาตรการไปใช้ (ชนิดแบบฟอร์ม planreport)
   const SCHEMA = 'r2safe-collect', VERSION = 1;
   const ROLES = [['R1', 'ผู้อำนวยการโรงเรียน'], ['R2', 'รองผู้อำนวยการที่รับผิดชอบงานความปลอดภัย'], ['R3', 'ครูผู้รับผิดชอบงานความปลอดภัย']];
   const STRATA = [['BKK1', 'สพม.กรุงเทพมหานคร เขต 1'], ['BKK2', 'สพม.กรุงเทพมหานคร เขต 2'], ['CEN1', 'เขตตรวจราชการที่ 1 (ภาคกลาง)'], ['CEN2', 'เขตตรวจราชการที่ 2 (ภาคกลาง)']];
@@ -26,6 +27,7 @@
     questionnaire: () => ({ part1: { students: '', staff: '', year: '2569', stratum: '', safetyOfficer: '', counselor: '', budget: '', resource: '' }, risk: {}, seven: {}, part4: { need: '', suggest: '' } }),
     incidents: () => ({ year: '2569', noSystem: false, V: '', A: '', P: '', H: '' }),
     documents: () => ({ items: {}, years: {} }),
+    planreport: () => PR.blank(),
   };
 
   // ---------- ความครบถ้วน ----------
@@ -55,7 +57,7 @@
     DOCS.forEach((d) => { if (DOC_STATUS.indexOf((a.items || {})[d[0]]) < 0) err.push(d[0]); const y = (a.years || {})[d[0]]; if (y !== '' && y != null && int(y, 2550, 2600) == null) err.push(d[0] + ':year'); });
     return { complete: err.length === 0, errors: err };
   }
-  const progressOf = (form, a, data) => (form === 'questionnaire' ? progressQ(a, data) : form === 'incidents' ? Object.assign({ pct: checkIncidents(a).complete ? 100 : 0 }, checkIncidents(a)) : Object.assign({ pct: checkDocuments(a).complete ? 100 : 0 }, checkDocuments(a)));
+  const progressOf = (form, a, data) => (form === 'planreport' ? PR.progress(a) : form === 'questionnaire' ? progressQ(a, data) : form === 'incidents' ? Object.assign({ pct: checkIncidents(a).complete ? 100 : 0 }, checkIncidents(a)) : Object.assign({ pct: checkDocuments(a).complete ? 100 : 0 }, checkDocuments(a)));
 
   // ---------- แพ็กคำตอบ ----------
   function fnv(str) { let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(16).toUpperCase().padStart(8, '0'); }
@@ -69,9 +71,10 @@
   function validatePayload(p, data) {
     if (!p || p.schema !== SCHEMA) return { ok: false, why: 'ไม่ใช่ไฟล์คำตอบของ R²-SAFE' };
     if (p.version !== VERSION) return { ok: false, why: 'เวอร์ชันไม่ตรง' };
-    if (['questionnaire', 'incidents', 'documents'].indexOf(p.form) < 0) return { ok: false, why: 'ชนิดแบบฟอร์มไม่ถูกต้อง' };
+    if (['questionnaire', 'incidents', 'documents', 'planreport'].indexOf(p.form) < 0) return { ok: false, why: 'ชนิดแบบฟอร์มไม่ถูกต้อง' };
     if (!codeOk(p.school)) return { ok: false, why: 'รหัสโรงเรียนไม่ถูกต้อง' };
     if (!p.consent || p.consent.accepted !== true) return { ok: false, why: 'ไม่มีการยืนยันความยินยอม' };
+    if (p.form === 'planreport') return PR.validate(p, data);
     if (p.form === 'questionnaire') { if (!ROLES.some((r) => r[0] === p.respondent)) return { ok: false, why: 'ไม่ระบุผู้ตอบ' }; if (!progressQ(p.answers, data).complete) return { ok: false, why: 'แบบสอบถามยังกรอกไม่ครบ' }; }
     if (p.form === 'incidents' && !checkIncidents(p.answers).complete) return { ok: false, why: 'แบบบันทึกเหตุการณ์ยังไม่ครบหรือไม่ถูกต้อง' };
     if (p.form === 'documents' && !checkDocuments(p.answers).complete) return { ok: false, why: 'แบบตรวจเอกสารยังไม่ครบ' };
@@ -216,6 +219,6 @@
     return { state, open, close, daysLeft: Math.round((close - today) / 864e5), reminders: open ? [addDays(open, 7), addDays(open, 14)] : [] };
   }
 
-  const api = { SCHEMA, VERSION, collectWindow, thaiDate, ROLES, STRATA, YESNO, BUDGET, RESOURCE, DOC_STATUS, DOCS, DOMAIN_KEYS, blank, part1Missing, progressQ, checkIncidents, checkDocuments, progressOf, pack, validatePayload, codeOk, groupBySchool, aggregateSchool, rwgJ, icc1, spearman, agreement, completeness, parseCsv, parseRoster, toCsv, longRows, fnv };
+  const api = { PR, SCHEMA, VERSION, collectWindow, thaiDate, ROLES, STRATA, YESNO, BUDGET, RESOURCE, DOC_STATUS, DOCS, DOMAIN_KEYS, blank, part1Missing, progressQ, checkIncidents, checkDocuments, progressOf, pack, validatePayload, codeOk, groupBySchool, aggregateSchool, rwgJ, icc1, spearman, agreement, completeness, parseCsv, parseRoster, toCsv, longRows, fnv };
   if (isNode) module.exports = api; else root.RS_COLLECT = api;
 })(typeof window !== 'undefined' ? window : this);
