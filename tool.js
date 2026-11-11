@@ -373,7 +373,7 @@
     function ratHtml(d, m, mo) {
       const oe = getOut(), el = (oe.elements || []).find((e) => e.code === m.elem), isTop = !!(el && el.rank && el.rank <= 3);
       return root.RS_EVIDENCE.rationale(m, { school: S.school.name || 'โรงเรียน', hz: HZ[d.code][0], risk: d.risk, rd: isFinite(d.rd) ? fmt(d.rd, 2) : '', ready: d.ready, group: d.group, pkgName: d.pkg.name, pkgSummary: d.pkg.summary, top: isTop, rank: el ? el.rank : 0, pni: el && isFinite(el.pni) ? fmt(el.pni, 3) : '', moe: mo || [] })
-        .map((x) => '<p class="prat"><b>' + esc(x.lead) + '</b> ' + esc(x.text) + '</p>').join('');
+        .map((x) => x.note ? '<p class="prat prnote"><b>' + esc(x.lead) + ':</b> ' + esc(x.text) + '</p>' : '<div class="prat"><b>' + esc(x.lead) + '</b><ul class="prli">' + x.items.map((i) => '<li>' + esc(i) + '</li>').join('') + '</ul></div>').join('');
     }
     function planDoc(r, i, n) {
       const d = r.d, m = r.m, sc = S.school, st = S.status[r.key] || c.STATUS[0], EV = root.RS_EVIDENCE, ev = EV.EVG[m.evg] || EV.EVG.D;

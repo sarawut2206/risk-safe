@@ -31,7 +31,12 @@
   body.pd-on .pdoc .ps h3 { font-size: 16pt; line-height: 1.2; margin: 0; break-after: avoid; page-break-after: avoid; }
   body.pd-on .pdoc .ps p { margin: 6pt 0 0; text-indent: 25mm; }
   body.pd-on .pdoc .ps h3 + p { margin-top: 3pt; }
-  body.pd-on .pdoc .prat b { font-weight: 700; }
+  body.pd-on .pdoc .prat { margin-top: 6pt; }
+  body.pd-on .pdoc .prat > b { display: block; padding-left: 25mm; font-weight: 700; }
+  body.pd-on .pdoc .prli { margin: 0; padding-left: 33mm; }
+  body.pd-on .pdoc .prli li { margin: 0; }
+  body.pd-on .pdoc .prat.prnote { margin-top: 8pt; font-size: 14pt; }
+  body.pd-on .pdoc .prat.prnote b { display: inline; padding: 0; }
   body.pd-on .pdoc .pnote { font-size: 14pt; text-indent: 25mm; }
   body.pd-on .pdoc .ps.pev2, body.pd-on .pdoc .psign, body.pd-on .pdoc .pend { break-inside: avoid; page-break-inside: avoid; }
   body.pd-on .pdoc .pev2 { border: .75pt solid #000; border-radius: 0; background: none; padding: 3pt 6pt 5pt; }
