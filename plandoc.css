@@ -65,3 +65,13 @@
   body.pd-on .pdoc .pdf { font-size: 12pt; line-height: 1.2; margin-top: 12pt; padding-top: 4pt; border-top: 1.2pt solid #1d63b8; color: #55697f; }
   body.pd-on .pdoc .pcb, body.pd-on .pdoc .cbx { font-size: 14pt; }
 }
+.rform .rnote { margin: 6px 0 0; } .pscale td, .pscale th { text-align: center; } .pscale td:nth-child(2), .pscale th:nth-child(2) { text-align: left; }
+@media print {
+  body.pd-on .pdoc.rform .rnote { text-indent: 0; font-size: 13pt; }
+  body.pd-on .pdoc.rform .pscale td:nth-child(1) { width: 8%; } body.pd-on .pdoc.rform .pscale td:nth-child(n+3) { width: 7%; }
+  body.pd-on .pdoc.rform .pact td:first-child { width: 14%; } body.pd-on .pdoc.rform .pact td:nth-child(3), body.pd-on .pdoc.rform .pact td:nth-child(4) { width: 15%; }
+  body.pd-on .pdoc.rform .pscale td:nth-child(3), body.pd-on .pdoc.rform .pscale td:nth-child(4) { width: 7%; }
+  body.pd-on .pdoc.rform .cbx { display: inline-block; vertical-align: middle; }
+  body.pd-on .pdoc.rform .pcb { margin-right: 6pt; }
+  body.pd-on .pdoc.rform .pcb .cbx.on { background: none; box-shadow: none; }
+}

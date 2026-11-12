@@ -3,11 +3,11 @@
    ค่าเริ่มต้นเป็นโหมดทดลอง (demo) ไม่ส่งข้อมูลไปที่ใด จะส่งข้อมูลได้เฉพาะเมื่อผู้วิจัยตั้งค่า collectMode และ collectUrl ใน config.js และผู้ตอบกดส่งเอง */
 (function (root) {
   'use strict';
-  const C = root.RS_COLLECT, ST = root.RS_STATS, Dc = root.RS_DECISION;
+  const C = root.RS_COLLECT, ST = root.RS_STATS, Dc = root.RS_DECISION, PR = root.RS_PLANREC, ACT = root.RS_ACTPLAN;
 
   function create(c, h) {
-    const { S, D, E, esc } = c;
-    const { ic, banner, card, HZ } = h;
+    const { S, D, E, esc, getOut } = c;
+    const { ic, banner, card, HZ, hasData } = h;
     const LS_PREFIX = 'r2safe-collect-v1';
     const cfg = () => root.RS_CONFIG || {};
     const mode = () => (['demo', 'tryout', 'live'].indexOf(cfg().collectMode) >= 0 ? cfg().collectMode : 'demo');
@@ -28,7 +28,7 @@
     try { const last = JSON.parse(localStorage.getItem(LS_PREFIX + '|last') || 'null'); if (last && !K.code) { K.code = String(last.code || '').slice(0, 16); if (!K.role) K.role = last.role || ''; } } catch (e) { /* ไม่มี */ }
     const rememberLast = () => { try { if (K.code) localStorage.setItem(LS_PREFIX + '|last', JSON.stringify({ code: K.code, role: K.role })); } catch (e) { /* ไม่เป็นไร */ } };
     const codeOk = () => C.codeOk(K.code);
-    const keyOf = (form, resp) => [LS_PREFIX, K.code.toUpperCase(), form, form === 'questionnaire' ? (resp || K.role || '-') : '-'].join('|');
+    const keyOf = (form, resp) => [LS_PREFIX, K.code.toUpperCase(), form, form === 'questionnaire' ? (resp || K.role || '-') : (form === 'planreport' ? (resp || '-') : '-')].join('|');
     function loadDraft(form, resp) {
       const key = keyOf(form, resp);
       if (K.drafts[key]) return K.drafts[key];
@@ -62,7 +62,7 @@
       return '<p class="' + t[0] + ' cpmode">' + ic(m === 'live' ? 'check' : 'alert', 18) + ' ' + t[1] + '</p>';
     }
     function head(cur) {
-      const tabs = [['portal', 'หน้าแรก'], ['form1', '1 แบบสอบถาม'], ['form2', '2 เหตุการณ์'], ['form3', '3 เอกสารนโยบาย']];
+      const tabs = [['portal', 'หน้าแรก'], ['form1', '1 แบบสอบถาม'], ['form2', '2 เหตุการณ์'], ['form3', '3 เอกสารนโยบาย'], ['planrec', '4 ผลการใช้แผน']];
       return '<div class="thead cph"><div class="tbrand">' + (c.LOGO || '') + '<div><b>R<sup>2</sup>-SAFE</b><span>ระบบรวบรวมข้อมูลสถานศึกษา · School Data Collection Portal</span></div></div></div>' +
         '<nav class="cpnav" aria-label="แบบฟอร์ม">' + tabs.map((t) => '<button data-go="' + t[0] + '"' + (t[0] === cur ? ' aria-current="page"' : '') + '>' + t[1] + '</button>').join('') + '</nav>' +
         (codeOk() ? '<p class="cpwho">' + ic('building', 16) + ' รหัสโรงเรียน <b>' + esc(K.code.toUpperCase()) + '</b>' + (cur === 'form1' && K.role ? ' · ผู้ตอบ <b>' + esc(roleName(K.role)) + '</b>' : '') + '</p>' : '');
@@ -89,6 +89,7 @@
     // การ์ด "ตรวจก่อนส่ง" ของแต่ละแบบ (แยกฟังก์ชันเพื่ออัปเดตทันทีขณะพิมพ์โดยไม่วาดหน้าใหม่)
     function buildCheck(form, d) {
       if (form === 'questionnaire') { const pr = C.progressQ(d.answers, D); return card('ตรวจก่อนส่ง', pr.complete ? '<p class="xok">' + ic('check', 18) + ' กรอกครบทุกช่องแล้ว</p>' : '<p class="xwarn">' + ic('alert', 18) + ' ยังไม่ครบ: ตอนที่ 1 ' + pr.parts.p1.missing.length + ' ช่อง · ตอนที่ 2 ' + pr.parts.p2.missing.length + ' ช่อง · ตอนที่ 3 ' + pr.parts.p3.missing.length + ' ช่อง</p><p><button class="tbtn sm" data-act="cnext">' + ic('search', 18) + '<span>ไปที่ช่องแรกที่ยังไม่ได้กรอก</span></button></p>', { icon: 'check' }); }
+      if (form === 'planreport') { const pr = PR.progress(d.answers); return card('ตรวจก่อนส่ง', pr.complete ? '<p class="xok">' + ic('check', 18) + ' กรอกครบทุกช่องแล้ว</p>' : '<p class="xwarn">' + ic('alert', 18) + ' ยังไม่ครบหรือไม่ถูกต้อง ' + pr.missing.length + ' ช่อง (ช่องที่ยังขาดมีกรอบสีเหลือง) ความคืบหน้า ' + pr.pct + '%</p><p><button class="tbtn sm" data-act="cnext">' + ic('chev', 16) + '<span>ไปช่องที่ยังขาด</span></button></p>', { icon: 'check' }); }
       const ck = form === 'incidents' ? C.checkIncidents(d.answers) : C.checkDocuments(d.answers);
       return card('ตรวจก่อนส่ง', ck.complete ? '<p class="xok">' + ic('check', 18) + ' กรอกครบแล้ว</p>' : '<p class="xwarn">' + ic('alert', 18) + ' ยังกรอกไม่ครบหรือไม่ถูกต้อง ' + ck.errors.length + ' ช่อง' + (form === 'incidents' ? ' (ตัวเลขจำนวนเต็มไม่ติดลบ)' : '') + '</p>', { icon: 'check' });
     }
@@ -110,6 +111,7 @@
         '<ul class="cproles">' + C.ROLES.map((r) => '<li><span><b>' + r[0] + '</b> ' + esc(r[1]) + '</span>' + stat('questionnaire', r[0]) + '<button class="tbtn sm" data-act="copen" data-form="form1" data-role="' + r[0] + '"' + (ok ? '' : ' disabled') + '>เปิด</button></li>').join('') + '</ul></section>' +
         '<section class="tcard cpform"><span class="cpno">02</span><h2>บันทึกจำนวนเหตุการณ์</h2><p class="hint">ผู้ประสานงานโรงเรียน 1 ชุด จำนวนเหตุรวม 4 ด้านในปีการศึกษา ไม่ระบุชื่อและรายละเอียดคดี ถ้าไม่มีระบบบันทึกให้เลือก "ไม่มีระบบบันทึก"</p><p>' + stat('incidents') + '</p><button class="tbtn sm" data-act="copen" data-form="form2"' + (ok ? '' : ' disabled') + '>เปิดแบบฟอร์ม</button></section>' +
         '<section class="tcard cpform"><span class="cpno">03</span><h2>ตรวจสอบเอกสารนโยบาย</h2><p class="hint">ผู้ประสานงานโรงเรียน 1 ชุด แผนความปลอดภัย คำสั่งแต่งตั้ง ช่องทางแจ้งเหตุ แนวปฏิบัติ ระบบติดตาม อ้างอิงเอกสารจริงของโรงเรียน</p><p>' + stat('documents') + '</p><button class="tbtn sm" data-act="copen" data-form="form3"' + (ok ? '' : ' disabled') + '>เปิดแบบฟอร์ม</button></section></div>';
+      s += card('04 บันทึกผลการนำแผนไปใช้', '<p class="hint">หลังนำแผนปฏิบัติการของแต่ละมาตรการไปใช้ กรอกผลที่ได้ ได้แก่ ขั้นตอนที่ทำจริง ผลตัวชี้วัด จำนวนผู้เข้าร่วม ทรัพยากรที่ใช้ ความสอดคล้องกับกลยุทธ์ ความพึงพอใจ และอุปสรรค ผู้วิจัยใช้ข้อมูลนี้ดูว่าแผนตอบสนองกลยุทธ์อย่างไร ไม่ต้องใส่ชื่อบุคคลหรือข้อมูลที่ระบุตัวนักเรียน</p><div class="row-btns"><button class="tbtn primary" data-go="planrec"' + (ok ? '' : ' disabled') + '>' + ic('clipboard', 22) + '<span>เปิดแบบบันทึกผลการนำแผนไปใช้</span></button><button class="tbtn" data-act="recform" data-k="all">' + ic('print', 22) + '<span>พิมพ์แบบบันทึกผลสำหรับจดระหว่างทำ</span></button></div>', { icon: 'clipboard' });
       s += card('สถานะการส่งของโรงเรียน', ok && endpoint() && m !== 'demo' ? '<p class="hint">ตรวจว่าระบบของผู้วิจัยได้รับข้อมูลของรหัสนี้แล้วกี่ชุด (ระบบตอบเฉพาะว่าได้รับหรือยัง ไม่ส่งคำตอบกลับ)</p><p><button class="tbtn sm" data-act="cstatus">' + ic('search', 18) + '<span>ตรวจสถานะจากระบบ</span></button></p><div id="cstatus-out">' + (K.remote ? remoteStatus(K.remote) : '') + '</div>' : '<p class="muted">สถานะที่แสดงในแต่ละแบบฟอร์มมาจากเครื่องนี้เท่านั้น (ร่างและไฟล์ที่ดาวน์โหลด) ' + (m === 'demo' ? 'โหมดทดลองไม่เชื่อมต่อระบบของผู้วิจัย' : (!endpoint() ? 'ผู้วิจัยยังไม่ได้ตั้งที่อยู่รับข้อมูล' : 'ใส่รหัสโรงเรียนก่อน')) + '</p>', { icon: 'flag' });
       s += card('ขั้นตอน', '<ol class="xo big"><li>ผู้ประสานงานของโรงเรียนใส่รหัสโรงเรียนที่ผู้วิจัยแจ้ง</li><li>ผู้ตอบ 3 คนเปิดลิงก์ของตนเอง (มีรหัสผู้ตอบ R1, R2, R3 ในลิงก์) กรอกแบบสอบถามคนละชุด แยกกัน ห้ามตอบแทนกันหรือปรึกษาก่อนตอบ</li><li>ผู้ประสานงานกรอกแบบบันทึกจำนวนเหตุการณ์และแบบตรวจเอกสารนโยบาย</li><li>ระบบเก็บร่างอัตโนมัติในเครื่อง ออกจากหน้าแล้วกลับมากรอกต่อได้ ตรวจช่องที่ยังไม่ได้กรอกได้ก่อนส่ง</li><li>กดส่งถึงผู้วิจัย หรือดาวน์โหลดไฟล์คำตอบแล้วส่งตามช่องทางที่ผู้วิจัยแจ้ง</li><li>ผู้วิจัยรวมข้อมูลเป็นระดับโรงเรียนเมื่อได้ผู้ตอบครบ 3 คน</li></ol>', { icon: 'calendar' });
       s += card('ความเป็นส่วนตัว', '<ul class="xl"><li>เก็บเฉพาะรหัสโรงเรียน รหัสผู้ตอบ (R1–R3) คะแนนและตัวเลขรวม ไม่เก็บชื่อบุคคล ชื่อโรงเรียน หรือข้อมูลของนักเรียน</li><li>ร่างที่กรอกอยู่ในเบราว์เซอร์เครื่องนี้ ไม่ส่งออกจนกว่าท่านกดส่งหรือดาวน์โหลดไฟล์ ควรใช้เครื่องของตนเอง ถ้าใช้เครื่องร่วมกันให้กด "ล้างร่าง" หลังส่ง</li><li>ช่องข้อความปลายเปิดห้ามใส่ชื่อบุคคลหรือรายละเอียดที่ระบุตัวได้</li><li>ผลประเมินของแต่ละโรงเรียนไม่เปิดเผยต่อสาธารณะ รายงานเป็นภาพรวมหรือรายกลุ่ม</li></ul>', { icon: 'shieldcheck' });
@@ -212,6 +214,7 @@
     // ---------- ส่ง / ดาวน์โหลด ----------
     function payloadOf(form) {
       const cd = S.ui.cdraft; if (!cd || cd.form !== form) return null;
+      if (form === 'planreport') { const mt = cd.d.meta || {}; return PR.pack({ school: K.code, measure: cd.resp, domain: mt.domain, group: mt.group, plannedWeeks: mt.plannedWeeks, consent: cd.d.consent.accepted, consentAt: cd.d.consent.at, startedAt: cd.d.startedAt, mode: mode() }, JSON.parse(JSON.stringify(cd.d.answers))); }
       return C.pack(form, { school: K.code, respondent: cd.resp, consent: cd.d.consent.accepted, consentAt: cd.d.consent.at, startedAt: cd.d.startedAt, mode: mode() }, JSON.parse(JSON.stringify(cd.d.answers)));
     }
     async function doSend(form) {
@@ -234,6 +237,75 @@
       c.render(true);
     }
 
+
+    // ====================================================================
+    // แบบที่ 4: บันทึกผลการนำแผนรายมาตรการไปใช้ (planreport)
+    // ====================================================================
+    function recOptions() {
+      const out = (getOut && hasData(getOut())) ? getOut() : null, seen = {}, inPlan = [];
+      if (out) out.domains.forEach((dm) => dm.measures.forEach((m) => { if (m.sb && !seen[m.sb]) { seen[m.sb] = { d: dm, m }; inPlan.push(m.sb); } }));
+      return { seen, inPlan };
+    }
+    const numw = (path, cur, ph, max) => '<input type="text" inputmode="numeric" data-cset="' + path + '" value="' + esc(cur == null ? '' : cur) + '" placeholder="' + (ph || '') + '" maxlength="' + (max || 6) + '">';
+    const txt = (path, cur, ph, max) => '<input type="text" data-cset="' + path + '" value="' + esc(cur == null ? '' : cur) + '" placeholder="' + (ph || '') + '" maxlength="' + (max || 60) + '">';
+    function pagePlanrec() {
+      let s = banner('clipboard', 'บันทึกผลการนำแผนไปใช้', 'แบบที่ 4 · ผู้ปฏิบัติงานของโรงเรียน 1 ชุดต่อมาตรการ · ตัวเลขรวมและข้อความสั้นที่ไม่ระบุตัวบุคคล');
+      if (!codeOk()) return shell('planrec', s + needCode('แบบบันทึกผลการนำแผนไปใช้'));
+      const { seen, inPlan } = recOptions(), bankAll = D.bank.filter((b) => b.sb);
+      let sb = S.ui.recSb && bankAll.some((b) => b.sb === S.ui.recSb) ? S.ui.recSb : (inPlan[0] || '');
+      S.ui.recSb = sb;
+      const opt = (b) => '<option value="' + esc(b.sb) + '"' + (b.sb === sb ? ' selected' : '') + '>' + esc(b.sb + ' ' + b.name) + '</option>';
+      s += card('เลือกมาตรการที่โรงเรียนนำไปใช้', '<p class="hint">ตอบทีละมาตรการ ถ้านำแผนไปใช้หลายมาตรการ ให้กลับมาเลือกมาตรการถัดไป ฉบับร่างของแต่ละมาตรการเก็บแยกกันในเครื่องนี้</p><div class="cpf"><select data-cset-rec="sb" aria-label="เลือกมาตรการ"><option value="">เลือกมาตรการ</option>' +
+        (inPlan.length ? '<optgroup label="มาตรการในแผนของท่าน (' + inPlan.length + ')">' + inPlan.map((id) => opt(seen[id].m)).join('') + '</optgroup>' : '') +
+        '<optgroup label="มาตรการอื่นในคลัง">' + bankAll.filter((b) => !seen[b.sb]).map(opt).join('') + '</optgroup></select></div>' + (inPlan.length ? '' : '<p class="hint">ยังไม่ได้สร้างแผนในเครื่องนี้ จึงแสดงทุกมาตรการในคลังให้เลือก</p>'), { icon: 'target' });
+      if (!sb) return shell('planrec', s);
+      const m = D.bank.find((b) => b.sb === sb), row = seen[sb] || null, d0 = row ? row.d : null;
+      const d = loadDraft('planreport', sb); S.ui.cdraft = { form: 'planreport', resp: sb, d };
+      d.meta = { domain: d0 ? d0.code : (m.dom || ''), group: d0 && d0.group ? d0.group : '', plannedWeeks: ACT.TOTAL[m.res] || 8 };
+      const a = d.answers, ck = PR.progress(a), miss = (k) => (ck.missing.some((e) => e === k || e.indexOf(k + '.') === 0) ? ' cpmiss' : '');
+      const hz = d0 ? HZ[d0.code][0] : (HZ[m.dom] ? HZ[m.dom][0] : 'ทุกด้านร่วมกัน');
+      s += card(esc(m.name), '<ul class="xl"><li>รหัส ' + esc(m.sb) + ' · ด้าน' + esc(hz) + (d0 && d0.group ? ' · กลุ่มแนวทาง ' + esc(d0.group) : '') + '</li><li>กลุ่มเป้าหมาย: ' + esc(m.target) + ' · ผู้รับผิดชอบ: ' + esc(m.owner) + '</li><li>ผลที่คาดหวัง: ' + esc(m.outcome) + '</li><li>ตัวชี้วัดของแผน: ' + esc(m.kpi) + '</li></ul>', { icon: 'doc' });
+      s += consentCard(d);
+      if (!d.consent.accepted) return shell('planrec', s);
+      const steps = PR.stepsOf(m, { review: d0 ? d0.pkg.review : '', start: d0 ? d0.pkg.start : '' });
+      s += card('1. ข้อมูลทั่วไป', '<div class="cpgrid"><div class="' + miss('year') + '">' + fld('ปีการศึกษาที่นำแผนไปใช้', numw('answers.year', a.year, '2569', 4)) + '</div><div class="' + miss('weeksActual') + '">' + fld('จำนวนสัปดาห์ที่ใช้จริง (นับจากเริ่มจนถึงวันที่กรอก)', numw('answers.weeksActual', a.weeksActual, '', 3), 'แผนกำหนดประมาณ ' + d.meta.plannedWeeks + ' สัปดาห์ ใส่ 0 ถ้ายังไม่ได้เริ่ม') + '</div></div><div class="' + miss('respRole') + '">' + fld('ผู้กรอกแบบนี้', chips('answers.respRole', PR.ROLES.map((r) => r[0]), a.respRole, PR.ROLES.map((r) => r[1]))) + '</div>', { icon: 'building' });
+      s += card('2. ขั้นตอนที่ทำจริง (ตามแผน 6 ขั้น)', '<p class="hint">เลือกสถานะของแต่ละขั้น ถ้า "เสร็จแล้ว" ให้บอกว่าโรงเรียนมีหลักฐานหรือผลที่ได้ของขั้นนั้นเก็บไว้หรือไม่ (ไม่ต้องแนบไฟล์)</p>' + steps.map((x, k) => {
+        const st = a.steps[x.id] || {}, bad = miss('steps.' + x.id);
+        return '<div class="cpq' + bad + '"><p><span class="id">ขั้น ' + (k + 1) + '</span> <b>' + esc(x.when) + '</b> ' + esc(x.what) + '</p><div class="cpgrid"><div>' + fld('สถานะ', sel('answers.steps.' + x.id + '.status', PR.STEP_STATUS, st.status).replace('<select ', '<select data-rr="1" ')) + '</div>' +
+          (st.status === 'เสร็จแล้ว' ? '<div>' + fld('มีหลักฐานหรือผลที่ได้ของขั้นนี้', sel('answers.steps.' + x.id + '.evidence', PR.EVID, st.evidence, 'เลือก'), 'ผลที่ได้ตามแผน: ' + esc(x.out)) + '</div>' : '') + '</div></div>';
+      }).join(''), { icon: 'list' });
+      s += card('3. ตัวชี้วัด', '<p class="hint">ตัวชี้วัดของแผนนี้: <b>' + esc(m.kpi) + '</b></p><div class="cpgrid"><div>' + fld('ค่าเป้าหมายที่ตั้งไว้ (ข้อความสั้น)', txt('answers.kpi.target', a.kpi.target, 'เช่น ร้อยละ 80')) + '</div><div>' + fld('ค่าที่วัดได้จริง (ข้อความสั้น)', txt('answers.kpi.actual', a.kpi.actual, 'เช่น ร้อยละ 85')) + '</div></div><div class="' + miss('kpi') + '">' + fld('ผลเทียบกับเป้าหมาย', chips('answers.kpi.met', PR.KPI_MET, a.kpi.met)) + '</div>', { icon: 'target' });
+      s += card('4. ผู้รับประโยชน์และทรัพยากรที่ใช้', '<p class="xwarn">' + ic('alert', 18) + ' ใช้จำนวนรวมเท่านั้น ไม่ระบุชื่อ</p><div class="cpgrid"><div class="' + miss('reach.intended') + miss('reach.order') + '">' + fld('จำนวนที่ตั้งใจให้เข้าร่วม (' + esc(m.target) + ') คน', numw('answers.reach.intended', a.reach.intended, '', 5)) + '</div><div class="' + miss('reach.reached') + miss('reach.order') + '">' + fld('จำนวนที่เข้าร่วมจริง (คน)', numw('answers.reach.reached', a.reach.reached, '', 5), 'ต้องไม่เกินจำนวนที่ตั้งใจ') + '</div></div>' +
+        '<div class="cpgrid"><div class="' + miss('resource.people') + '">' + fld('จำนวนผู้ปฏิบัติงาน (คน)', numw('answers.resource.people', a.resource.people, '', 4)) + '</div><div class="' + miss('resource.hours') + '">' + fld('เวลาที่ใช้รวม (ชั่วโมง)', numw('answers.resource.hours', a.resource.hours, '', 5)) + '</div><div class="' + miss('resource.cost') + '">' + fld('ค่าใช้จ่ายรวม (บาท)', numw('answers.resource.cost', a.resource.cost, '0 ถ้าไม่มี', 8)) + '</div></div>', { icon: 'users' });
+      s += card('5. สถานการณ์ด้าน' + esc(hz) + 'หลังนำแผนไปใช้', '<div class="' + miss('change.value') + '">' + fld('ผู้ปฏิบัติงานสังเกตว่าด้านนี้เป็นอย่างไร', chips('answers.change.value', PR.CHANGE, a.change.value), 'เป็นการประเมินของผู้กรอก ไม่ใช่ข้อสรุปว่าเกิดจากแผน') + '</div><div class="cpgrid ' + miss('change.inc') + '"><div>' + fld('จำนวนเหตุของด้านนี้ ช่วงก่อนใช้แผน (ครั้ง ถ้ามีบันทึก)', numw('answers.change.incBefore', a.change.incBefore, '', 5)) + '</div><div>' + fld('จำนวนเหตุช่วงเวลาเท่ากัน หลังใช้แผน (ครั้ง)', numw('answers.change.incAfter', a.change.incAfter, '', 5), 'กรอกทั้งคู่หรือเว้นว่างทั้งคู่') + '</div></div>', { icon: 'alert' });
+      const likert = (list, key) => '<ul class="cpleg"><li><b>1</b> น้อยที่สุด</li><li><b>5</b> มากที่สุด</li></ul>' + list.map((x) => '<div class="cpq' + miss(key + '.' + x[0]) + '"><p><span class="id">' + x[0] + '</span> ' + esc(x[1]) + '</p><div class="cprow">' + chips('answers.' + key + '.' + x[0], [1, 2, 3, 4, 5], (a[key] || {})[x[0]]) + '</div></div>').join('');
+      s += card('6. ความสอดคล้องกับกลยุทธ์ที่ระบบเสนอ', likert(PR.ALIGN, 'align'), { icon: 'bars' });
+      s += card('7. ความพึงพอใจ', likert(PR.SAT, 'sat'), { icon: 'check' });
+      s += card('8. อุปสรรคที่พบ', '<div class="' + miss('obst') + '"><p class="hint">เลือกได้หลายข้อ ถ้าไม่พบอุปสรรคให้เลือกข้อสุดท้ายข้อเดียว</p>' + PR.OBST.map((x) => '<label class="xck big"><input type="checkbox" data-cset="answers.obst.' + x[0] + '" data-rr="1"' + ((a.obst || {})[x[0]] === true ? ' checked' : '') + '> ' + esc(x[1]) + '</label>').join('') + '</div>', { icon: 'alert' });
+      s += card('9. การปรับแผนและข้อเสนอแนะ (ไม่บังคับ)', '<p class="xwarn">' + ic('alert', 18) + ' ห้ามใส่ชื่อบุคคล ชื่อนักเรียน หรือรายละเอียดที่ระบุตัวได้ ระบบไม่รับข้อความที่มีคำนำหน้าชื่อตามด้วยชื่อ</p>' + fld('สิ่งที่โรงเรียนปรับจากแผน (ไม่เกิน 400 ตัวอักษร)', '<textarea data-cset="answers.adapt" maxlength="400" rows="3">' + esc(a.adapt) + '</textarea>') + fld('ข้อเสนอแนะต่อแผนนี้ (ไม่เกิน 400 ตัวอักษร)', '<textarea data-cset="answers.suggest" maxlength="400" rows="3">' + esc(a.suggest) + '</textarea>'), { icon: 'doc' });
+      return shell('planrec', s + '<div id="cpcheck">' + buildCheck('planreport', d) + '</div>' + actions('planreport', d, ck.complete));
+    }
+
+    // ---------- แดชบอร์ดผู้วิจัย: ผลการนำแผนไปใช้ ----------
+    function dashPlans() {
+      const list = filtered().filter((p) => p.form === 'planreport'), sm = PR.summarize(list, D.bank), o = sm.overall;
+      const n1 = (x) => (typeof x === 'number' && isFinite(x) ? x.toFixed(2) : '–');
+      if (!o.n) return synBanner() + card('ผลการนำแผนไปใช้', '<p class="hint">ยังไม่มีไฟล์บันทึกผลการนำแผนไปใช้ (แบบที่ 4) ที่ครบถ้วน นำเข้าไฟล์ JSON ที่โรงเรียนดาวน์โหลดหรือส่งออกจากชีต raw ในแท็บ "นำเข้า" หรือกด "โหลดข้อมูลตัวอย่างสมมติ"</p>', { icon: 'bars' });
+      const kpiTxt = (k) => PR.KPI_MET.map((x) => x + ' ' + (k[x] || 0)).join(' · '), chgTxt = (k) => PR.CHANGE.map((x) => x + ' ' + (k[x] || 0)).join(' · ');
+      let h2 = synBanner() + '<p class="xwarn">' + ic('alert', 18) + ' ข้อมูลทั้งหมดเป็นการรายงานของผู้ปฏิบัติงานโรงเรียนเอง ใช้อธิบายความเหมาะสม ความเป็นไปได้ ความเป็นประโยชน์ ความสามารถในการใช้งาน และความพึงพอใจของแผน ไม่ใช่หลักฐานว่าเหตุการณ์ไม่ปลอดภัยลดลงเพราะแผน (ข้อ 1.10) มาตรการที่มีรายงานน้อยกว่า 3 ฉบับแสดงเป็นค่าพรรณนาเท่านั้น</p>';
+      h2 += '<div class="kpi4"><div class="tcard kc"><small>บันทึกผลที่ครบถ้วน</small><b>' + o.n + '</b></div><div class="tcard kc"><small>โรงเรียน</small><b>' + o.schools + '</b></div><div class="tcard kc"><small>ทำครบขั้นเฉลี่ย</small><b>' + pct(o.meanStepsDone) + '</b></div><div class="tcard kc"><small>เข้าถึงกลุ่มเป้าหมายเฉลี่ย</small><b>' + pct(o.meanCoverage) + '</b></div></div>';
+      h2 += card('ผลตามมิติของงานวิจัย (ค่าเฉลี่ย 1–5)', '<div class="xscroll"><table class="xtb"><thead><tr><th>มิติ</th><th>ข้อที่ใช้</th><th>ค่าเฉลี่ย</th></tr></thead><tbody>' + o.dims.map((d2) => '<tr><td>' + esc(d2.label) + '</td><td>' + d2.items.join(', ') + '</td><td><b>' + n1(d2.mean) + '</b></td></tr>').join('') + '</tbody></table></div><p class="hint">ผลตัวชี้วัด: ' + esc(kpiTxt(o.kpi)) + '<br>การเปลี่ยนแปลงที่ผู้กรอกสังเกต: ' + esc(chgTxt(o.change)) + '<br>มีหลักฐานของขั้นที่เสร็จแล้วเฉลี่ย ' + pct(o.meanEvidence) + ' · ใช้เวลามัธยฐาน ' + n2(o.medianWeeks, 1) + ' สัปดาห์ (เทียบแผน ' + n2(o.medianWeeksRatio, 2) + ' เท่า) · ผู้ปฏิบัติงานมัธยฐาน ' + n2(o.medianPeople, 0) + ' คน · ' + n2(o.medianHours, 0) + ' ชั่วโมง · ' + n2(o.medianCost, 0) + ' บาท</p>', { icon: 'bars' });
+      h2 += card('รายมาตรการ', '<div class="xscroll"><table class="xtb"><thead><tr><th>มาตรการ</th><th>n</th><th>ทำครบขั้น</th><th>บรรลุเป้า</th><th>เข้าถึง</th><th>สอดคล้อง A1–A6</th><th>พึงพอใจ S1–S5</th></tr></thead><tbody>' + sm.measures.map((x) => {
+        const A = PR.ALIGN.map((i) => x.align[i[0]]), Sx = PR.SAT.map((i) => x.sat[i[0]]), mean2 = (v) => v.reduce((t, y) => t + y, 0) / v.length;
+        return '<tr><td><b>' + esc(x.sb) + '</b> ' + esc(x.name) + (x.n < 3 ? ' ' + chip('n น้อย', 'warn') : '') + '</td><td>' + x.n + '</td><td>' + pct(x.meanStepsDone) + '</td><td>' + (x.kpi['บรรลุตามเป้า'] || 0) + '/' + x.n + '</td><td>' + pct(x.meanCoverage) + '</td><td>' + n1(mean2(A)) + '</td><td>' + n1(mean2(Sx)) + '</td></tr>';
+      }).join('') + '</tbody></table></div>', { icon: 'target' });
+      h2 += card('อุปสรรคที่พบ (จำนวนรายงาน)', '<ul class="xl">' + PR.OBST.map((x) => [x[1], o.obst[x[0]] || 0]).sort((p, q) => q[1] - p[1]).map((x) => '<li><span>' + esc(x[0]) + ': <b>' + x[1] + '</b> จาก ' + o.n + '</span></li>').join('') + '</ul>', { icon: 'alert' });
+      const grp = (arr, lab) => '<div class="xscroll"><table class="xtb"><thead><tr><th>' + lab + '</th><th>n</th><th>เหมาะสม</th><th>เป็นไปได้</th><th>เป็นประโยชน์</th><th>ใช้งานง่าย</th><th>พึงพอใจ</th></tr></thead><tbody>' + arr.map((x) => '<tr><td>' + esc(x.key === '-' ? 'ไม่ระบุ' : x.key === 'X' ? 'ทุกด้านร่วมกัน' : (HZ[x.key] ? HZ[x.key][0] : x.key)) + '</td><td>' + x.n + '</td>' + x.dims.map((d2) => '<td>' + n1(d2.mean) + '</td>').join('') + '</tr>').join('') + '</tbody></table></div>';
+      h2 += card('แยกตามด้านของภัยและกลุ่มแนวทาง', grp(sm.domains, 'ด้านของภัย') + grp(sm.groups, 'กลุ่มแนวทาง'), { icon: 'bars' });
+      h2 += card('ส่งออก', '<p class="hint">CSV รูปแบบกว้าง หนึ่งแถวต่อหนึ่งมาตรการต่อหนึ่งโรงเรียน (ใช้ฉบับล่าสุดที่ครบถ้วน) เปิดด้วย Excel ได้</p><button class="tbtn primary" data-act="cl-csv" data-k="plans">' + ic('download', 22) + '<span>ดาวน์โหลด CSV ผลการใช้แผน</span></button>', { icon: 'download' });
+      return h2;
+    }
+
     // ====================================================================
     // แดชบอร์ดผู้วิจัย
     // ====================================================================
@@ -243,11 +315,11 @@
       let o; try { o = JSON.parse(text); } catch (e) { return name + ': ไม่ใช่ JSON'; }
       const list = Array.isArray(o) ? o : [o], bad = [];
       list.forEach((p, i) => { const v = C.validatePayload(p, D); if (!v.ok) { bad.push((list.length > 1 ? name + ' รายการที่ ' + (i + 1) : name) + ': ' + v.why); return; }
-        const k = p.school + '|' + p.form + '|' + p.respondent, at = L().payloads.findIndex((x) => x.school + '|' + x.form + '|' + x.respondent === k);
+        const kf = (x) => x.school + '|' + x.form + '|' + x.respondent + '|' + (x.measure || ''), k = kf(p), at = L().payloads.findIndex((x) => kf(x) === k);
         if (at >= 0) { if (String(p.submittedAt) >= String(L().payloads[at].submittedAt)) L().payloads[at] = p; } else L().payloads.push(p); });
       return bad.join('; ');
     }
-    const tabsHtml = (cur) => '<div class="xtabs" role="tablist">' + [['import', 'นำเข้า'], ['complete', 'ความครบถ้วน'], ['profiles', 'โปรไฟล์โรงเรียน'], ['agree', 'ความสอดคล้อง'], ['export', 'ส่งออก'], ['links', 'ลิงก์ผู้ตอบ']].map((t) => '<button role="tab" aria-selected="' + (t[0] === cur) + '" data-act="clabtab" data-v="' + t[0] + '">' + t[1] + '</button>').join('') + '</div>';
+    const tabsHtml = (cur) => '<div class="xtabs" role="tablist">' + [['import', 'นำเข้า'], ['complete', 'ความครบถ้วน'], ['profiles', 'โปรไฟล์โรงเรียน'], ['agree', 'ความสอดคล้อง'], ['plans', 'ผลการใช้แผน'], ['export', 'ส่งออก'], ['links', 'ลิงก์ผู้ตอบ']].map((t) => '<button role="tab" aria-selected="' + (t[0] === cur) + '" data-act="clabtab" data-v="' + t[0] + '">' + t[1] + '</button>').join('') + '</div>';
     const synBanner = () => { const l = L().payloads; const syn = l.filter((p) => p.synthetic).length, nonLive = l.filter((p) => p.mode !== 'live').length; return (syn ? '<p class="xwarn">' + ic('alert', 18) + ' <b>มีข้อมูลสมมติ ' + syn + ' ไฟล์</b> ผลที่แสดงใช้ทดสอบเครื่องมือเท่านั้น ไม่ใช่ผลวิจัย</p>' : '') + (nonLive && !syn ? '<p class="xwarn">' + ic('alert', 18) + ' มีไฟล์จากโหมดทดลอง ' + nonLive + ' ไฟล์ ใช้ตัวกรองโหมดเลือกเฉพาะข้อมูลที่เปิดเก็บจริง (live)</p>' : ''); };
     const schoolsAll = () => C.groupBySchool(filtered());
     const profilesOf = () => schoolsAll().map((s) => ({ s, a: C.aggregateSchool(s, D) })).filter((x) => x.a.complete).map((x) => ({ code: x.s.code, a: x.a, out: E.analyze(x.a.input, D, null, { guard: Dc.guard }), inc: x.s.incidents, doc: x.s.documents, syn: x.s.synthetic }));
@@ -313,7 +385,7 @@
       const tab = S.ui.clabTab || 'import';
       let s = banner('bars', 'แดชบอร์ดผู้วิจัย: เก็บข้อมูลโรงเรียน', 'ความครบถ้วน โปรไฟล์โรงเรียน ความสอดคล้องของผู้ตอบ และการส่งออก');
       s += tabsHtml(tab);
-      const body = { import: dashImport, complete: dashComplete, profiles: dashProfiles, agree: dashAgree, export: dashExport, links: dashLinks }[tab]();
+      const body = { import: dashImport, complete: dashComplete, profiles: dashProfiles, agree: dashAgree, plans: dashPlans, export: dashExport, links: dashLinks }[tab]();
       return '<div class="tapp cpapp"><div class="tbody">' + s + body + '</div></div>';
     }
 
@@ -331,7 +403,7 @@
         stratum: { to: 'stratum', options: C.STRATA.map((x) => [x[0], x[1]]), check: (v) => C.STRATA.some((x) => x[0] === v) },
         guidance: { to: 'counselor', options: C.YESNO.map((x) => [x, x]), on: false, init: (e) => (parseInt(e.value, 10) > 0 ? 'มี' : ''), check: (v) => C.YESNO.indexOf(v) >= 0 } } });
     PUI.bind();
-    function applyQuery(q) { if (!q) return; if (q.s) { K.code = String(q.s).slice(0, 16); } if (q.r && C.ROLES.some((r) => r[0] === q.r)) K.role = q.r; }
+    function applyQuery(q) { if (!q) return; if (q.s) { K.code = String(q.s).slice(0, 16); } if (q.m && /^SB-\d{3}$/.test(q.m)) S.ui.recSb = q.m; if (q.r && C.ROLES.some((r) => r[0] === q.r)) K.role = q.r; }
     function bind() {
       document.addEventListener('click', (e) => {
         const t = e.target.closest('button'); if (!t || !t.dataset.act || t.disabled) return; const a = t.dataset.act;
@@ -349,7 +421,7 @@
         else if (a === 'cnext') { const m = document.querySelector('.cpmiss'); if (m) { m.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }
         else if (a === 'cdl') {
           const form = t.dataset.form, p = payloadOf(form); if (!p) return; const cd = S.ui.cdraft; cd.d.downloaded = new Date().toISOString(); persist(cd.form, cd.resp);
-          download('r2safe-' + p.school + '-' + form + (p.respondent ? '-' + p.respondent : '') + '-' + p.mode + '.json', JSON.stringify(p, null, 1)); rerender(true);
+          download('r2safe-' + p.school + '-' + form + (p.respondent ? '-' + p.respondent : (p.measure ? '-' + p.measure : '')) + '-' + p.mode + '.json', JSON.stringify(p, null, 1)); rerender(true);
         }
         else if (a === 'csend') doSend(t.dataset.form);
         else if (a === 'cclear') { const cd = S.ui.cdraft; if (cd && window.confirm('ล้างร่างของแบบนี้ในเครื่องนี้ใช่หรือไม่ (ไฟล์ที่ดาวน์โหลดหรือข้อมูลที่ส่งแล้วไม่หาย)')) { const key = keyOf(cd.form, cd.resp); delete K.drafts[key]; try { localStorage.removeItem(key); } catch (er) { /* ไม่เป็นไร */ } K.msg = ''; rerender(false); } }
@@ -365,7 +437,8 @@
         }
         else if (a === 'cl-csv') {
           const k = t.dataset.k, f = filtered();
-          if (k === 'long') download('r2safe-responses-long.csv', C.toCsv(C.longRows(f, D)), 'text/csv;charset=utf-8');
+          if (k === 'plans') download('r2safe-planreports.csv', C.toCsv(PR.longRows(f, D.bank)), 'text/csv;charset=utf-8');
+          else if (k === 'long') download('r2safe-responses-long.csv', C.toCsv(C.longRows(f, D)), 'text/csv;charset=utf-8');
           else if (k === 'wide') download('r2safe-school-level.csv', C.toCsv(schoolWide()), 'text/csv;charset=utf-8');
           else download('r2safe-completeness.csv', C.toCsv([['school', 'stratum', 'R1', 'R2', 'R3', 'incidents', 'documents', 'complete']].concat(C.completeness(f, L().roster, D).map((r) => [r.code, r.stratum].concat(r.q.map((x) => x.done)).concat([r.incidents, r.documents, r.complete])))), 'text/csv;charset=utf-8');
         }
@@ -380,11 +453,13 @@
       document.addEventListener('change', (e) => {
         const t = e.target; if (!t || !t.dataset) return;
         if (t.dataset.csetTop) { rerender(true); return; }
+        if (t.dataset.csetRec !== undefined) { S.ui.recSb = t.value; rerender(true); return; }
         if (t.dataset.csetLab) { L()[t.dataset.csetLab] = t.value; rerender(true); return; }
         if (t.dataset.cset) {
           const cd = S.ui.cdraft; if (!cd) return;
           if (t.dataset.cset === 'consent.accepted') { cd.d.consent.accepted = t.checked; cd.d.consent.at = t.checked ? new Date().toISOString() : null; persist(cd.form, cd.resp); rerender(true); return; }
           const v = t.type === 'checkbox' ? t.checked : t.value; setPath(cd.d.answers, t.dataset.cset.replace(/^answers\./, ''), v);
+          if (cd.form === 'planreport' && /^answers\.obst\./.test(t.dataset.cset) && v) { const key = t.dataset.cset.split('.')[2]; PR.OBST.forEach((x) => { if (key === 'none' ? x[0] !== 'none' : x[0] === 'none') cd.d.answers.obst[x[0]] = false; }); }
           if (t.dataset.cset === 'answers.noSystem' && v) DOMAINS_CLEAR(cd.d.answers);
           if (!cd.d.startedAt) cd.d.startedAt = new Date().toISOString(); persist(cd.form, cd.resp); if (t.dataset.rr) rerender(true); else updateLive(); return;
         }
@@ -394,7 +469,7 @@
     }
     function DOMAINS_CLEAR(a) { C.DOMAIN_KEYS.forEach((k) => { a[k] = ''; }); }
     // หมายเหตุ: ช่องข้อความ (input) ของ cset ตั้งค่าตรงบนฉบับร่างโดยไม่วาดหน้าใหม่ เพื่อไม่ให้เสียตำแหน่งเคอร์เซอร์
-    return { bind, applyQuery, pages: { portal: () => shell('portal', pagePortal()), form1: pageForm1, form2: pageForm2, form3: pageForm3, collectlab: pageLab } };
+    return { bind, applyQuery, pages: { portal: () => shell('portal', pagePortal()), form1: pageForm1, form2: pageForm2, form3: pageForm3, planrec: pagePlanrec, collectlab: pageLab } };
   }
   root.RS_TOOL3 = { create };
 })(window);

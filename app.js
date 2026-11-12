@@ -43,8 +43,8 @@
     { id: 'portal', label: 'เก็บข้อมูลโรงเรียน' },
     { id: 'about', label: 'เกี่ยวกับโครงการ' },
   ];
-  const PORTAL = ['portal', 'form1', 'form2', 'form3', 'collectlab'];
-  const TOOL = ['school', 'dash', 'rassess', 'ready', 'pni', 'matrix', 'strategy', 'brief', 'plandoc', 'moe', 'planbook', 'plan', 'explain', 'track', 'evaluate', 'lab', 'rules'];
+  const PORTAL = ['portal', 'form1', 'form2', 'form3', 'planrec', 'collectlab'];
+  const TOOL = ['school', 'dash', 'rassess', 'ready', 'pni', 'matrix', 'strategy', 'brief', 'plandoc', 'recform', 'moe', 'planbook', 'plan', 'explain', 'track', 'evaluate', 'lab', 'rules'];
   const PAGES = [
     { id: 'home', nav: '', title: 'Risk Safe ระบบบริหารความปลอดภัยบนฐานความเสี่ยง', sub: '' },
     { id: 'bank', nav: 'bank', eyebrow: 'คลังกลยุทธ์', title: 'คลังมาตรการ (Strategy Bank) ฉบับร่าง 68 รายการ', sub: 'ร่างที่ผู้วิจัยจัดทำ ยังไม่ได้ตรวจหลักฐานและแหล่งอ้างอิงรายข้อ และยังไม่ผ่านเดลฟาย ใช้สาธิตการทำงานของระบบ' },
@@ -58,6 +58,7 @@
     { id: 'strategy', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'กลยุทธ์และมาตรการที่ระบบเสนอ', sub: 'พร้อมเหตุผลของการเลือกที่ตรวจย้อนกลับได้ ผู้อำนวยการเป็นผู้ตัดสินใจขั้นสุดท้าย' },
     { id: 'brief', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'สรุปสำหรับผู้บริหาร', sub: '' },
     { id: 'plandoc', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'แผนต้นแบบรายมาตรการ', sub: '' },
+    { id: 'recform', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'แบบบันทึกผลการดำเนินงานตามแผน (พิมพ์)', sub: '' },
     { id: 'moe', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'ประกาศ ศธ. 7 มาตรการความปลอดภัย', sub: '' },
     { id: 'planbook', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'เล่มแผนปฏิบัติการ', sub: '' },
     { id: 'plan', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'แผนปฏิบัติการและติดตามผล', sub: 'ผู้รับผิดชอบ ตัวชี้วัด ระยะเวลา และสถานะการดำเนินงาน (ต้นแบบ: สถานะไม่ถูกบันทึกถาวร)' },
@@ -70,6 +71,7 @@
     { id: 'form1', nav: 'portal', eyebrow: 'เก็บข้อมูลโรงเรียน', title: 'แบบสอบถามความเสี่ยงและความพร้อม', sub: '' },
     { id: 'form2', nav: 'portal', eyebrow: 'เก็บข้อมูลโรงเรียน', title: 'แบบบันทึกจำนวนเหตุการณ์', sub: '' },
     { id: 'form3', nav: 'portal', eyebrow: 'เก็บข้อมูลโรงเรียน', title: 'แบบตรวจเอกสารนโยบาย', sub: '' },
+    { id: 'planrec', nav: 'portal', eyebrow: 'เก็บข้อมูลโรงเรียน', title: 'บันทึกผลการนำแผนไปใช้', sub: '' },
     { id: 'collectlab', nav: 'portal', eyebrow: 'เก็บข้อมูลโรงเรียน', title: 'แดชบอร์ดผู้วิจัย', sub: '' },
     { id: 'about', nav: 'about', eyebrow: 'เกี่ยวกับโครงการ', title: 'เกี่ยวกับต้นแบบ Risk Safe (R²-SAFE)', sub: 'ระบบนี้ตอบอะไร ทำงานอย่างไร และสถานะของต้นแบบ' },
   ];
@@ -274,10 +276,25 @@
     intro: 'กดปุ่มด้านล่างแล้วเลือกไฟล์แผนปฏิบัติการประจำปีของโรงเรียน ระบบอ่านไฟล์และกรอกข้อมูลโรงเรียนให้ทันที (ชื่อโรงเรียน จำนวนนักเรียน ครูและบุคลากร ปี จังหวัด) พร้อมเพิ่มไฟล์ในรายการเอกสารและสรุปโครงการที่เกี่ยวกับความปลอดภัยไว้ให้ดู <b>ไฟล์ถูกอ่านในเครื่องของท่านเท่านั้น ไม่อัปโหลดและไม่ส่งข้อความไปที่ใด</b> ใช้ได้กับ PDF ที่เลือกข้อความได้ (ไม่ใช่ภาพสแกน) ไม่เกิน 50 MB ค่าที่ได้เป็นข้อเสนอจากเอกสาร ท่านควรตรวจก่อนใช้ ไม่ใช่การประเมินความเสี่ยงหรือความพร้อม',
     map: { name: { to: 'name' }, students: { to: 'students', type: 'number' }, staff: { to: 'staff', type: 'number' }, fiscalYear: { to: 'year', type: 'number' }, province: { to: 'province' } } });
   UIP.bind();
-  const UI3 = RS_TOOL3.create({ S, D, E, esc, fmt, LOGO, go: (id) => go(id), render: (k) => render(k) }, UI.h);
+  const UI3 = RS_TOOL3.create({ S, D, E, esc, fmt, LOGO, getOut, go: (id) => go(id), render: (k) => render(k) }, UI.h);
   UI3.bind();
   const RENDER = Object.assign({ home: pageHome, bank: pageBank, risk: pageRisk, rules: pageRules, about: pageAbout }, UI.pages, UI2.pages, UI3.pages);
   let cur = 'home';
+  // ป๊อปอัปหลังพิมพ์หรือบันทึกแผน: เตือนให้นำข้อมูลที่ได้จากการใช้แผนมากรอกในโปรแกรม (หน้า #planrec) เพื่อให้ผู้วิจัยได้ข้อมูลตอบกลับ
+  function closeRecPrompt() { const m = document.getElementById('recprompt'); if (m) m.remove(); document.removeEventListener('keydown', recEsc); }
+  function recEsc(e) { if (e.key === 'Escape') closeRecPrompt(); }
+  function recPrompt(why) {
+    if (document.getElementById('recprompt')) return;
+    const m = document.createElement('div'); m.id = 'recprompt'; m.className = 'rsmodal';
+    m.innerHTML = '<div class="rsmbox" role="dialog" aria-modal="true" aria-labelledby="recpt"><h2 id="recpt">' + esc(why) + '</h2>' +
+      '<p><b>เมื่อนำแผนไปใช้แล้ว โปรดนำข้อมูลที่ได้มากรอกในโปรแกรมนี้ด้วย</b> ผู้วิจัยจะได้ทราบว่าแผนที่ระบบเสนอตอบสนองกลยุทธ์และวัตถุประสงค์อย่างไร และโรงเรียนพึงพอใจหรือพบอุปสรรคอะไร</p>' +
+      '<ol><li>พิมพ์ "แบบบันทึกผลการดำเนินงาน" ของแต่ละมาตรการ ใช้จดผลระหว่างทำตามแผน</li><li>เมื่อทำเสร็จหรือครบรอบ นำข้อมูลในแบบไปกรอกที่หน้า "บันทึกผลการนำแผนไปใช้" (ใช้รหัสโรงเรียนที่ผู้วิจัยแจ้ง)</li></ol>' +
+      '<p class="hint">ไม่ต้องใส่ชื่อบุคคลหรือข้อมูลที่ระบุตัวนักเรียน เก็บเฉพาะตัวเลขรวม คะแนน และข้อความสั้น</p>' +
+      '<div class="rsmbtn"><button class="tbtn primary" data-act="planrec">' + UI.h.ic('clipboard', 20) + '<span>ไปกรอกผลการนำแผนไปใช้</span></button><button class="tbtn" data-act="recform" data-k="all">' + UI.h.ic('print', 20) + '<span>พิมพ์แบบบันทึกผลทุกมาตรการ</span></button><button class="tbtn" data-act="recclose"><span>ไว้ทีหลัง</span></button></div></div>';
+    document.body.appendChild(m); document.addEventListener('keydown', recEsc);
+    const b = m.querySelector('button'); if (b) b.focus();
+  }
+  window.addEventListener('afterprint', () => { if (['plan', 'plandoc', 'planbook'].indexOf(cur) >= 0) recPrompt('พิมพ์หรือบันทึกแผนปฏิบัติการแล้ว'); });
   function chip() {
     const c = $('#fill-chip'); if (!c) return;
     const f = filled(); c.textContent = 'กรอกแล้ว ' + f.pct + '%'; c.className = 'chip' + (f.pct === 100 ? ' ok' : '');
@@ -300,7 +317,7 @@
     else if (TOOL.indexOf(cur) >= 0 && cur !== 'rules') $('#view').innerHTML = UI.shell(cur, RENDER[cur]());
     else $('#view').innerHTML = '<section class="phero hexbg"><div class="wrap"><span class="eyebrow">' + esc(p.eyebrow) + '</span><h1>' + esc(p.title) + '</h1><p>' + esc(p.sub) + '</p></div></section><div class="wrap body">' + RENDER[cur]() + '</div>';
     document.body.classList.toggle('pb-on', cur === 'planbook');
-    document.body.classList.toggle('pd-on', cur === 'plandoc');
+    document.body.classList.toggle('pd-on', cur === 'plandoc' || cur === 'recform');
     document.body.classList.toggle('tool-on', (TOOL.indexOf(cur) >= 0 && cur !== 'rules') || PORTAL.indexOf(cur) >= 0);
     buildNav(); buildFoot(); chip(); UI2.persist();
     if (!keepScroll) window.scrollTo({ top: 0 });
@@ -346,13 +363,16 @@
     else if (a === 'tab-strat') { S.ui.stratDom = t.dataset.code; render(true); }
     else if (a === 'strat') { S.ui.stratDom = t.dataset.dom; go('strategy'); }
     else if (a === 'plandoc') { S.ui.planDoc = t.dataset.k || 'all'; go('plandoc'); }
+    else if (a === 'recform') { S.ui.recForm = t.dataset.k || 'all'; closeRecPrompt(); go('recform'); }
+    else if (a === 'planrec') { if (t.dataset.k) S.ui.recSb = t.dataset.k; closeRecPrompt(); go('planrec'); }
+    else if (a === 'recclose') closeRecPrompt();
     else if (a === 'clear') {
       const has = S.track.snaps.length || Object.keys(S.track.logs).length || S.track.custom.length;
       if (has && !window.confirm('ล้างข้อมูลทั้งหมดรวมถึงบันทึกติดตามผลและรอบประเมินที่บันทึกไว้ใช่หรือไม่ (ดาวน์โหลดแฟ้มงานไว้ก่อนได้ที่หน้า "ติดตามผล")')) return;
       S.risk = {}; S.seven = {}; S.status = {}; S.moe = {}; S.aar = ''; S.docs = []; S.track.logs = {}; S.track.snaps = []; S.track.custom = []; render(true);
     }
     else if (a === 'rtab') { S.ui.rtab = t.dataset.tab; render(true); }
-    else if (a === 'csv') csv();
+    else if (a === 'csv') { csv(); setTimeout(() => recPrompt('บันทึกแผนเป็นไฟล์ CSV แล้ว'), 400); }
     else if (a === 'reload-bank') loadRemoteBank();
     else if (a === 'params-reset') { S.params = Object.assign({}, E.DEFAULT_PARAMS); render(true); }
   });
