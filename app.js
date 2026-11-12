@@ -58,7 +58,7 @@
   // เมนูบนที่ต้องไฮไลต์เมื่ออยู่หน้านี้: หน้าบทบาท = ตัวมันเอง · หน้าเก็บข้อมูลโรงเรียน = โรงเรียนที่ร่วมวิจัย · หน้าของผู้วิจัย = ผู้วิจัย · หน้าเครื่องมือ = บทบาทที่เปิดมาล่าสุด
   const RESEARCH_PAGES = ['bank', 'risk', 'rules', 'lab', 'evaluate', 'collectlab', 'about'];
   const PORTAL = ['portal', 'form1', 'form2', 'form3', 'planrec', 'collectlab'];
-  const TOOL = ['school', 'dash', 'rassess', 'ready', 'pni', 'matrix', 'strategy', 'brief', 'plandoc', 'recform', 'actdocs', 'moe', 'planbook', 'plan', 'explain', 'track', 'evaluate', 'lab', 'rules'];
+  const TOOL = ['school', 'dash', 'rassess', 'ready', 'pni', 'matrix', 'strategy', 'brief', 'plandoc', 'recform', 'actdocs', 'planpack', 'moe', 'planbook', 'plan', 'explain', 'track', 'evaluate', 'lab', 'rules'];
   const PAGES = [
     { id: 'roleDir', nav: 'roleDir', eyebrow: 'บทบาท', title: 'ผู้อำนวยการสถานศึกษา', sub: '' },
     { id: 'roleDeputy', nav: 'roleDeputy', eyebrow: 'บทบาท', title: 'รองผู้อำนวยการที่รับผิดชอบงานความปลอดภัย', sub: '' },
@@ -76,6 +76,7 @@
     { id: 'strategy', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'กลยุทธ์และมาตรการที่ระบบเสนอ', sub: 'พร้อมเหตุผลของการเลือกที่ตรวจย้อนกลับได้ ผู้อำนวยการเป็นผู้ตัดสินใจขั้นสุดท้าย' },
     { id: 'brief', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'สรุปสำหรับผู้บริหาร', sub: '' },
     { id: 'plandoc', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'แผนต้นแบบรายมาตรการ', sub: '' },
+    { id: 'planpack', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'พิมพ์แผนพร้อมเอกสารแนบ', sub: '' },
     { id: 'actdocs', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'เอกสารประกอบแผน 6 ฉบับ (พิมพ์)', sub: '' },
     { id: 'recform', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'แบบบันทึกผลการดำเนินงานตามแผน (พิมพ์)', sub: '' },
     { id: 'moe', nav: 'input', eyebrow: 'เครื่องมือประเมิน', title: 'ประกาศ ศธ. 7 มาตรการความปลอดภัย', sub: '' },
@@ -308,6 +309,8 @@
   const RENDER = Object.assign({ roleDir: () => pageRole('roleDir'), roleDeputy: () => pageRole('roleDeputy'), roleTeacher: () => pageRole('roleTeacher'), roleResearch: () => pageRole('roleResearch'), home: pageHome, bank: pageBank, risk: pageRisk, rules: pageRules, about: pageAbout }, UI.pages, UI2.pages, UI3.pages);
   let cur = 'home';
   // ป๊อปอัปหลังพิมพ์หรือบันทึกแผน: เตือนให้นำข้อมูลที่ได้จากการใช้แผนมากรอกในโปรแกรม (หน้า #planrec) เพื่อให้ผู้วิจัยได้ข้อมูลตอบกลับ
+  // จำหน้าที่ผู้ใช้อยู่ก่อนเข้าหน้าเอกสาร/พิมพ์ (รวมตำแหน่งเลื่อน) เพื่อให้ปุ่ม กลับไปหน้าเดิม พากลับมาที่แผนเดิมได้
+  function rememberBack() { if (['actdocs', 'planpack', 'recform'].indexOf(cur) < 0) S.ui.docBack = { id: cur, y: window.scrollY }; }
   function closeRecPrompt() { const m = document.getElementById('recprompt'); if (m) m.remove(); document.removeEventListener('keydown', recEsc); }
   function recEsc(e) { if (e.key === 'Escape') closeRecPrompt(); }
   function recPrompt(why) {
@@ -317,11 +320,11 @@
       '<p><b>เมื่อนำแผนไปใช้แล้ว โปรดนำข้อมูลที่ได้มากรอกในโปรแกรมนี้ด้วย</b> ผู้วิจัยจะได้ทราบว่าแผนที่ระบบเสนอตอบสนองกลยุทธ์และวัตถุประสงค์อย่างไร และโรงเรียนพึงพอใจหรือพบอุปสรรคอะไร</p>' +
       '<ol><li>พิมพ์ "แบบบันทึกผลการดำเนินงาน" ของแต่ละมาตรการ ใช้จดผลระหว่างทำตามแผน</li><li>เมื่อทำเสร็จหรือครบรอบ นำข้อมูลในแบบไปกรอกที่หน้า "บันทึกผลการนำแผนไปใช้" (ใช้รหัสโรงเรียนที่ผู้วิจัยแจ้ง)</li></ol>' +
       '<p class="hint">ไม่ต้องใส่ชื่อบุคคลหรือข้อมูลที่ระบุตัวนักเรียน เก็บเฉพาะตัวเลขรวม คะแนน และข้อความสั้น</p>' +
-      '<div class="rsmbtn"><button class="tbtn primary" data-act="planrec">' + UI.h.ic('clipboard', 20) + '<span>ไปกรอกผลการนำแผนไปใช้</span></button><button class="tbtn" data-act="actdocs" data-sb="" data-n="all">' + UI.h.ic('doc', 20) + '<span>พิมพ์เอกสารประกอบแผน 6 ฉบับ</span></button><button class="tbtn" data-act="recform" data-k="all">' + UI.h.ic('print', 20) + '<span>พิมพ์แบบบันทึกผลทุกมาตรการ</span></button><button class="tbtn" data-act="recclose"><span>ไว้ทีหลัง</span></button></div></div>';
+      '<div class="rsmbtn"><button class="tbtn primary" data-act="planrec">' + UI.h.ic('clipboard', 20) + '<span>ไปกรอกผลการนำแผนไปใช้</span></button><button class="tbtn" data-act="planpack" data-k="all">' + UI.h.ic('print', 20) + '<span>พิมพ์ทั้งแผนพร้อมเอกสารแนบ</span></button><button class="tbtn" data-act="actdocs" data-sb="" data-n="all">' + UI.h.ic('doc', 20) + '<span>พิมพ์เอกสารประกอบแผน 6 ฉบับ</span></button><button class="tbtn" data-act="recform" data-k="all">' + UI.h.ic('print', 20) + '<span>พิมพ์แบบบันทึกผลทุกมาตรการ</span></button><button class="tbtn" data-act="recclose"><span>ไว้ทีหลัง</span></button></div></div>';
     document.body.appendChild(m); document.addEventListener('keydown', recEsc);
     const b = m.querySelector('button'); if (b) b.focus();
   }
-  document.addEventListener('change', (e) => { const t = e.target; if (!t || !t.dataset || !t.dataset.adsel) return; if (t.dataset.adsel === 'sb') S.ui.docSb = t.value; else S.ui.docAllM = t.checked; render(true); });
+  document.addEventListener('change', (e) => { const t = e.target; if (t && t.dataset && t.dataset.pksel) { if (t.dataset.pksel === 'key') S.ui.packKey = t.value; else if (t.dataset.pksel === 'rec') S.ui.packRec = t.checked; else S.ui.packDocs = t.checked; render(true); return; } if (!t || !t.dataset || !t.dataset.adsel) return; if (t.dataset.adsel === 'sb') S.ui.docSb = t.value; else S.ui.docAllM = t.checked; render(true); });
   window.addEventListener('afterprint', () => { if (['plan', 'plandoc', 'planbook'].indexOf(cur) >= 0) recPrompt('พิมพ์หรือบันทึกแผนปฏิบัติการแล้ว'); });
   function chip() {
     const c = $('#fill-chip'); if (!c) return;
@@ -348,8 +351,8 @@
     else if (TOOL.indexOf(cur) >= 0 && cur !== 'rules') $('#view').innerHTML = UI.shell(cur, RENDER[cur]());
     else $('#view').innerHTML = '<section class="phero hexbg"><div class="wrap"><span class="eyebrow">' + esc(p.eyebrow) + '</span><h1>' + esc(p.title) + '</h1><p>' + esc(p.sub) + '</p></div></section><div class="wrap body">' + RENDER[cur]() + '</div>';
     document.body.classList.toggle('pb-on', cur === 'planbook');
-    document.body.classList.toggle('pd-on', cur === 'plandoc' || cur === 'recform' || cur === 'actdocs');
-    document.body.classList.toggle('nobnav', ['actdocs', 'recform', 'plandoc', 'planbook', 'brief'].indexOf(cur) >= 0);   // หน้าเอกสาร/พิมพ์ ไม่แสดงแถบเมนูล่างที่ลอยทับเนื้อหา
+    document.body.classList.toggle('pd-on', cur === 'plandoc' || cur === 'recform' || cur === 'actdocs' || cur === 'planpack');
+    document.body.classList.toggle('nobnav', ['actdocs', 'recform', 'plandoc', 'planbook', 'brief', 'planpack'].indexOf(cur) >= 0);   // หน้าเอกสาร/พิมพ์ ไม่แสดงแถบเมนูล่างที่ลอยทับเนื้อหา
     document.body.classList.toggle('tool-on', (TOOL.indexOf(cur) >= 0 && cur !== 'rules') || PORTAL.indexOf(cur) >= 0);
     buildNav(); buildFoot(); chip(); UI2.persist();
     if (!keepScroll) window.scrollTo({ top: 0 });
@@ -395,9 +398,11 @@
     else if (a === 'tab-strat') { S.ui.stratDom = t.dataset.code; render(true); }
     else if (a === 'strat') { S.ui.stratDom = t.dataset.dom; go('strategy'); }
     else if (a === 'plandoc') { S.ui.planDoc = t.dataset.k || 'all'; go('plandoc'); }
-    else if (a === 'recform') { S.ui.recForm = t.dataset.k || 'all'; closeRecPrompt(); go('recform'); }
+    else if (a === 'recform') { rememberBack(); S.ui.recForm = t.dataset.k || 'all'; closeRecPrompt(); go('recform'); }
+    else if (a === 'planpack') { rememberBack(); S.ui.packKey = t.dataset.k || 'all'; closeRecPrompt(); go('planpack'); }
+    else if (a === 'docback') { const b = S.ui.docBack; if (b) { go(b.id); setTimeout(() => window.scrollTo({ top: b.y, behavior: 'auto' }), 80); setTimeout(() => window.scrollTo({ top: b.y, behavior: 'auto' }), 400); } }
     else if (a === 'planrec') { if (t.dataset.k) S.ui.recSb = t.dataset.k; closeRecPrompt(); go('planrec'); }
-    else if (a === 'actdocs') { if (t.dataset.sb != null) S.ui.docSb = t.dataset.sb || S.ui.docSb; S.ui.docNo = t.dataset.n || 'all'; closeRecPrompt(); go('actdocs'); }
+    else if (a === 'actdocs') { rememberBack(); if (t.dataset.sb != null) S.ui.docSb = t.dataset.sb || S.ui.docSb; S.ui.docNo = t.dataset.n || 'all'; closeRecPrompt(); go('actdocs'); }
     else if (a === 'recclose') closeRecPrompt();
     else if (a === 'clear') {
       const has = S.track.snaps.length || Object.keys(S.track.logs).length || S.track.custom.length;

@@ -96,3 +96,6 @@
   body.pd-on .pdoc.adoc .pdmeta th { width: 28%; }
 }
 body.nobnav .bnav { display: none !important; } body.nobnav .tapp { padding-bottom: 24px; }
+.backfab { position: fixed; left: 16px; bottom: 16px; z-index: 40; border: 0; border-radius: 999px; padding: 11px 18px; background: #12355f; color: #fff; font: inherit; font-weight: 700; box-shadow: 0 6px 18px rgba(0, 0, 0, .3); cursor: pointer; } .backfab:hover { background: #1d63b8; }
+.pdacts { margin: 6px 0 0; display: flex; flex-wrap: wrap; gap: 6px; }
+@media print { .backfab, .pdacts { display: none !important; } }
