@@ -25,7 +25,7 @@
 
 /* แถบขั้นตอนในเครื่องมือ */
 .guide { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 10px 14px; background: #fff; border-bottom: 1px solid #dbe8f5; }
-.guide ol { list-style: none; margin: 0; padding: 0; display: flex; gap: 6px; flex: 1 1 340px; overflow-x: auto; }
+.guide ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; flex: 1 1 340px; }   /* แสดงครบทุกขั้นตอน ไม่ต้องเลื่อน (ขั้นที่ไม่พอบรรทัดขึ้นบรรทัดใหม่) */
 .guide li { flex: 0 0 auto; }
 .guide li button { display: flex; align-items: center; gap: 7px; border: 1px solid #dbe8f5; background: #f4f9ff; color: #41566f; border-radius: 999px; padding: 6px 12px 6px 7px; cursor: pointer; font: inherit; font-size: .9rem; white-space: nowrap; min-height: 40px; }
 .guide li button b { width: 26px; height: 26px; border-radius: 50%; background: #dbe8f5; color: #12355f; display: grid; place-items: center; font-size: .85rem; }

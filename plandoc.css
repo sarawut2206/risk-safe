@@ -75,3 +75,23 @@
   body.pd-on .pdoc.rform .pcb { margin-right: 6pt; }
   body.pd-on .pdoc.rform .pcb .cbx.on { background: none; box-shadow: none; }
 }
+.lnk { all: unset; cursor: pointer; color: #1d63b8; text-decoration: underline; }
+.lnk:hover, .lnk:focus-visible { color: #12355f; }
+.adsel { display: grid; gap: 8px; margin-top: 8px; } .adsel select { max-width: 100%; padding: 6px 8px; border: 1.5px solid #c9dcf0; border-radius: 10px; } .adtabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.adh { margin: 10px 0 2px; font-size: 1.02em; color: #12355f; } .adp { margin: 4px 0; } .adbox { border: 1px solid #9fd3bc; background: #f0faf5; border-radius: 6px; padding: 5px 9px; margin: 6px 0; }
+.adl { margin: 6px 0; } .adline { display: block; border-bottom: 1px dotted #3b4d61; height: 22px; } .adweb { border: 1px solid #c9d8e8; background: #f4f8fc; padding: 4px 8px; margin-top: 10px; font-size: .92em; }
+.adt td { min-height: 22px; }
+@media print {
+  .lnk { all: unset; color: inherit; text-decoration: none; }
+  body.pd-on .pdoc.adoc .adh { font-size: 16pt; font-weight: 700; color: #12355f; margin: 10pt 0 0; break-after: avoid; }
+  body.pd-on .pdoc.adoc .adp { margin: 6pt 0 0; text-indent: 0; } body.pd-on .pdoc.adoc .adnote { text-indent: 0; }
+  body.pd-on .pdoc.adoc .adbox { border: .75pt solid #9fd3bc; background: #f0faf5; border-radius: 4pt; padding: 3pt 8pt; margin-top: 6pt; font-size: 14pt; break-inside: avoid; }
+  body.pd-on .pdoc.adoc .adl { margin-top: 6pt; break-inside: avoid; } body.pd-on .pdoc.adoc .adl b { display: block; }
+  body.pd-on .pdoc.adoc .adline { border-bottom: .75pt dotted #3b4d61; height: 18pt; }
+  body.pd-on .pdoc.adoc .psign { margin-top: 14pt; } body.pd-on .pdoc.adoc .ps, body.pd-on .pdoc.adoc .adh { margin-top: 8pt; }
+  body.pd-on .pdoc.adoc .adweb { border: .75pt solid #c9d8e8; background: #f4f8fc; margin-top: 10pt; padding: 3pt 8pt; font-size: 13pt; break-inside: avoid; }
+  body.pd-on .pdoc.adoc .adt { width: 100%; table-layout: fixed; margin-top: 4pt; } body.pd-on .pdoc.adoc .adt td { height: 18pt; vertical-align: top; }
+  body.pd-on .pdoc.adoc .pact tbody tr:nth-child(even) td { background: none; } body.pd-on .pdoc.adoc .pact td:first-child { font-weight: 400; color: inherit; width: auto; }
+  body.pd-on .pdoc.adoc .pact td:nth-child(3), body.pd-on .pdoc.adoc .pact td:nth-child(4) { width: auto; }
+  body.pd-on .pdoc.adoc .pdmeta th { width: 28%; }
+}
