@@ -36,13 +36,14 @@
   };
   // เมนูบน (nav) และหน้าทั้งหมด; field nav = เมนูบนที่ต้องไฮไลต์เมื่ออยู่หน้านี้
   const NAV = [
-    { id: 'home', label: 'หน้าแรก' },
-    { id: 'roleDir', label: 'ผู้อำนวยการ' },
-    { id: 'roleDeputy', label: 'รองผู้อำนวยการ' },
-    { id: 'roleTeacher', label: 'ผู้รับผิดชอบงานความปลอดภัย' },
-    { id: 'portal', label: 'โรงเรียนที่ร่วมวิจัย' },
-    { id: 'roleResearch', label: 'ผู้วิจัย' },
+    { id: 'home', label: 'ภาพรวมระบบ' },
+    { id: 'bank', label: 'คลังมาตรการ' },
+    { id: 'risk', label: 'ฐานข้อมูลความเสี่ยง' },
+    { id: 'dash', label: 'เครื่องมือประเมิน' },
+    { id: 'about', label: 'เกี่ยวกับโครงการ' },
   ];
+  // กล่องเลือกบทบาทมุมขวาบน (ไม่ใช่การเข้าสู่ระบบ: เว็บนี้ไม่มีบัญชีผู้ใช้ เลือกบทบาทเพื่อไปยังหน้าที่ตรงกับงาน)
+  const ROLES = [['roleDir', 'ผู้อำนวยการ', 'ภาพรวมและอนุมัติแนวทาง'], ['roleDeputy', 'รองผู้อำนวยการ', 'ติดตามและกำกับแผน'], ['roleTeacher', 'ผู้รับผิดชอบงานความปลอดภัย', 'กรอกข้อมูลและดำเนินมาตรการ'], ['portal', 'โรงเรียนที่ร่วมวิจัย', 'แบบเก็บข้อมูลด้วยรหัสโรงเรียน'], ['roleResearch', 'ผู้วิจัย', 'คลัง ห้องวิเคราะห์ แดชบอร์ดผู้วิจัย']];
   // หน้าของแต่ละบทบาท: ภารกิจเรียงตามลำดับที่ใช้จริง แต่ละข้อเปิดหน้าเครื่องมือที่ตรงกับงานนั้น
   const ROLE_PAGES = {
     roleDir: { eyebrow: 'บทบาทของท่าน', title: 'ผู้อำนวยการสถานศึกษา', lead: 'ดูภาพรวมความเสี่ยงและความพร้อมของโรงเรียน ตัดสินใจเลือกมาตรการ อนุมัติแผนปฏิบัติการ และกำกับติดตามผล',
@@ -237,39 +238,6 @@
       '<div class="mods rolemods">' + R.tasks.map((t, i) => '<div class="mod"><span class="rno">' + (i + 1) + '</span><h3>' + esc(t[1]) + '</h3><p>' + esc(t[2]) + '</p><a href="#' + t[0] + '" data-go="' + t[0] + '">เปิดหน้านี้ →</a></div>').join('') + '</div>' +
       '<p class="fine">ต้นแบบเชิงวิจัย ผลของระบบเป็นข้อเสนอสนับสนุนการวางแผน ผู้อำนวยการเป็นผู้ตัดสินใจขั้นสุดท้าย ไม่ใช่เว็บไซต์ทางการของ สพฐ.</p></div></section>';
   }
-  // ---------- หน้าแรก ----------
-  function pageHome() {
-    const nItems = D.riskItems.length + D.sevenItems.length;
-    const stats = [[D.bank.length, 'มาตรการในคลัง', 'ฉบับร่าง รอเดลฟาย'], [D.domains.length, 'ด้านของภัย', 'V · A · P · H'], [D.elements.length, 'องค์ประกอบ 7-S', 'ตามกรอบ McKinsey'], [nItems, 'ข้อประเมิน', 'ความเสี่ยง + ความพร้อม']];
-    const mods = [
-      ['bank', 'bank', 'คลังกลยุทธ์', 'คลังมาตรการ ' + D.bank.length + ' รายการ กรองตามด้านของภัย องค์ประกอบ 7-S ประเภท 3 ป. และระดับทรัพยากร พร้อมผู้รับผิดชอบและตัวชี้วัด', 'เปิดคลังกลยุทธ์ →'],
-      ['risk', 'risk', 'ฐานข้อมูลความเสี่ยง', 'ข้อประเมินความเสี่ยง ' + D.riskItems.length + ' ข้อใน 4 ด้านของภัย และข้อประเมิน 7-S ' + D.sevenItems.length + ' ข้อ พร้อมเกณฑ์คะแนน L × C และตารางให้คะแนน 5 × 5', 'ดูข้อประเมินและเกณฑ์ →'],
-      ['input', 'tool', 'เครื่องมือประเมิน', 'กรอกข้อมูลโรงเรียน ระบบวิเคราะห์ความเสี่ยง × ความพร้อม จัดกลุ่ม R1–R9 เสนอมาตรการพร้อมเหตุผล และแผนปฏิบัติการ', 'เริ่มประเมิน →'],
-    ];
-    const steps = [['วิเคราะห์ความเสี่ยง', 'ISO 31000: L × C'], ['วิเคราะห์ความพร้อม', 'McKinsey 7-S: D และ I'], ['จัดลำดับความสำคัญ', 'PNI Modified'], ['เลือกกลยุทธ์', 'ตาราง Risk × Readiness'], ['ขับเคลื่อน', 'แผนปฏิบัติการ'], ['ติดตามและเรียนรู้', 'ตัวชี้วัดและ AAR']];
-    let s = '<section class="hero start-hero hexbg"><div class="wrap"><span class="pillb">ต้นแบบงานวิจัยดุษฎีนิพนธ์ · มหาวิทยาลัยสยาม</span>' +
-      '<h1>ระบบบริหารความปลอดภัยบนฐานความเสี่ยง</h1><p class="goldt">คลังกลยุทธ์และเครื่องมือตัดสินใจสำหรับโรงเรียนมัธยมศึกษา สังกัด สพฐ.</p>' +
-      '<p class="lead">ให้คะแนนความเสี่ยงและความพร้อมของโรงเรียน ระบบจัดกลุ่มแนวทาง R1–R9 เสนอมาตรการที่ควรทำก่อนพร้อมเหตุผล และจัดแผนปฏิบัติการ ผู้อำนวยการเป็นผู้ตัดสินใจขั้นสุดท้าย</p>' +
-      '<h2 class="startq">ท่านมาเพื่ออะไร เลือก 1 ข้อ</h2><div class="startgrid">' +
-      '<div class="scard first"><span class="sbadge">เริ่มที่นี่ถ้าเข้ามาครั้งแรก</span><span class="who">ผู้อำนวยการ · ผู้บริหาร</span><h3>อยากเห็นว่าโรงเรียนควรทำอะไรก่อน</h3><p>ดูผลของโรงเรียนตัวอย่างทันที ไม่ต้องกรอกอะไร แล้วค่อยใส่ข้อมูลโรงเรียนของท่านเอง</p><button class="btn gold lg" data-act="example">ดูผลตัวอย่างใน 1 คลิก</button><a class="slink" href="#input" data-go="input">หรือ ประเมินโรงเรียนของฉัน →</a></div>' +
-      '<div class="scard"><span class="who">ครูที่ได้รับมอบหมาย</span><h3>เตรียมข้อมูลให้ผู้บริหาร</h3><p>อัปโหลดแผนปฏิบัติการประจำปี (PDF) ระบบอ่านจำนวนนักเรียนและบุคลากรให้เอง ไม่ต้องพิมพ์ ไฟล์อยู่ในเครื่องของท่าน ไม่ถูกส่งออก</p><a class="btn gold lg" href="#school" data-go="school">อัปโหลดแผนปฏิบัติการ</a></div>' +
-      '<div class="scard"><span class="who">โรงเรียนที่ร่วมงานวิจัย</span><h3>มีรหัสโรงเรียนจากผู้วิจัย</h3><p>ใส่รหัสแล้วตอบแบบสอบถาม 3 แบบ (ความเสี่ยงและความพร้อม เหตุการณ์ เอกสารนโยบาย) ระบบบันทึกร่างให้ในเครื่องนี้</p><a class="btn gold lg" href="#portal" data-go="portal">เข้าระบบเก็บข้อมูล</a></div></div>' +
-      '<p class="fine">ต้นแบบเชิงวิจัย ข้อมูลตัวอย่างเป็นโรงเรียนสมมติ ไม่ใช่เว็บไซต์ทางการของ สพฐ. และเครื่องมือประเมินไม่เก็บหรือส่งข้อมูลที่กรอก (ระบบรวบรวมข้อมูลสถานศึกษาส่งข้อมูลถึงผู้วิจัยเมื่อเปิดใช้และผู้ตอบกดส่งเท่านั้น)</p></div></section>';
-    s += '<section class="howto"><div class="wrap"><h2>ใช้งาน 3 ขั้นตอน</h2><ol class="how3"><li><b>1</b><div><strong>ใส่ข้อมูลโรงเรียน</strong><span>พิมพ์เอง หรืออัปโหลดแผนปฏิบัติการให้ระบบอ่านให้</span></div></li><li><b>2</b><div><strong>ให้คะแนน</strong><span>ความเสี่ยง 4 ด้าน และความพร้อม 7-S กดเลือกระดับ 1–5 ทีละข้อ</span></div></li><li><b>3</b><div><strong>รับผลและแผน</strong><span>กลุ่มแนวทาง R1–R9 มาตรการที่ควรทำก่อนพร้อมเหตุผล และแผนปฏิบัติการ ผู้รับผิดชอบ ตัวชี้วัด</span></div></li></ol><p class="howfine">ไม่ต้องสมัครสมาชิก ข้อมูลที่กรอกอยู่ในเครื่องของท่านและหายเมื่อรีเฟรช (ดาวน์โหลดแฟ้มงานเก็บไว้ได้ที่หน้า ติดตามผล)</p></div></section>';
-    s += '<section class="stats"><div class="wrap">' + stats.map((x) => '<div class="stat"><b>' + x[0] + '</b><span>' + x[1] + '</span><small>' + x[2] + '</small></div>').join('') + '</div></section>';
-    s += '<section class="sec"><div class="wrap"><h2 class="t">สามส่วนหลักของระบบ</h2><p class="t-sub">จากข้อมูลความเสี่ยงและความพร้อม ไปสู่มาตรการที่ลงมือทำได้จริง</p><div class="mods">' +
-      mods.map((m) => '<div class="mod"><div class="ic">' + ICON[m[1]] + '</div><h3>' + m[2] + '</h3><p>' + m[3] + '</p><a href="#' + m[0] + '" data-go="' + m[0] + '">' + m[4] + '</a></div>').join('') + '</div></div></section>';
-    s += '<section class="sec dark hexbg"><div class="wrap split"><div><span class="pillb">ตารางตัดสินใจ 3 × 3</span><h2>จับคู่ความเสี่ยง × ความพร้อม เป็นแนวทางตอบสนอง R1–R9</h2>' +
-      '<p>ระบบจำแนกระดับความเสี่ยงของภัยแต่ละด้าน (ต่ำ กลาง สูง) และระดับความพร้อมขององค์กรตามกรอบ 7-S (ต่ำ กลาง สูง) แล้วจับคู่เป็น 1 ใน 9 กลุ่ม โดยแต่ละกลุ่มมีชุดการตัดสินใจ 6 ข้อและมาตรการจากคลังกลยุทธ์</p>' +
-      '<ul class="ticks"><li>ดัชนีความเสี่ยงรายด้าน = ค่าเฉลี่ย L × C (ความถี่ × ผลกระทบ ระดับ 1–5) มีกฎยกระดับเมื่อมีผลกระทบรุนแรงสูงสุดและเกิดซ้ำ</li><li>ความพร้อมวัดจาก 7 องค์ประกอบ มีกฎเพดานเมื่อโครงสร้างหรือระบบอ่อน</li><li>ตารางนี้เป็นต้นแบบเพื่อตรวจสอบกับผู้เชี่ยวชาญ ไม่ใช่เกณฑ์ที่ผ่านเดลฟายแล้ว</li></ul>' +
-      '<p style="margin-top:18px"><a class="btn gold" href="#matrix" data-go="matrix">ดูกลุ่ม R1–R9 ทั้งหมด</a></p></div><div class="m5box m3box">' + matrixHtml(null, false) + '<div class="m5-note">แถว = ระดับความเสี่ยง · คอลัมน์ = ระดับความพร้อม · สีเข้มกว่า = เร่งด่วนกว่า</div></div></div></section>';
-    s += '<section class="sec"><div class="wrap"><h2 class="t">กระบวนการ 6 ขั้นตอน</h2><p class="t-sub">ขั้นที่ 1 และ 2 ดำเนินการคู่ขนานกัน แล้ววนกลับมาปรับจากผลการติดตาม</p><div class="flow">' +
-      steps.map((x, i) => '<div class="st"><b>' + (i + 1) + '</b><div>' + x[0] + '</div><small>' + x[1] + '</small></div>').join('') + '</div></div></section>';
-    s += '<section class="noteband"><div class="wrap"><b>ข้อควรทราบก่อนใช้งาน</b><ul><li>เกณฑ์ ตารางตัดสินใจ และคลังมาตรการเป็นร่างเริ่มต้น ยังไม่ผ่านเดลฟายและการตรวจ IOC</li><li>ผลของระบบเป็นข้อเสนอสนับสนุนการวางแผน ไม่ใช้ตัดสินหรือจัดอันดับโรงเรียน และไม่ใช้แทนการตอบสนองเหตุฉุกเฉิน</li><li>ข้อมูลที่กรอกประมวลผลในเบราว์เซอร์ของท่านเท่านั้น และหายเมื่อรีเฟรชหน้า อย่ากรอกชื่อบุคคลหรือรายละเอียดเหตุการณ์จริง</li></ul></div></section>';
-    s += '<section class="ctaband"><div class="wrap"><h2>พร้อมเริ่มต้นบริหารความปลอดภัยอย่างเป็นระบบ</h2><p>ลองกับข้อมูลโรงเรียนสมมติ แล้วดูว่าระบบเสนอมาตรการและเหตุผลอย่างไร</p><a class="btn lg" href="#input" data-go="input">เริ่มต้นใช้งาน</a> <button class="btn lg" style="background:transparent;color:var(--navy)" data-act="example">ดูตัวอย่างผลลัพธ์</button></div></section>';
-    return s;
-  }
-
   // ---------- ฐานข้อมูลความเสี่ยง (ข้อประเมินและเกณฑ์) ----------
   function anchorList(title, anchors) {
     return '<div class="card"><h3>' + title + '</h3><ol style="padding-left:1.3em;margin:6px 0">' + anchors.map((a) => '<li value="' + a[0] + '">' + esc(a[1]) + '</li>').join('') + '</ol></div>';
@@ -306,7 +274,8 @@
   UIP.bind();
   const UI3 = RS_TOOL3.create({ S, D, E, esc, fmt, LOGO, getOut, go: (id) => go(id), render: (k) => render(k) }, UI.h);
   UI3.bind();
-  const RENDER = Object.assign({ roleDir: () => pageRole('roleDir'), roleDeputy: () => pageRole('roleDeputy'), roleTeacher: () => pageRole('roleTeacher'), roleResearch: () => pageRole('roleResearch'), home: pageHome, bank: pageBank, risk: pageRisk, rules: pageRules, about: pageAbout }, UI.pages, UI2.pages, UI3.pages);
+  const UI4 = RS_DASH.create({ S, D, E, esc, fmt, getOut, filled, domFill, elFill, cd, mKey, STATUS, SHORT_EL, ROLE_PAGES }, UI.h);
+  const RENDER = Object.assign({ roleResearch: () => pageRole('roleResearch'), bank: pageBank, risk: pageRisk, rules: pageRules, about: pageAbout }, UI.pages, UI2.pages, UI3.pages, UI4.pages);
   let cur = 'home';
   // ป๊อปอัปหลังพิมพ์หรือบันทึกแผน: เตือนให้นำข้อมูลที่ได้จากการใช้แผนมากรอกในโปรแกรม (หน้า #planrec) เพื่อให้ผู้วิจัยได้ข้อมูลตอบกลับ
   // จำหน้าที่ผู้ใช้อยู่ก่อนเข้าหน้าเอกสาร/พิมพ์ (รวมตำแหน่งเลื่อน) เพื่อให้ปุ่ม กลับไปหน้าเดิม พากลับมาที่แผนเดิมได้
@@ -324,27 +293,32 @@
     document.body.appendChild(m); document.addEventListener('keydown', recEsc);
     const b = m.querySelector('button'); if (b) b.focus();
   }
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { const rb = $('#rolebox'); if (rb) rb.classList.remove('open'); } });
   document.addEventListener('change', (e) => { const t = e.target; if (t && t.dataset && t.dataset.pksel) { if (t.dataset.pksel === 'key') S.ui.packKey = t.value; else if (t.dataset.pksel === 'rec') S.ui.packRec = t.checked; else S.ui.packDocs = t.checked; render(true); return; } if (!t || !t.dataset || !t.dataset.adsel) return; if (t.dataset.adsel === 'sb') S.ui.docSb = t.value; else S.ui.docAllM = t.checked; render(true); });
   window.addEventListener('afterprint', () => { if (['plan', 'plandoc', 'planbook'].indexOf(cur) >= 0) recPrompt('พิมพ์หรือบันทึกแผนปฏิบัติการแล้ว'); });
   function chip() {
     const c = $('#fill-chip'); if (!c) return;
     const f = filled(); c.textContent = 'กรอกแล้ว ' + f.pct + '%'; c.className = 'chip' + (f.pct === 100 ? ' ok' : '');
   }
+  function roleOf(id) { return ROLE_IDS.indexOf(id) >= 0 ? id : id === 'collectlab' || RESEARCH_PAGES.indexOf(id) >= 0 && id !== 'bank' && id !== 'risk' && id !== 'about' ? 'roleResearch' : PORTAL.indexOf(id) >= 0 ? 'portal' : ''; }
   function buildNav() {
-    const p = PAGES.find((x) => x.id === cur);
-    const active = cur === 'home' ? 'home' : ROLE_IDS.indexOf(cur) >= 0 ? cur : PORTAL.indexOf(cur) >= 0 && cur !== 'collectlab' ? 'portal' : RESEARCH_PAGES.indexOf(cur) >= 0 ? 'roleResearch' : (S.ui.role || '');
+    const active = cur === 'home' ? 'home' : ['bank', 'risk', 'about'].indexOf(cur) >= 0 ? cur : TOOL.indexOf(cur) >= 0 && ['rules', 'lab', 'evaluate'].indexOf(cur) < 0 ? 'dash' : '';
     $('#nav').innerHTML = NAV.map((n) => '<a href="#' + n.id + '" data-go="' + n.id + '"' + (active === n.id ? ' aria-current="page"' : '') + '>' + n.label + '</a>').join('');
+    const r = ROLES.find((x) => x[0] === S.ui.role), open = $('#rolebox') && $('#rolebox').classList.contains('open');
+    $('#rolebox').className = 'rolebox' + (open ? ' open' : '');
+    $('#rolebox').innerHTML = (r ? '<span class="rb-pill">' + r[1] + '</span><span class="rb-sch" title="โรงเรียนในเครื่องนี้">' + esc(S.school.name || 'ยังไม่ระบุโรงเรียน') + '</span>' : '') +
+      '<button class="rb-btn" data-act="rolemenu" aria-haspopup="true" aria-expanded="' + !!open + '">' + (r ? 'เปลี่ยนบทบาท' : 'เลือกบทบาท') + ' <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>' +
+      '<div class="rb-menu" role="menu" aria-label="เลือกบทบาท">' + ROLES.map((x) => '<a role="menuitem" href="#' + x[0] + '" data-go="' + x[0] + '"' + (r && r[0] === x[0] ? ' aria-current="true"' : '') + '><b>' + x[1] + '</b><small>' + x[2] + '</small></a>').join('') + '</div>';
   }
   function buildFoot() {
-    $('#site-foot').innerHTML = '<div class="wrap"><div class="fcols"><div><div class="logo">' + LOGO + '<span>Risk Safe</span></div><p>ต้นแบบงานวิจัยดุษฎีนิพนธ์ สาขาวิชานวัตกรรมการบริหารการศึกษา มหาวิทยาลัยสยาม ระบบสนับสนุนการเลือกกลยุทธ์การบริหารความปลอดภัยของโรงเรียนมัธยมศึกษาบนฐานความเสี่ยงและความพร้อม</p></div>' +
-      '<div><h4>เมนู</h4>' + NAV.map((n) => '<a href="#' + n.id + '" data-go="' + n.id + '">' + n.label + '</a>').join('') + '<a href="#about" data-go="about">เกี่ยวกับโครงการ</a><a href="#rules" data-go="rules">กฎและเกณฑ์</a></div>' +
-      '<div><h4>หมายเหตุ</h4><p>ไม่ใช่เว็บไซต์ทางการของ สพฐ. หรือหน่วยงานใด ข้อมูลตัวอย่างเป็นโรงเรียนสมมติ และเครื่องมือประเมินไม่เก็บหรือส่งข้อมูลที่ผู้ใช้กรอก (ระบบรวบรวมข้อมูลสถานศึกษาส่งข้อมูลถึงผู้วิจัยเฉพาะเมื่อผู้วิจัยเปิดใช้และผู้ตอบกดส่งเอง)</p><a href="https://github.com/sarawut2206/risk-safe" rel="noopener">ซอร์สโค้ดบน GitHub</a></div></div>' +
-      '<div class="fbot"><span>ต้นแบบ V0.3 · ปี 2569 · ผลลัพธ์เป็นข้อเสนอสนับสนุนการวางแผน ไม่แทนดุลยพินิจของผู้อำนวยการ</span><span>เหตุฉุกเฉิน โทร 191 · 1669 · 199</span></div></div>';
+    $('#site-foot').innerHTML = '<div class="fbar"><div class="wrap fb"><div class="logo">' + LOGO + '<span>Risk Safe</span></div><span class="fb1">ระบบบริหารความปลอดภัยบนฐานความเสี่ยงและความพร้อมของโรงเรียน</span><span class="fb2">โครงการวิจัยเพื่อพัฒนานวัตกรรมการบริหารความปลอดภัยในโรงเรียน</span></div></div>' +
+      '<div class="fnote"><div class="wrap"><span>ต้นแบบ V0.3 · ปี 2569 · ดุษฎีนิพนธ์ สาขาวิชานวัตกรรมการบริหารการศึกษา มหาวิทยาลัยสยาม · ไม่ใช่เว็บไซต์ทางการของ สพฐ. หรือหน่วยงานใด · ข้อมูลตัวอย่างเป็นโรงเรียนสมมติ · ผลลัพธ์เป็นข้อเสนอสนับสนุนการวางแผน ไม่แทนดุลยพินิจของผู้อำนวยการ</span><span>เหตุฉุกเฉิน โทร 191 · 1669 · 199 · <a href="#rules" data-go="rules">กฎและเกณฑ์</a> · <a href="https://github.com/sarawut2206/risk-safe" rel="noopener">ซอร์สโค้ด</a></span></div></div>';
   }
   function render(keepScroll) {
     const p = PAGES.find((x) => x.id === cur);
     document.title = cur === 'home' ? 'Risk Safe ระบบบริหารความปลอดภัยบนฐานความเสี่ยง (ต้นแบบ)' : p.title + ' · Risk Safe ต้นแบบ';
-    if (ROLE_IDS.indexOf(cur) >= 0) S.ui.role = cur;
+    { const ro = roleOf(cur); if (ro) S.ui.role = ro; }
+    document.body.classList.toggle('dsh-on', cur === 'home' || ROLE_IDS.indexOf(cur) >= 0 && cur !== 'roleResearch');
     if (cur === 'home') $('#view').innerHTML = RENDER.home();
     else if (ROLE_IDS.indexOf(cur) >= 0) $('#view').innerHTML = RENDER[cur]();
     else if (PORTAL.indexOf(cur) >= 0) $('#view').innerHTML = RENDER[cur]();
@@ -361,6 +335,7 @@
     if (id === 'input') id = 'dash';
     if (!RENDER[id]) id = 'home';
     cur = id; try { history.replaceState(null, '', '#' + id); } catch (e) { /* ไม่เป็นไร */ }
+    const rbx = $('#rolebox'); if (rbx) rbx.classList.remove('open');
     const nav = $('#nav'); if (nav) nav.classList.remove('open'); const b = $('#burger'); if (b) b.setAttribute('aria-expanded', 'false');
     render();
   }
@@ -377,6 +352,7 @@
 
   // ---------- เหตุการณ์ ----------
   document.addEventListener('click', (e) => {
+    const rbx = $('#rolebox'); if (rbx && rbx.classList.contains('open') && !e.target.closest('#rolebox')) rbx.classList.remove('open');
     const t = e.target.closest('button, [data-go]'); if (!t) return;
     if (t.id === 'burger') { const n = $('#nav'); const o = n.classList.toggle('open'); t.setAttribute('aria-expanded', String(o)); return; }
     if (t.dataset.go) { e.preventDefault(); go(t.dataset.go); return; }
@@ -391,7 +367,11 @@
       return;
     }
     const a = t.dataset.act; if (!a) return;
-    if (a === 'example') { loadExample(); go('dash'); }
+    if (a === 'example') { loadExample(); go(['roleDir', 'roleDeputy', 'roleTeacher'].indexOf(cur) >= 0 ? cur : 'roleDir'); }
+    else if (a === 'rolemenu') { const rb = $('#rolebox'); const o = rb.classList.toggle('open'); t.setAttribute('aria-expanded', String(o)); }
+    else if (a === 'approve') { S.ui.approval = { s: 'ok', at: Date.now() }; render(true); }
+    else if (a === 'sendback') { S.ui.approval = { s: 'back', at: Date.now() }; render(true); }
+    else if (a === 'approval-reset') { S.ui.approval = null; render(true); }
     else if (a === 'step') { S.ui.step = +t.dataset.step; render(); }
     else if (a === 'tab-risk') { S.ui.riskDom = t.dataset.code; render(true); }
     else if (a === 'tab-sev') { S.ui.sevEl = t.dataset.code; render(true); }

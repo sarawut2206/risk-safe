@@ -96,7 +96,7 @@
       const act = ACTIVE[cur] || cur;
       return '<div class="tapp">' +
         '<div class="thead"><div class="tbrand">' + LOGO + '<div><b>R<sup>2</sup>-SAFE</b><span>ภาพรวมความปลอดภัยของโรงเรียน</span></div></div><div class="till">' + SCHOOL + '</div></div>' +
-        '<div class="tctx"><span class="aud">' + ic('people', 18) + 'สำหรับผู้บริหารสถานศึกษา (ผู้อำนวยการโรงเรียน)</span>' +
+        '<div class="tctx"><span class="aud">' + ic('people', 18) + '' + ({ roleDeputy: 'สำหรับรองผู้อำนวยการที่รับผิดชอบงานความปลอดภัย', roleTeacher: 'สำหรับผู้รับผิดชอบงานความปลอดภัย' }[S.ui.role] || 'สำหรับผู้บริหารสถานศึกษา (ผู้อำนวยการโรงเรียน)') + '</span>' +
         '<div class="ctxrow"><span>' + ic('building', 18) + '<small>โรงเรียน</small><b>' + esc(S.school.name || 'ยังไม่ระบุ') + '</b></span><span>' + ic('calendar', 18) + '<small>ปีการศึกษา</small><b>' + esc(S.school.year || '–') + '</b></span><button class="lnk" data-go="school">แก้ไข</button></div>' +
         '<div class="ttools"><span class="chip" id="fill-chip"></span><button class="lnk" data-act="example">ใส่ข้อมูลตัวอย่าง</button><button class="lnk" data-act="clear">ล้างข้อมูล</button><button class="lnk" data-go="moe">ประกาศ ศธ. 7 ข้อ</button><button class="lnk" data-go="rules">กฎและเกณฑ์</button><button class="lnk" data-go="explain">กฎตัดสินใจ</button><button class="lnk" data-go="track">ติดตามผล</button><button class="lnk" data-go="evaluate">ประเมินนวัตกรรม</button><button class="lnk" data-go="lab">ห้องวิเคราะห์</button></div></div>' +
         guide(cur) + '<div class="tbody">' + inner + '</div>' +
