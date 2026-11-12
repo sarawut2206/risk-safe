@@ -95,3 +95,4 @@
   body.pd-on .pdoc.adoc .pact td:nth-child(3), body.pd-on .pdoc.adoc .pact td:nth-child(4) { width: auto; }
   body.pd-on .pdoc.adoc .pdmeta th { width: 28%; }
 }
+body.nobnav .bnav { display: none !important; } body.nobnav .tapp { padding-bottom: 24px; }

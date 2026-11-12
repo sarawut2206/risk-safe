@@ -320,6 +320,7 @@
     else $('#view').innerHTML = '<section class="phero hexbg"><div class="wrap"><span class="eyebrow">' + esc(p.eyebrow) + '</span><h1>' + esc(p.title) + '</h1><p>' + esc(p.sub) + '</p></div></section><div class="wrap body">' + RENDER[cur]() + '</div>';
     document.body.classList.toggle('pb-on', cur === 'planbook');
     document.body.classList.toggle('pd-on', cur === 'plandoc' || cur === 'recform' || cur === 'actdocs');
+    document.body.classList.toggle('nobnav', ['actdocs', 'recform', 'plandoc', 'planbook', 'brief'].indexOf(cur) >= 0);   // หน้าเอกสาร/พิมพ์ ไม่แสดงแถบเมนูล่างที่ลอยทับเนื้อหา
     document.body.classList.toggle('tool-on', (TOOL.indexOf(cur) >= 0 && cur !== 'rules') || PORTAL.indexOf(cur) >= 0);
     buildNav(); buildFoot(); chip(); UI2.persist();
     if (!keepScroll) window.scrollTo({ top: 0 });
