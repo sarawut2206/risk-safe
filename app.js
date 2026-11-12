@@ -36,16 +36,34 @@
   };
   // เมนูบน (nav) และหน้าทั้งหมด; field nav = เมนูบนที่ต้องไฮไลต์เมื่ออยู่หน้านี้
   const NAV = [
-    { id: 'bank', label: 'คลังกลยุทธ์' },
-    { id: 'risk', label: 'ฐานข้อมูลความเสี่ยง' },
-    { id: 'input', label: 'เครื่องมือประเมิน' },
-    { id: 'evaluate', label: 'ประเมินนวัตกรรม' },
-    { id: 'portal', label: 'เก็บข้อมูลโรงเรียน' },
-    { id: 'about', label: 'เกี่ยวกับโครงการ' },
+    { id: 'home', label: 'หน้าแรก' },
+    { id: 'roleDir', label: 'ผู้อำนวยการ' },
+    { id: 'roleDeputy', label: 'รองผู้อำนวยการ' },
+    { id: 'roleTeacher', label: 'ผู้รับผิดชอบงานความปลอดภัย' },
+    { id: 'portal', label: 'โรงเรียนที่ร่วมวิจัย' },
+    { id: 'roleResearch', label: 'ผู้วิจัย' },
   ];
+  // หน้าของแต่ละบทบาท: ภารกิจเรียงตามลำดับที่ใช้จริง แต่ละข้อเปิดหน้าเครื่องมือที่ตรงกับงานนั้น
+  const ROLE_PAGES = {
+    roleDir: { eyebrow: 'บทบาทของท่าน', title: 'ผู้อำนวยการสถานศึกษา', lead: 'ดูภาพรวมความเสี่ยงและความพร้อมของโรงเรียน ตัดสินใจเลือกมาตรการ อนุมัติแผนปฏิบัติการ และกำกับติดตามผล',
+      tasks: [['brief', 'สรุปสำหรับผู้บริหาร 1 หน้า', 'ด้านที่ควรเร่งก่อน ตัวเลขหลัก และ 3 สิ่งที่ควรทำก่อน อ่านจบใน 30 วินาที พิมพ์ได้'], ['dash', 'ภาพรวมความเสี่ยงและความพร้อม', 'ระดับความเสี่ยงรายด้าน ระดับความพร้อมตาม 7-S และกลุ่มแนวทาง R1–R9'], ['strategy', 'มาตรการที่ระบบเสนอและเหตุผล', 'เลือกมาตรการจากคลังตามความเสี่ยง ความพร้อม และทรัพยากรของโรงเรียน พร้อมเหตุผลและระดับหลักฐาน'], ['plan', 'อนุมัติแผนปฏิบัติการ', 'แผนรายมาตรการ ผู้รับผิดชอบ ตัวชี้วัด และสถานะ พร้อมแผนต้นแบบและเอกสารประกอบให้พิมพ์ลงนาม'], ['planbook', 'เล่มแผนปฏิบัติการ', 'เล่ม A4 แนวนอน มีสารบัญและตัวชี้วัดของ ศธ. พร้อมเสนอหรือบันทึกเป็น PDF'], ['moe', 'เทียบประกาศ ศธ. 7 มาตรการ', 'ดูว่าโรงเรียนครอบคลุมมาตรการความปลอดภัยตามประกาศแล้วกี่ข้อ ข้อใดยังขาด'], ['track', 'ติดตามผลและบทเรียน', 'บันทึกรอบประเมิน เทียบก่อนหลัง และสรุปบทเรียนหลังดำเนินการ']] },
+    roleDeputy: { eyebrow: 'บทบาทของท่าน', title: 'รองผู้อำนวยการที่รับผิดชอบงานความปลอดภัย', lead: 'กำกับให้การประเมินและแผนปฏิบัติการเดินตามลำดับ ตรวจข้อมูลที่ครูกรอก และติดตามผลการนำแผนไปใช้',
+      tasks: [['rassess', 'ตรวจและให้คะแนนความเสี่ยง', 'ความถี่และผลกระทบของเหตุ 4 ด้านของภัย ตรวจคะแนนที่ผู้รับผิดชอบเตรียมไว้'], ['ready', 'ตรวจและให้คะแนนความพร้อม (7-S)', 'สภาพปัจจุบันและสภาพที่พึงประสงค์ของ 7 องค์ประกอบ ระบบจัดอันดับช่องว่าง'], ['strategy', 'ผลและมาตรการที่เสนอ', 'กลุ่มแนวทางของแต่ละด้านและมาตรการที่ควรทำก่อน พร้อมเหตุผล'], ['plan', 'แผนปฏิบัติการและสถานะ', 'มอบหมายและปรับสถานะรายมาตรการ ดูความก้าวหน้ารายด้าน'], ['plandoc', 'แผนต้นแบบรายมาตรการ (พิมพ์)', 'แผน 3 หน้าต่อมาตรการ มีเหตุผลและที่มา แผนดำเนินการ 6 ขั้น และช่องลงนาม'], ['actdocs', 'เอกสารประกอบแผน 6 ฉบับ (พิมพ์)', 'มอบหมายงาน ทรัพยากร ร่างผลงาน บันทึกทดลอง ประกาศ และรายงานผล เติมข้อมูลมาตรการให้แล้ว'], ['planrec', 'ผลการนำแผนไปใช้', 'ตรวจและกรอกผลของแต่ละมาตรการ ความพึงพอใจ และอุปสรรค'], ['track', 'ติดตามผลและบทเรียน', 'รอบประเมิน เปรียบเทียบก่อนหลัง และข้อมูลที่ต้องย้อนกลับไปปรับ']] },
+    roleTeacher: { eyebrow: 'บทบาทของท่าน', title: 'ผู้รับผิดชอบงานความปลอดภัย', lead: 'เตรียมข้อมูลโรงเรียนให้ผู้บริหาร จัดทำและพิมพ์เอกสารของแผน และบันทึกผลการนำแผนไปใช้',
+      tasks: [['school', 'ข้อมูลโรงเรียน (อัปโหลดแผนประจำปีได้)', 'ระบบอ่านจำนวนนักเรียนและบุคลากรจากไฟล์ PDF ให้เอง ไฟล์อยู่ในเครื่องของท่าน ไม่ถูกส่งออก'], ['rassess', 'ให้คะแนนความเสี่ยง', 'ตอบตามเหตุที่พบจริงใน 4 ด้านของภัย ใช้ตัวเลขรวม ไม่ใส่ชื่อนักเรียน'], ['ready', 'ให้คะแนนความพร้อม (7-S)', 'ตอบตามสิ่งที่โรงเรียนมีอยู่จริง ข้อความเป็นพฤติกรรมที่ตรวจสอบได้'], ['plandoc', 'พิมพ์แผนต้นแบบรายมาตรการ', 'แผน 3 หน้าต่อมาตรการ เสนอผู้อำนวยการลงนาม'], ['actdocs', 'พิมพ์เอกสารประกอบแผน 6 ฉบับ', 'แบบฟอร์มของแต่ละขั้น เติมข้อมูลมาตรการให้แล้ว นำไปกรอกและเก็บเป็นหลักฐาน'], ['recform', 'แบบบันทึกผลสำหรับจดระหว่างทำ', 'จดสถานะ ตัวชี้วัด ผู้เข้าร่วม ความพึงพอใจ และอุปสรรคของแต่ละมาตรการ'], ['planrec', 'กรอกผลการนำแผนไปใช้ในโปรแกรม', 'นำข้อมูลจากแบบบันทึกผลมากรอก ผู้วิจัยจะได้ทราบว่าแผนตอบสนองกลยุทธ์อย่างไร'], ['track', 'บันทึกผลและบทเรียน', 'บันทึกรอบประเมินและบทเรียนหลังดำเนินการ']] },
+    roleResearch: { eyebrow: 'สำหรับผู้วิจัย', title: 'ผู้วิจัยและข้อมูลโครงการ', lead: 'คลังกลยุทธ์ ฐานข้อมูลความเสี่ยง ห้องวิเคราะห์ การประเมินนวัตกรรม และแดชบอร์ดผลการเก็บข้อมูลจากโรงเรียน',
+      tasks: [['bank', 'คลังกลยุทธ์', 'คลังมาตรการ ' + (D.bank ? D.bank.length : 68) + ' รายการ กรองตามด้านของภัย 7-S ประเภท 3 ป. และระดับทรัพยากร'], ['risk', 'ฐานข้อมูลความเสี่ยง', 'ข้อประเมินความเสี่ยงและ 7-S พร้อมนิยามและมาตรวัด'], ['rules', 'กฎและเกณฑ์การตัดสินใจ', 'กฎคัดเลือกมาตรการ เกณฑ์ระดับความเสี่ยงและความพร้อม และตารางตัดสินใจ'], ['lab', 'ห้องวิเคราะห์ของผู้วิจัย', 'ทดสอบความไวของเกณฑ์ จำลองผล และตรวจกฎ'], ['evaluate', 'ประเมินนวัตกรรม', 'แบบประเมินโดยผู้ทรงคุณวุฒิ ความสอดคล้องของการตัดสินใจ และ SUS'], ['collectlab', 'แดชบอร์ดผู้วิจัยเก็บข้อมูลโรงเรียน', 'นำเข้าไฟล์คำตอบ ดูความครบถ้วน โปรไฟล์โรงเรียน และผลการใช้แผน'], ['about', 'เกี่ยวกับโครงการ', 'ที่มา วัตถุประสงค์ และข้อจำกัดของต้นแบบ']] },
+  };
+  const ROLE_IDS = Object.keys(ROLE_PAGES);
+  // เมนูบนที่ต้องไฮไลต์เมื่ออยู่หน้านี้: หน้าบทบาท = ตัวมันเอง · หน้าเก็บข้อมูลโรงเรียน = โรงเรียนที่ร่วมวิจัย · หน้าของผู้วิจัย = ผู้วิจัย · หน้าเครื่องมือ = บทบาทที่เปิดมาล่าสุด
+  const RESEARCH_PAGES = ['bank', 'risk', 'rules', 'lab', 'evaluate', 'collectlab', 'about'];
   const PORTAL = ['portal', 'form1', 'form2', 'form3', 'planrec', 'collectlab'];
   const TOOL = ['school', 'dash', 'rassess', 'ready', 'pni', 'matrix', 'strategy', 'brief', 'plandoc', 'recform', 'actdocs', 'moe', 'planbook', 'plan', 'explain', 'track', 'evaluate', 'lab', 'rules'];
   const PAGES = [
+    { id: 'roleDir', nav: 'roleDir', eyebrow: 'บทบาท', title: 'ผู้อำนวยการสถานศึกษา', sub: '' },
+    { id: 'roleDeputy', nav: 'roleDeputy', eyebrow: 'บทบาท', title: 'รองผู้อำนวยการที่รับผิดชอบงานความปลอดภัย', sub: '' },
+    { id: 'roleTeacher', nav: 'roleTeacher', eyebrow: 'บทบาท', title: 'ผู้รับผิดชอบงานความปลอดภัย', sub: '' },
+    { id: 'roleResearch', nav: 'roleResearch', eyebrow: 'บทบาท', title: 'ผู้วิจัยและข้อมูลโครงการ', sub: '' },
     { id: 'home', nav: '', title: 'Risk Safe ระบบบริหารความปลอดภัยบนฐานความเสี่ยง', sub: '' },
     { id: 'bank', nav: 'bank', eyebrow: 'คลังกลยุทธ์', title: 'คลังมาตรการ (Strategy Bank) ฉบับร่าง 68 รายการ', sub: 'ร่างที่ผู้วิจัยจัดทำ ยังไม่ได้ตรวจหลักฐานและแหล่งอ้างอิงรายข้อ และยังไม่ผ่านเดลฟาย ใช้สาธิตการทำงานของระบบ' },
     { id: 'risk', nav: 'risk', eyebrow: 'ฐานข้อมูลความเสี่ยง', title: 'ข้อประเมินและเกณฑ์ความเสี่ยง', sub: 'รายการข้อประเมินความเสี่ยง 4 ด้านของภัยและข้อประเมินความพร้อม 7-S ที่เครื่องมือใช้ (ร่างรอเดลฟาย) นี่ไม่ใช่ฐานข้อมูลเหตุการณ์จริงของโรงเรียนใด' },
@@ -210,6 +228,14 @@
     return s;
   }
 
+  function pageRole(id) {
+    const R = ROLE_PAGES[id], f = filled(), s0 = f.pct === 0;
+    const chip = id === 'roleResearch' ? '' : '<p class="rolechip"><span class="' + (f.pct === 100 ? 'ok' : '') + '">ข้อมูลโรงเรียนในเครื่องนี้: กรอกแล้ว ' + f.pct + '%</span>' + (s0 && id !== 'roleTeacher' ? ' <button class="btn gold sm" data-act="example">ดูผลตัวอย่างใน 1 คลิก</button>' : '') + '</p>';
+    return '<section class="phero hexbg"><div class="wrap"><span class="eyebrow">' + esc(R.eyebrow) + '</span><h1>' + esc(R.title) + '</h1><p>' + esc(R.lead) + '</p>' + chip + '</div></section>' +
+      '<section class="sec"><div class="wrap"><h2 class="t">ภารกิจของท่าน เรียงตามลำดับที่ใช้</h2><p class="t-sub">เลือกทีละข้อ แต่ละข้อเปิดหน้าที่ตรงกับงานนั้น ข้อมูลที่กรอกใช้ร่วมกันทุกบทบาท</p>' +
+      '<div class="mods rolemods">' + R.tasks.map((t, i) => '<div class="mod"><span class="rno">' + (i + 1) + '</span><h3>' + esc(t[1]) + '</h3><p>' + esc(t[2]) + '</p><a href="#' + t[0] + '" data-go="' + t[0] + '">เปิดหน้านี้ →</a></div>').join('') + '</div>' +
+      '<p class="fine">ต้นแบบเชิงวิจัย ผลของระบบเป็นข้อเสนอสนับสนุนการวางแผน ผู้อำนวยการเป็นผู้ตัดสินใจขั้นสุดท้าย ไม่ใช่เว็บไซต์ทางการของ สพฐ.</p></div></section>';
+  }
   // ---------- หน้าแรก ----------
   function pageHome() {
     const nItems = D.riskItems.length + D.sevenItems.length;
@@ -279,7 +305,7 @@
   UIP.bind();
   const UI3 = RS_TOOL3.create({ S, D, E, esc, fmt, LOGO, getOut, go: (id) => go(id), render: (k) => render(k) }, UI.h);
   UI3.bind();
-  const RENDER = Object.assign({ home: pageHome, bank: pageBank, risk: pageRisk, rules: pageRules, about: pageAbout }, UI.pages, UI2.pages, UI3.pages);
+  const RENDER = Object.assign({ roleDir: () => pageRole('roleDir'), roleDeputy: () => pageRole('roleDeputy'), roleTeacher: () => pageRole('roleTeacher'), roleResearch: () => pageRole('roleResearch'), home: pageHome, bank: pageBank, risk: pageRisk, rules: pageRules, about: pageAbout }, UI.pages, UI2.pages, UI3.pages);
   let cur = 'home';
   // ป๊อปอัปหลังพิมพ์หรือบันทึกแผน: เตือนให้นำข้อมูลที่ได้จากการใช้แผนมากรอกในโปรแกรม (หน้า #planrec) เพื่อให้ผู้วิจัยได้ข้อมูลตอบกลับ
   function closeRecPrompt() { const m = document.getElementById('recprompt'); if (m) m.remove(); document.removeEventListener('keydown', recEsc); }
@@ -303,18 +329,21 @@
   }
   function buildNav() {
     const p = PAGES.find((x) => x.id === cur);
-    $('#nav').innerHTML = NAV.map((n) => '<a href="#' + n.id + '" data-go="' + n.id + '"' + (p.nav === n.id ? ' aria-current="page"' : '') + '>' + n.label + '</a>').join('');
+    const active = cur === 'home' ? 'home' : ROLE_IDS.indexOf(cur) >= 0 ? cur : PORTAL.indexOf(cur) >= 0 && cur !== 'collectlab' ? 'portal' : RESEARCH_PAGES.indexOf(cur) >= 0 ? 'roleResearch' : (S.ui.role || '');
+    $('#nav').innerHTML = NAV.map((n) => '<a href="#' + n.id + '" data-go="' + n.id + '"' + (active === n.id ? ' aria-current="page"' : '') + '>' + n.label + '</a>').join('');
   }
   function buildFoot() {
     $('#site-foot').innerHTML = '<div class="wrap"><div class="fcols"><div><div class="logo">' + LOGO + '<span>Risk Safe</span></div><p>ต้นแบบงานวิจัยดุษฎีนิพนธ์ สาขาวิชานวัตกรรมการบริหารการศึกษา มหาวิทยาลัยสยาม ระบบสนับสนุนการเลือกกลยุทธ์การบริหารความปลอดภัยของโรงเรียนมัธยมศึกษาบนฐานความเสี่ยงและความพร้อม</p></div>' +
-      '<div><h4>เมนู</h4>' + NAV.map((n) => '<a href="#' + n.id + '" data-go="' + n.id + '">' + n.label + '</a>').join('') + '<a href="#rules" data-go="rules">กฎและเกณฑ์</a></div>' +
+      '<div><h4>เมนู</h4>' + NAV.map((n) => '<a href="#' + n.id + '" data-go="' + n.id + '">' + n.label + '</a>').join('') + '<a href="#about" data-go="about">เกี่ยวกับโครงการ</a><a href="#rules" data-go="rules">กฎและเกณฑ์</a></div>' +
       '<div><h4>หมายเหตุ</h4><p>ไม่ใช่เว็บไซต์ทางการของ สพฐ. หรือหน่วยงานใด ข้อมูลตัวอย่างเป็นโรงเรียนสมมติ และเครื่องมือประเมินไม่เก็บหรือส่งข้อมูลที่ผู้ใช้กรอก (ระบบรวบรวมข้อมูลสถานศึกษาส่งข้อมูลถึงผู้วิจัยเฉพาะเมื่อผู้วิจัยเปิดใช้และผู้ตอบกดส่งเอง)</p><a href="https://github.com/sarawut2206/risk-safe" rel="noopener">ซอร์สโค้ดบน GitHub</a></div></div>' +
       '<div class="fbot"><span>ต้นแบบ V0.3 · ปี 2569 · ผลลัพธ์เป็นข้อเสนอสนับสนุนการวางแผน ไม่แทนดุลยพินิจของผู้อำนวยการ</span><span>เหตุฉุกเฉิน โทร 191 · 1669 · 199</span></div></div>';
   }
   function render(keepScroll) {
     const p = PAGES.find((x) => x.id === cur);
     document.title = cur === 'home' ? 'Risk Safe ระบบบริหารความปลอดภัยบนฐานความเสี่ยง (ต้นแบบ)' : p.title + ' · Risk Safe ต้นแบบ';
+    if (ROLE_IDS.indexOf(cur) >= 0) S.ui.role = cur;
     if (cur === 'home') $('#view').innerHTML = RENDER.home();
+    else if (ROLE_IDS.indexOf(cur) >= 0) $('#view').innerHTML = RENDER[cur]();
     else if (PORTAL.indexOf(cur) >= 0) $('#view').innerHTML = RENDER[cur]();
     else if (TOOL.indexOf(cur) >= 0 && cur !== 'rules') $('#view').innerHTML = UI.shell(cur, RENDER[cur]());
     else $('#view').innerHTML = '<section class="phero hexbg"><div class="wrap"><span class="eyebrow">' + esc(p.eyebrow) + '</span><h1>' + esc(p.title) + '</h1><p>' + esc(p.sub) + '</p></div></section><div class="wrap body">' + RENDER[cur]() + '</div>';

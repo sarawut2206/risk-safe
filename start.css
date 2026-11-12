@@ -155,3 +155,17 @@
 .rsmbox h2 { margin: 0 0 8px; font-size: 1.2rem; color: #12355f; } .rsmbox p { margin: 6px 0; } .rsmbox ol { margin: 8px 0; padding-left: 1.3em; }
 .rsmbtn { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 @media print { .rsmodal { display: none !important; } }
+/* เมนูบนตามบทบาท: บรรทัดเดียว เรียบ เป็นทางการ */
+header.site #nav { flex-wrap: nowrap; gap: 2px; margin: 0 auto; justify-content: center; }
+header.site #nav a { white-space: nowrap; padding: 9px 13px; font-size: .93rem; font-weight: 600; border-radius: 8px; }
+header.site .hd { gap: 14px; }
+.rolechip { margin: 14px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; } .rolechip span { background: rgba(255, 255, 255, .14); border: 1px solid rgba(255, 255, 255, .3); border-radius: 999px; padding: 4px 14px; font-size: .9rem; color: #fff; } .rolechip span.ok { background: rgba(46, 158, 107, .35); }
+.rolemods .mod { position: relative; padding-top: 30px; } .rno { position: absolute; top: 12px; right: 14px; width: 30px; height: 30px; border-radius: 50%; background: rgba(255, 255, 255, .14); color: var(--gold, #c9a54a); display: grid; place-items: center; font-weight: 700; font-size: .95rem; }
+@media (max-width: 1240px) { header.site #nav a { padding: 8px 10px; font-size: .88rem; } }
+/* เมนูตามบทบาทยาวกว่าเมนูเดิม จึงใช้ปุ่มเมนู (burger) เมื่อจอแคบกว่า 1100 px */
+@media (max-width: 1100px) {
+  header.site .burger { display: block; }
+  header.site #nav { display: none; position: absolute; left: 0; right: 0; top: 66px; flex-direction: column; flex-wrap: nowrap; align-items: stretch; justify-content: flex-start; background: #1b5fa5; padding: 8px 14px 14px; margin: 0; border-bottom: 1px solid rgba(255, 255, 255, .1); }
+  header.site #nav.open { display: flex; }
+  header.site #nav a { white-space: normal; padding: 11px 12px; font-size: .97rem; }
+}
