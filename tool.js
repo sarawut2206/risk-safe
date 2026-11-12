@@ -77,7 +77,7 @@
     }
 
     // ---------- เปลือกแอป ----------
-    const NAVB = [['dash', 'หน้าแรก', 'home'], ['rassess', 'ความเสี่ยง', 'alert'], ['ready', 'ความพร้อม', 'shieldcheck'], ['strategy', 'กลยุทธ์', 'target'], ['plan', 'แผนงาน', 'calendar']];
+    const NAVB = [['dash', 'ภาพรวม', 'home'], ['rassess', 'ความเสี่ยง', 'alert'], ['ready', 'ความพร้อม', 'shieldcheck'], ['strategy', 'กลยุทธ์', 'target'], ['plan', 'แผนงาน', 'calendar']];
     const ACTIVE = { planbook: 'plan', moe: 'dash', plandoc: 'plan', brief: 'dash', school: 'dash', matrix: 'dash', rules: 'dash', pni: 'strategy', explain: 'strategy', track: 'plan', evaluate: 'dash', lab: 'dash' };
     // แถบขั้นตอน: บอกว่าอยู่ขั้นไหน ทำอะไรครบแล้ว และปุ่มทำต่อ (แสดงเฉพาะหน้าหลักของเครื่องมือ)
     const GUIDE_AT = { school: 0, rassess: 1, ready: 2, dash: 3, brief: 3, matrix: 3, strategy: 3, pni: 3, plan: 4, plandoc: 4, planbook: 4 };
