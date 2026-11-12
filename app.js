@@ -230,14 +230,6 @@
     return s;
   }
 
-  function pageRole(id) {
-    const R = ROLE_PAGES[id], f = filled(), s0 = f.pct === 0;
-    const chip = id === 'roleResearch' ? '' : '<p class="rolechip"><span class="' + (f.pct === 100 ? 'ok' : '') + '">ข้อมูลโรงเรียนในเครื่องนี้: กรอกแล้ว ' + f.pct + '%</span>' + (s0 && id !== 'roleTeacher' ? ' <button class="btn gold sm" data-act="example">ดูผลตัวอย่างใน 1 คลิก</button>' : '') + '</p>';
-    return '<section class="phero hexbg"><div class="wrap"><span class="eyebrow">' + esc(R.eyebrow) + '</span><h1>' + esc(R.title) + '</h1><p>' + esc(R.lead) + '</p>' + chip + '</div></section>' +
-      '<section class="sec"><div class="wrap"><h2 class="t">ภารกิจของท่าน เรียงตามลำดับที่ใช้</h2><p class="t-sub">เลือกทีละข้อ แต่ละข้อเปิดหน้าที่ตรงกับงานนั้น ข้อมูลที่กรอกใช้ร่วมกันทุกบทบาท</p>' +
-      '<div class="mods rolemods">' + R.tasks.map((t, i) => '<div class="mod"><span class="rno">' + (i + 1) + '</span><h3>' + esc(t[1]) + '</h3><p>' + esc(t[2]) + '</p><a href="#' + t[0] + '" data-go="' + t[0] + '">เปิดหน้านี้ →</a></div>').join('') + '</div>' +
-      '<p class="fine">ต้นแบบเชิงวิจัย ผลของระบบเป็นข้อเสนอสนับสนุนการวางแผน ผู้อำนวยการเป็นผู้ตัดสินใจขั้นสุดท้าย ไม่ใช่เว็บไซต์ทางการของ สพฐ.</p></div></section>';
-  }
   // ---------- ฐานข้อมูลความเสี่ยง (ข้อประเมินและเกณฑ์) ----------
   function anchorList(title, anchors) {
     return '<div class="card"><h3>' + title + '</h3><ol style="padding-left:1.3em;margin:6px 0">' + anchors.map((a) => '<li value="' + a[0] + '">' + esc(a[1]) + '</li>').join('') + '</ol></div>';
@@ -274,8 +266,8 @@
   UIP.bind();
   const UI3 = RS_TOOL3.create({ S, D, E, esc, fmt, LOGO, getOut, go: (id) => go(id), render: (k) => render(k) }, UI.h);
   UI3.bind();
-  const UI4 = RS_DASH.create({ S, D, E, esc, fmt, getOut, filled, domFill, elFill, cd, mKey, STATUS, SHORT_EL, ROLE_PAGES }, UI.h);
-  const RENDER = Object.assign({ roleResearch: () => pageRole('roleResearch'), bank: pageBank, risk: pageRisk, rules: pageRules, about: pageAbout }, UI.pages, UI2.pages, UI3.pages, UI4.pages);
+  const UI4 = RS_DASH.create({ S, D, E, esc, fmt, getOut, filled, domFill, elFill, cd, mKey, STATUS, SHORT_EL, ROLE_PAGES, C: RS_COLLECT, guard: RS_DECISION.guard }, UI.h);
+  const RENDER = Object.assign({ bank: pageBank, risk: pageRisk, rules: pageRules, about: pageAbout }, UI.pages, UI2.pages, UI3.pages, UI4.pages);
   let cur = 'home';
   // ป๊อปอัปหลังพิมพ์หรือบันทึกแผน: เตือนให้นำข้อมูลที่ได้จากการใช้แผนมากรอกในโปรแกรม (หน้า #planrec) เพื่อให้ผู้วิจัยได้ข้อมูลตอบกลับ
   // จำหน้าที่ผู้ใช้อยู่ก่อนเข้าหน้าเอกสาร/พิมพ์ (รวมตำแหน่งเลื่อน) เพื่อให้ปุ่ม กลับไปหน้าเดิม พากลับมาที่แผนเดิมได้
@@ -318,7 +310,7 @@
     const p = PAGES.find((x) => x.id === cur);
     document.title = cur === 'home' ? 'Risk Safe ระบบบริหารความปลอดภัยบนฐานความเสี่ยง (ต้นแบบ)' : p.title + ' · Risk Safe ต้นแบบ';
     { const ro = roleOf(cur); if (ro) S.ui.role = ro; }
-    document.body.classList.toggle('dsh-on', cur === 'home' || ROLE_IDS.indexOf(cur) >= 0 && cur !== 'roleResearch');
+    document.body.classList.toggle('dsh-on', cur === 'home' || ROLE_IDS.indexOf(cur) >= 0);
     if (cur === 'home') $('#view').innerHTML = RENDER.home();
     else if (ROLE_IDS.indexOf(cur) >= 0) $('#view').innerHTML = RENDER[cur]();
     else if (PORTAL.indexOf(cur) >= 0) $('#view').innerHTML = RENDER[cur]();
@@ -369,6 +361,8 @@
     const a = t.dataset.act; if (!a) return;
     if (a === 'example') { loadExample(); go(['roleDir', 'roleDeputy', 'roleTeacher'].indexOf(cur) >= 0 ? cur : 'roleDir'); }
     else if (a === 'rolemenu') { const rb = $('#rolebox'); const o = rb.classList.toggle('open'); t.setAttribute('aria-expanded', String(o)); }
+    else if (a === 'cljump') { S.ui.clabTab = t.dataset.v || 'import'; go('collectlab'); }
+    else if (a === 'rdstage') { const i = +t.dataset.i, st = S.ui.rdStage = S.ui.rdStage || [0, 0, 0, 0]; st[i] = (st[i] + 1) % 3; render(true); }
     else if (a === 'approve') { S.ui.approval = { s: 'ok', at: Date.now() }; render(true); }
     else if (a === 'sendback') { S.ui.approval = { s: 'back', at: Date.now() }; render(true); }
     else if (a === 'approval-reset') { S.ui.approval = null; render(true); }

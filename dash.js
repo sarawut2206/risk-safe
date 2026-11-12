@@ -10,7 +10,7 @@
   const ROLE_LABEL = { roleDir: 'ผู้อำนวยการ', roleDeputy: 'รองผู้อำนวยการ', roleTeacher: 'ผู้รับผิดชอบงานความปลอดภัย', portal: 'โรงเรียนที่ร่วมวิจัย', roleResearch: 'ผู้วิจัย' };
 
   function create(c, h) {
-    const { S, D, E, esc, fmt, getOut, filled, STATUS, mKey, SHORT_EL, ROLE_PAGES } = c;
+    const { S, D, E, esc, fmt, getOut, filled, STATUS, mKey, SHORT_EL, ROLE_PAGES, C, guard } = c;
     const ic = h.ic, HZ = h.HZ;
     const dthai = (t) => new Date(t).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
 
@@ -66,15 +66,113 @@
         ['roleTeacher', 'clipboard', 'tch', 'ผู้รับผิดชอบ', 'กรอกข้อมูลโรงเรียน อัปเดตหลักฐาน และดำเนินมาตรการ'],
       ];
       const steps = [['ประเมินความเสี่ยง', 'L × C 4 ด้านของภัย'], ['ประเมินความพร้อม', 'McKinsey 7-S'], ['ระบบแนะนำกลยุทธ์', 'กลุ่ม R1–R9 + คลังมาตรการ'], ['นำไปใช้และติดตามผล', 'แผน ตัวชี้วัด บทเรียน']];
-      const helps = [['bars', 'วิเคราะห์โรงเรียนรายแห่ง', 'เห็นระดับความเสี่ยง ความพร้อม และประเด็นสำคัญของโรงเรียนอย่างชัดเจน'], ['shield', 'เลือกกลยุทธ์ให้เหมาะบริบท', 'เชื่อมโยงผลประเมินกับคลังมาตรการ เพื่อกำหนดแนวทางที่เหมาะสมตามทรัพยากรที่มี'], ['target', 'ติดตามการดำเนินงานและผลลัพธ์', 'วางแผน ดำเนินมาตรการ และติดตามความก้าวหน้า เพื่อยกระดับความปลอดภัยของโรงเรียน']];
-      return '<section class="dsh-hero home"><div class="wrap"><div class="dsh-ht"><h1>ระบบบริหารความปลอดภัยบนฐานความเสี่ยง<br>และความพร้อมของโรงเรียน</h1><p>เครื่องมือช่วยตัดสินใจและขับเคลื่อนกลยุทธ์สำหรับโรงเรียนมัธยมศึกษา</p><p class="dsh-sub2">ประเมินความเสี่ยง ประเมินความพร้อม เชื่อมโยงคลังกลยุทธ์ และช่วยตัดสินใจเชิงบริหาร (' + nItems + ' ข้อประเมิน)</p>' +
+      return '<section class="dsh-hero home"><div class="wrap"><div class="dsh-ht"><h1>ระบบบริหารความปลอดภัยบนฐานความเสี่ยง<br>และความพร้อมของโรงเรียน</h1><p>เครื่องมือช่วยตัดสินใจและขับเคลื่อนกลยุทธ์สำหรับโรงเรียนมัธยมศึกษา</p><p class="dsh-sub2">ประเมินความเสี่ยง ประเมินความพร้อม เชื่อมโยงคลังกลยุทธ์ และช่วยตัดสินใจเชิงบริหาร (' + nItems + ' ข้อประเมิน)</p><ul class="dsh-feat">' + ['ประเมินความเสี่ยง', 'วิเคราะห์ความพร้อม', 'เลือกกลยุทธ์ที่เหมาะสม', 'จัดทำแผนและติดตามผล'].map((x) => '<li>' + ic('check', 16) + x + '</li>').join('') + '</ul>' +
         '<div class="dsh-cta"><button class="dbtn gold lg" data-act="example">' + ic('bulb', 20) + '<span>ดูผลตัวอย่างใน 1 คลิก</span></button><button class="dbtn line lg" data-go="school"><span>เริ่มกรอกข้อมูลโรงเรียนของฉัน</span>' + ic('chev', 16) + '</button></div></div><div class="dsh-ill big" aria-hidden="true">' + h.SCHOOL + '</div></div></section>' +
         '<div class="wrap"><div class="dsh-stats four">' + stats.map((x) => '<div class="dsh-st ' + x[1] + '"><span class="dsh-si">' + ic(x[0], 30) + '</span><div><b>' + x[2] + '</b><small>' + x[3] + '</small></div></div>').join('') + '</div>' +
         '<h2 class="dsh-h2"><span>เริ่มใช้งานตามบทบาท</span></h2><div class="dsh-roles">' + roles.map((r) => '<div class="dsh-role ' + r[2] + '"><div class="dsh-ri">' + ic(r[1], 44) + '</div><div><h3>' + r[3] + '</h3><p>' + r[4] + '</p><button class="dbtn solid" data-go="' + r[0] + '"><span>เข้าสู่หน้าบทบาทนี้</span>' + ic('chev', 16) + '</button></div></div>').join('') + '</div>' +
         '<p class="dsh-more">บทบาทอื่น: <a href="#portal" data-go="portal">โรงเรียนที่ร่วมวิจัย (กรอกแบบเก็บข้อมูลด้วยรหัสโรงเรียน)</a> · <a href="#roleResearch" data-go="roleResearch">ผู้วิจัยและข้อมูลโครงการ</a></p>' +
         '<div class="dsh-flow"><div class="dsh-fh">กระบวนการใช้งานหลัก<br><small>(4 ขั้นตอน)</small></div>' + steps.map((s, i) => '<div class="dsh-fs"><b>' + (i + 1) + '</b><span>' + s[0] + '<small>' + s[1] + '</small></span></div>').join('<i class="dsh-arr">→</i>') + '</div>' +
-        '<h2 class="dsh-h2"><span>ภาพรวมสิ่งที่ระบบช่วยได้</span></h2><div class="dsh-helps">' + helps.map((x) => '<div class="dsh-help"><span class="dsh-hi">' + ic(x[0], 34) + '</span><div><h3>' + x[1] + '</h3><p>' + x[2] + '</p></div></div>').join('') + '</div>' +
+        overview() +
         '<div class="dsh-note"><b>ข้อควรทราบก่อนใช้งาน</b><ul><li>เกณฑ์ ตารางตัดสินใจ และคลังมาตรการเป็นร่างเริ่มต้น ยังไม่ผ่านเดลฟายและการตรวจ IOC ข้อมูลตัวอย่างเป็นโรงเรียนสมมติ</li><li>ผลของระบบเป็นข้อเสนอสนับสนุนการวางแผน ไม่ใช้ตัดสินหรือจัดอันดับโรงเรียน และไม่ใช้แทนการตอบสนองเหตุฉุกเฉิน</li><li>ข้อมูลที่กรอกประมวลผลในเบราว์เซอร์ของท่านเท่านั้นและหายเมื่อรีเฟรชหน้า (ดาวน์โหลดแฟ้มงานเก็บไว้ได้ที่หน้า ติดตามผล) อย่ากรอกชื่อบุคคลหรือรายละเอียดเหตุการณ์จริง</li></ul></div></div>';
+    }
+
+    // ---------- ภาพรวมสถานะของโรงเรียน (หน้าแรก): ข้อมูลของผู้ใช้ ถ้ายังไม่กรอกใช้โรงเรียนตัวอย่างสมมติและบอกชัดเจน ----------
+    const PALETTE = ['#e0594f', '#e8a23a', '#3b82c4', '#3fae7a'];
+    function donutSegs(vals, label, sub) {
+      const r = 46, L = 2 * Math.PI * r, tot = vals.reduce((a, b) => a + b, 0) || 1; let off = 0;
+      const arcs = vals.map((v, i) => { const len = L * v / tot, e = '<circle cx="60" cy="60" r="' + r + '" fill="none" stroke="' + PALETTE[i % 4] + '" stroke-width="16" stroke-dasharray="' + len.toFixed(1) + ' ' + (L - len).toFixed(1) + '" stroke-dashoffset="' + (-off).toFixed(1) + '" transform="rotate(-90 60 60)"/>'; off += len; return e; }).join('');
+      return '<svg class="dsh-dn" viewBox="0 0 120 120" role="img" aria-label="' + esc(label) + '">' + arcs + '<text x="60" y="58" text-anchor="middle" class="rv">' + esc(label) + '</text><text x="60" y="74" text-anchor="middle" class="rl">' + esc(sub || '') + '</text></svg>';
+    }
+    function miniMatrix(domains) {
+      const g = {}; domains.forEach((d) => { if (d.group) (g[d.group] = g[d.group] || []).push(d.code); });
+      let t = '<div class="dsh-mx"><span></span>' + ['ต่ำ', 'กลาง', 'สูง'].map((x) => '<b>พร้อม' + x + '</b>').join('');
+      ['สูง', 'กลาง', 'ต่ำ'].forEach((rk, ri) => { t += '<b class="rh">เสี่ยง' + rk + '</b>'; ['ต่ำ', 'กลาง', 'สูง'].forEach((rd, ci) => { const p = D.packages.find((x) => x.risk === rk && x.ready === rd); const has = g[p.code] || []; t += '<div class="mc r' + ri + (has.length ? ' cur' : '') + '" title="' + esc(p.name) + '"><b>' + p.code + '</b><small>' + has.map((x) => esc(x)).join(' ') + '</small></div>'; }); });
+      return t + '</div>';
+    }
+    function overview() {
+      const own = getOut(), mine = own.domains.some((d) => d.group);
+      const src = mine ? { o: own, name: S.school.name || 'โรงเรียนของท่าน', tagTxt: 'ข้อมูลของท่านในเครื่องนี้' } : { o: E.analyze({ risk: D.example.risk, seven: D.example.seven, resource: D.example.resource }, D, S.params, { guard }), name: 'โรงเรียนตัวอย่าง (สมมติ)', tagTxt: 'ตัวอย่าง: โรงเรียนสมมติ ไม่ใช่ข้อมูลจริง' };
+      const o = src.o, doms = o.domains.filter((d) => d.risk), cnt = (lv) => doms.filter((d) => d.risk === lv).length;
+      const w = doms.slice().sort((a, b) => RANK[b.risk] - RANK[a.risk] || b.rd - a.rd)[0];
+      const rds = doms.map((d) => (isFinite(d.rd) ? d.rd : 0)), tot = rds.reduce((a, b) => a + b, 0) || 1;
+      const st = (icon, tone, label, val, sub) => '<div class="dsh-ov ' + tone + '"><span class="dsh-si">' + ic(icon, 26) + '</span><div><small>' + label + '</small><b>' + val + '</b>' + (sub ? '<span class="dsh-sm">' + sub + '</span>' : '') + '</div></div>';
+      const top3 = (w ? w.measures : []).slice(0, 3);
+      return '<div class="dsh-ovh"><h2>' + ic('bars', 24) + ' ภาพรวมสถานะความปลอดภัยของโรงเรียน <span class="dsh-ex">' + esc(src.tagTxt) + '</span></h2></div><div class="dsh-ovs">' +
+        st('building', 'bl', 'โรงเรียน', esc(src.name), 'ปีการศึกษา ' + esc(S.school.year || '–')) + st('alert', 'tr', 'ความเสี่ยงสูง', cnt('สูง') + ' <em>ด้าน</em>', 'จาก 4 ด้านของภัย') + st('alert', 'ye', 'ความเสี่ยงปานกลาง', cnt('กลาง') + ' <em>ด้าน</em>', '') + st('check', 'gn', 'ความเสี่ยงต่ำ', cnt('ต่ำ') + ' <em>ด้าน</em>', '') + st('target', 'tl', 'ความพร้อมเฉลี่ย (D)', fmt(o.readyMean, 2) + ' <em>/ 5</em>', 'ระดับ' + esc(o.readyFinal || '–')) + '</div>' +
+        '<div class="dsh-ovg"><section class="dsh-pn nm"><h2 class="lt">แผนภาพความเสี่ยง–ความพร้อม (R1–R9)</h2><div class="dsh-pb">' + miniMatrix(o.domains) + '<p class="dsh-hint">ตัวอักษรในช่อง = ด้านของภัยที่อยู่ในกลุ่มนั้น (V ความรุนแรง · A อุบัติเหตุ · P ละเมิดสิทธิ · H สุขภาวะ)</p></div></section>' +
+        '<section class="dsh-pn nm"><h2 class="lt">สัดส่วนดัชนีความเสี่ยง 4 ด้าน</h2><div class="dsh-pb dsh-dnw">' + donutSegs(rds, doms.length + ' ด้าน', 'ดัชนี L × C') + '<ul class="dsh-lg">' + doms.map((d, i) => '<li><i style="background:' + PALETTE[i % 4] + '"></i><span>' + esc(HZ[d.code][0]) + '</span><b>' + Math.round(rds[i] / tot * 100) + '%</b></li>').join('') + '</ul></div></section>' +
+        '<section class="dsh-pn nm"><h2 class="lt">การใช้กลยุทธ์ (Strategy Bank)</h2><div class="dsh-pb"><div class="dsh-sbk"><div><small>กลยุทธ์ทั้งหมดในคลัง</small><b>' + D.bank.length + ' <em>รายการ</em></b></div><div class="dsh-t3"><small>กลยุทธ์ที่แนะนำ (Top 3 ของด้านที่เสี่ยงสูงสุด)</small><ol>' + top3.map((m) => '<li>' + esc(m.name) + '</li>').join('') + '</ol></div></div></div></section></div>' +
+        '<div class="dsh-quick"><b>' + ic('target', 22) + ' ใช้งานด่วน</b>' + [['rassess', 'alert', 'ประเมินความเสี่ยงของโรงเรียน'], ['ready', 'bars', 'ประเมินความพร้อม (7-S)'], ['strategy', 'target', 'เลือกกลยุทธ์ (R1–R9)'], ['plan', 'clipboard', 'จัดทำแผนปฏิบัติการ']].map((q) => '<button data-go="' + q[0] + '">' + ic(q[1], 22) + '<span>' + q[2] + '</span>' + ic('chev', 16) + '</button>').join('') + '</div>';
+    }
+
+    // ---------- แดชบอร์ดผู้วิจัย: แสดงจากไฟล์คำตอบที่นำเข้า (S.clab) บอกสถานะข้อมูลที่ได้แล้วและที่ยังรอ ----------
+    function rmodel() {
+      const L = S.clab, pl = L.payloads.filter((p) => L.mode === 'all' || p.mode === L.mode), schools = C.groupBySchool(pl), comp = C.completeness(pl, L.roster, D);
+      const prof = schools.map((x) => ({ s: x, a: C.aggregateSchool(x, D) })).filter((x) => x.a.complete).map((x) => ({ code: x.s.code, out: E.analyze(x.a.input, D, null, { guard }) }));
+      const mean = (a) => { const v = a.filter(isFinite); return v.length ? v.reduce((p, q) => p + q, 0) / v.length : NaN; };
+      const target = L.roster.length || schools.length, done = comp.filter((r) => r.complete).length, started = comp.filter((r) => r.started).length;
+      const man = S.ui.rdStage = S.ui.rdStage || [0, 0, 0, 0];
+      const auto2 = target ? (done === target ? 2 : started ? 1 : 0) : null, auto4 = S.lab.experts.length ? 1 : null;
+      const stage = [man[0], auto2 == null ? man[1] : auto2, man[2], auto4 == null ? man[3] : auto4];
+      return { L, pl, schools, comp, prof, target, done, started, mean, stage, auto: [false, auto2 != null, false, auto4 != null], respondents: schools.reduce((n, x) => n + Object.keys(x.q).length, 0), syn: pl.some((p) => p.synthetic), nonLive: pl.filter((p) => p.mode !== 'live').length };
+    }
+    const SIDE = [['roleResearch', 'home', 'แดชบอร์ดผู้วิจัย'], ['cl:import', 'upload', 'จัดการข้อมูลวิจัย (นำเข้า)'], ['lab', 'gear', 'ห้องวิเคราะห์ (เครื่องมือวิจัย)'], ['bank', 'doc', 'Strategy Bank'], ['cl:profiles', 'bars', 'วิเคราะห์ผล'], ['cl:export', 'download', 'รายงานผล (ส่งออก)'], ['evaluate', 'clipboard', 'ประเมินนวัตกรรม'], ['rules', 'target', 'กฎและเกณฑ์ (จัดการระบบ)']];
+    const sideNav = (cur) => '<nav class="rs-side" aria-label="เมนูผู้วิจัย">' + SIDE.map((x) => (x[0].indexOf('cl:') === 0 ? '<button data-act="cljump" data-v="' + x[0].slice(3) + '">' : '<button data-go="' + x[0] + '"' + (x[0] === cur ? ' aria-current="page"' : '') + '>') + ic(x[1], 20) + '<span>' + x[2] + '</span></button>').join('') + '</nav>';
+    function pageResearch() {
+      const m = rmodel(), L = m.L, n = m.prof.length, noteNone = '<p class="rs-none">' + ic('info', 18) + ' ยังไม่มีข้อมูลให้แสดง (ยังไม่มีโรงเรียนที่ตอบแบบสอบถามครบ 3 คน) นำเข้าไฟล์คำตอบหรือโหลดตัวอย่างสมมติเพื่อทดสอบเครื่องมือ</p>';
+      const stNames = [['วิเคราะห์และสังเคราะห์', 'เอกสาร / สัมภาษณ์'], ['สำรวจและวิเคราะห์', 'โรงเรียน / ผู้ให้ข้อมูล'], ['พัฒนาระบบ', 'กลยุทธ์ / R1–R9'], ['ตรวจสอบและปรับปรุง', 'ผู้ทรงคุณวุฒิ / กรณีตัวอย่าง']];
+      const stTxt = ['ยังไม่ระบุ', 'กำลังดำเนินการ', 'เสร็จแล้ว'], stPct = Math.round(m.stage.reduce((a, v) => a + (v === 2 ? 100 : v === 1 ? 50 : 0), 0) / 4);
+      const curSt = m.stage.findIndex((v) => v !== 2);
+
+      // 1 ภาพรวมโครงการ
+      const stats = '<div class="dsh-stats four rs">' +
+        '<div class="dsh-st bl"><span class="dsh-si">' + ic('building', 30) + '</span><div><small>โรงเรียนในกลุ่มศึกษา</small><b>' + (m.target || 0) + '<em>โรงเรียน</em></b><span class="dsh-sm">' + (L.roster.length ? 'ตามรายชื่อที่นำเข้า' : m.target ? 'นับจากโรงเรียนที่ส่งข้อมูล' : 'ยังไม่ได้นำเข้ารายชื่อ') + ' · ส่งแล้ว ' + m.started + ' · ครบทุกชุด ' + m.done + '</span></div></div>' +
+        '<div class="dsh-st gn"><span class="dsh-si">' + ic('people', 30) + '</span><div><small>ผู้ให้ข้อมูล (แบบสอบถาม)</small><b>' + m.respondents + '<em>คน</em></b><span class="dsh-sm">' + (m.target ? 'เป้าหมาย ' + m.target * 3 + ' คน (ผอ. / รองผอ. / ครู)' : 'ผอ. / รองผอ. / ครูผู้รับผิดชอบ') + '</span></div></div>' +
+        '<div class="dsh-st ye"><span class="dsh-si">' + ic('doc', 30) + '</span><div><small>กลยุทธ์ในคลัง (Strategy Bank)</small><b>' + D.bank.length + '<em>รายการ</em></b><span class="dsh-sm">ฉบับร่าง ยังไม่ผ่านเดลฟาย</span></div></div>' +
+        '<div class="dsh-st tl"><span class="dsh-si">' + ic('bars', 30) + '</span><div><small>สถานะการดำเนินงานวิจัย</small><b class="sm">' + (curSt < 0 ? 'ครบทุกระยะ' : 'ระยะที่ ' + (curSt + 1) + ' : ' + stNames[curSt][0]) + '</b><span class="rs-prg"><span class="dsh-bar"><i class="ok" style="width:' + stPct + '%"></i></span><b>' + stPct + '%</b></span></div></div></div>';
+
+      // 2 วิเคราะห์ข้อมูล
+      let anal;
+      if (!n) anal = noteNone;
+      else {
+        const rds = D.domains.map((d) => m.mean(m.prof.map((p) => p.out.domains.find((x) => x.code === d.code).rd)));
+        const rm = m.mean(m.prof.map((p) => p.out.readyMean)), lv = { 'สูง': 0, 'กลาง': 0, 'ต่ำ': 0 }; m.prof.forEach((p) => { if (p.out.readyFinal) lv[p.out.readyFinal]++; });
+        const pni = D.elements.map((e) => ({ code: e.code, v: m.mean(m.prof.map((p) => p.out.elements.find((x) => x.code === e.code).pni)) })).sort((a, b) => b.v - a.v), mxp = Math.max.apply(null, pni.map((x) => (isFinite(x.v) ? x.v : 0)).concat([0.001]));
+        const len = Math.PI * 70, arc = 'M20 90 A70 70 0 0 1 160 90';
+        anal = '<div class="rs-3"><section class="rs-sub"><h3>ภาพรวมความเสี่ยง (4 ด้านของภัย)</h3><div class="dsh-dnw">' + donutSegs(rds.map((v) => (isFinite(v) ? v : 0)), 'ดัชนีเฉลี่ย', n + ' โรงเรียน') + '<ul class="dsh-lg">' + D.domains.map((d, i) => '<li><i style="background:' + PALETTE[i % 4] + '"></i><span>' + esc(HZ[d.code][0]) + '</span><b>' + fmt(rds[i], 1) + '</b></li>').join('') + '</ul></div><p class="dsh-hint">สัดส่วนของวงกลมเทียบจากดัชนี L × C เฉลี่ยของ ' + n + ' โรงเรียนที่ข้อมูลครบ</p></section>' +
+          '<section class="rs-sub"><h3>ระดับความพร้อมของโรงเรียน (7-S)</h3><svg class="rs-gauge" viewBox="0 0 180 110" role="img" aria-label="ความพร้อมเฉลี่ย ' + fmt(rm, 2) + ' จาก 5"><path d="' + arc + '" fill="none" stroke="#dbe9f6" stroke-width="16" stroke-linecap="round"/><path d="' + arc + '" fill="none" stroke="#3fae7a" stroke-width="16" stroke-linecap="round" stroke-dasharray="' + (len * Math.max(0, Math.min(1, rm / 5))).toFixed(1) + ' ' + len.toFixed(1) + '"/><text x="90" y="86" text-anchor="middle" class="gv">' + fmt(rm, 2) + '</text><text x="90" y="104" text-anchor="middle" class="gl">/ 5</text></svg><p class="rs-lv">ความพร้อมระดับสูง ' + lv['สูง'] + ' · กลาง ' + lv['กลาง'] + ' · ต่ำ ' + lv['ต่ำ'] + ' โรงเรียน</p></section>' +
+          '<section class="rs-sub"><h3>ช่องว่างความพร้อม (PNI Modified เฉลี่ย)</h3>' + pni.map((x, i) => '<div class="dsh-rb s"><span>' + esc(SHORT_EL[x.code]) + '</span><span class="dsh-trk"><i class="' + (i < 3 ? 'mid' : 'blu') + '" style="width:' + Math.max(3, (isFinite(x.v) ? x.v : 0) / mxp * 100).toFixed(0) + '%"></i></span><b>' + fmt(x.v, 3) + '</b></div>').join('') + '</section></div>';
+      }
+
+      // 3 กลยุทธ์
+      const dist = {}; D.packages.forEach((p) => { dist[p.code] = 0; }); const perDom = {}; D.domains.forEach((d) => { perDom[d.code] = {}; });
+      m.prof.forEach((p) => p.out.domains.forEach((d) => { if (d.group) { dist[d.group]++; perDom[d.code][d.group] = (perDom[d.code][d.group] || 0) + 1; } }));
+      const h1 = D.domains.filter((d) => { const v = Object.keys(perDom[d.code]).map((k) => perDom[d.code][k]), tot = v.reduce((a, b) => a + b, 0); return tot && v.length >= 5 && Math.max.apply(null, v) / tot <= 0.5; }).length;
+      const cell = (rk, rd) => { const p = D.packages.find((x) => x.risk === rk && x.ready === rd); return '<div class="mc r' + ['สูง', 'กลาง', 'ต่ำ'].indexOf(rk) + (dist[p.code] ? ' cur' : '') + '" title="' + esc(p.name) + '"><b>' + p.code + '</b><small>' + dist[p.code] + ' ด้าน</small></div>'; };
+      const grid = '<div class="dsh-mx"><span></span>' + ['ต่ำ', 'กลาง', 'สูง'].map((x) => '<b>พร้อม' + x + '</b>').join('') + ['สูง', 'กลาง', 'ต่ำ'].map((rk) => '<b class="rh">เสี่ยง' + rk + '</b>' + ['ต่ำ', 'กลาง', 'สูง'].map((rd) => cell(rk, rd)).join('')).join('') + '</div>';
+      const evg = { A: 0, B: 0, C: 0, D: 0 }; D.bank.forEach((b) => { if (evg[b.evg] != null) evg[b.evg]++; });
+      const ph = {}; D.bank.forEach((b) => { ph[b.phase] = (ph[b.phase] || 0) + 1; });
+      const strat = '<div class="rs-2"><section class="rs-sub"><h3>ผลการจัดกลุ่ม R1–R9 (จำนวนด้าน × โรงเรียน)</h3>' + (n ? grid + '<p class="dsh-hint">นับจาก ' + n + ' โรงเรียน × 4 ด้าน = ' + n * 4 + ' ช่อง · สมมติฐาน H1 (กระจายอย่างน้อย 5 จาก 9 ช่อง ไม่เกินร้อยละ 50 ช่องเดียว) ผ่าน ' + h1 + ' จาก 4 ด้าน <button class="dlink dk" data-act="cljump" data-v="profiles">ดูรายละเอียด</button></p>' : noteNone) + '</section>' +
+        '<section class="rs-sub"><h3>คลังกลยุทธ์และตารางตัดสินใจ</h3><div class="rs-bank"><div><small>ระดับหลักฐานของมาตรการ</small>' + ['A', 'B', 'C', 'D'].map((g) => '<div class="dsh-fl"><span>ระดับ ' + g + '</span>' + bar(D.bank.length ? evg[g] / D.bank.length * 100 : 0, g === 'A' || g === 'B' ? 'ok' : '') + '<b>' + evg[g] + '</b></div>').join('') + '</div><div><small>จำนวนมาตรการตามระยะ</small>' + Object.keys(ph).map((k) => '<div class="dsh-fl"><span>' + esc(k) + '</span>' + bar(ph[k] / D.bank.length * 100) + '<b>' + ph[k] + '</b></div>').join('') + '</div></div><p class="dsh-hint"><button class="dlink dk" data-go="bank">เปิดคลังกลยุทธ์ ' + D.bank.length + ' รายการ</button> · <button class="dlink dk" data-go="rules">กฎและเกณฑ์ตัดสินใจ</button> · <button class="dlink dk" data-go="matrix">ตาราง R1–R9</button></p></section></div>';
+
+      // 4 ตรวจสอบคุณภาพ
+      const qc = [['ผู้ทรงคุณวุฒิที่ประเมิน', S.lab.experts.length, 'คน'], ['ผู้บริหารที่ตอบแบบประเมิน (SUS)', S.lab.admins.length, 'คน'], ['รายงานโรงเรียนในห้องวิเคราะห์', S.lab.reports.length, 'ฉบับ']];
+      const quality = '<div class="rs-q">' + qc.map((q) => '<div class="rs-qc"><small>' + q[0] + '</small><b>' + q[1] + '<em>' + q[2] + '</em></b>' + (q[1] ? '<span class="dsc go">มีข้อมูลนำเข้า</span>' : '<span class="dsc no">รอดำเนินการ</span>') + '</div>').join('') + '<div class="rs-qc"><small>ทดสอบเครื่องคำนวณเทียบ Excel</small><b>70<em>รายการ</em></b><span class="dsc ok">ผ่านแล้ว (โฟลเดอร์ tests)</span></div></div><p class="dsh-hint">แบบประเมินสำหรับผู้ทรงคุณวุฒิและผู้บริหารอยู่ที่หน้า <button class="dlink dk" data-go="evaluate">ประเมินนวัตกรรม</button> นำเข้าคำตอบมาดูผลที่ <button class="dlink dk" data-go="lab">ห้องวิเคราะห์</button></p>';
+
+      // 5 รายงาน
+      const rep = '<div class="rs-rep"><button class="dbtn solid" data-act="cljump" data-v="export">' + ic('download', 20) + '<span>ส่งออกตาราง CSV (รายผู้ตอบ / ระดับโรงเรียน / ความครบถ้วน)</span></button><button class="dbtn line" data-act="cljump" data-v="plans">' + ic('bars', 20) + '<span>ผลการใช้แผนของโรงเรียน</span></button><button class="dbtn line" data-go="track">' + ic('doc', 20) + '<span>แฟ้มงานและบทเรียน (ติดตามผล)</span></button></div><p class="dsh-hint">ตารางและกราฟในหน้านี้คำนวณใหม่ทุกครั้งจากไฟล์ที่นำเข้า (เบราว์เซอร์นี้เท่านั้น ไม่ส่งออกไปที่ใด) เมื่อรีเฟรชต้องนำเข้าใหม่ จึงควรส่งออก CSV เก็บไว้ทุกครั้งที่วิเคราะห์</p>';
+
+      // กระบวนการวิจัย
+      const proc = '<div class="dsh-flow rs-flow"><div class="dsh-fh">กระบวนการวิจัย<br><small>(R&amp;D : 4 ระยะ)</small></div>' + stNames.map((x, i) => '<div class="dsh-fs rs-fs ' + (m.stage[i] === 2 ? 'done' : i === curSt ? 'cur' : '') + '"><b>' + (i + 1) + '</b><span>' + x[0] + '<small>' + x[1] + '</small><em>' + stTxt[m.stage[i]] + (m.auto[i] ? ' (จากข้อมูลที่นำเข้า)' : '') + '</em></span>' + (m.auto[i] ? '' : '<button class="dlink dk" data-act="rdstage" data-i="' + i + '" aria-label="เปลี่ยนสถานะระยะที่ ' + (i + 1) + '">เปลี่ยน</button>') + '</div>').join('') + '</div>';
+
+      const quick = '<div class="dsh-quick rs-quick"><b>' + ic('target', 22) + ' ทางลัดการทำงาน</b>' + [['cl:import', 'clipboard', 'นำเข้าไฟล์คำตอบ'], ['cl:links', 'people', 'ลิงก์ผู้ตอบ'], ['bank', 'doc', 'จัดการ Strategy Bank'], ['cl:profiles', 'bars', 'วิเคราะห์ R1–R9'], ['cl:export', 'download', 'สร้างรายงาน']].map((q) => '<button ' + (q[0].indexOf('cl:') === 0 ? 'data-act="cljump" data-v="' + q[0].slice(3) + '"' : 'data-go="' + q[0] + '"') + '>' + ic(q[1], 22) + '<span>' + q[2] + '</span>' + ic('chev', 16) + '</button>').join('') + '</div>';
+
+      const warn = (m.syn ? '<p class="xw">' + ic('alert', 18) + ' <b>มีข้อมูลสมมติในรายการที่นำเข้า</b> ตัวเลขทั้งหมดใช้ทดสอบเครื่องมือเท่านั้น ไม่ใช่ผลวิจัย</p>' : m.nonLive ? '<p class="xw">' + ic('alert', 18) + ' มีไฟล์จากโหมดทดลอง ' + m.nonLive + ' ไฟล์ เลือกตัวกรองโหมดเป็น live ที่หน้านำเข้าเพื่อดูเฉพาะข้อมูลที่เก็บจริง</p>' : '');
+      const status = '<div class="rs-status"><span>' + ic('info', 16) + ' สถานะข้อมูล: ไฟล์คำตอบที่ใช้ ' + m.pl.length + ' ไฟล์ · โรงเรียนที่มีข้อมูลครบ 3 คน ' + n + ' แห่ง · รายชื่อโรงเรียน ' + L.roster.length + ' แห่ง</span><button class="dbtn gold sm" data-act="cljump" data-v="import">นำเข้าไฟล์</button><button class="dbtn line sm" data-act="cl-ex">โหลดตัวอย่างสมมติ (ทดสอบ)</button></div>';
+
+      const sec = (no, title, icon, body) => '<section class="dsh-pn rs"><h2>' + ic(icon, 22) + '<span>' + no + '. ' + title + '</span></h2><div class="dsh-pb">' + body + '</div></section>';
+      return '<div class="rs-wrap"><aside>' + sideNav('roleResearch') + '</aside><div class="rs-main"><header class="rs-hd"><span class="rs-flask">' + ic('bulb', 38) + '</span><div><h1>แดชบอร์ดผู้วิจัย <small>(Research Dashboard)</small></h1><p>ภาพรวมการดำเนินงานวิจัยและฐานข้อมูลโครงการ R²-SAFE · ใช้บริหารข้อมูลวิจัย วิเคราะห์ผล พัฒนาระบบ และตรวจสอบคุณภาพนวัตกรรม</p></div></header>' +
+        status + warn + stats + sec(1, 'ภาพรวมโครงการวิจัยและความก้าวหน้า', 'flag', proc) + sec(2, 'การวิเคราะห์ข้อมูล', 'bars', anal) + sec(3, 'การพัฒนากลยุทธ์', 'target', strat) + sec(4, 'การตรวจสอบคุณภาพระบบ', 'shieldcheck', quality) + sec(5, 'รายงานผลการวิจัย', 'download', rep) + quick + roleMenu('roleResearch') + '<p class="dsh-fine">ต้นแบบเชิงวิจัย แดชบอร์ดนี้แสดงเฉพาะข้อมูลที่นำเข้าในเครื่องนี้ ข้อมูลที่ยังไม่ได้เก็บแสดงเป็น รอดำเนินการ ไม่ใช้ตัวเลขสมมติแทน</p></div></div>';
     }
 
     // ---------- แดชบอร์ดผู้อำนวยการ ----------
@@ -209,7 +307,7 @@
       return page(s);
     }
 
-    return { pages: { home: pageHome, roleDir: pageDir, roleDeputy: pageDeputy, roleTeacher: pageTeacher } };
+    return { pages: { home: pageHome, roleDir: pageDir, roleDeputy: pageDeputy, roleTeacher: pageTeacher, roleResearch: pageResearch } };
   }
 
   const api = { create, ROLE_LABEL };
